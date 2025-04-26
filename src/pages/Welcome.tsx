@@ -2,7 +2,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
 
 const Welcome = () => {
   const modules = [
@@ -38,45 +37,20 @@ const Welcome = () => {
     }
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex flex-col justify-center items-center p-6">
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-12"
-      >
+      <div className="text-center mb-12">
         <h1 className="text-5xl font-bold text-gray-900 mb-4">
           Добро пожаловать в Kaspi Price
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Платформа для управления ценами, анализа продаж и увеличения прибыли на маркетплейсе Kaspi
         </p>
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl">
         {modules.map((module) => (
-          <motion.div key={module.path} variants={item}>
+          <div key={module.path} className="transition-all duration-300 hover:scale-105">
             <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
               <CardContent className="p-0">
                 <Link to={module.path}>
@@ -89,9 +63,9 @@ const Welcome = () => {
                 </Link>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
