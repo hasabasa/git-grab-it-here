@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { Niche } from "@/types";
 
 interface NicheProductsListProps {
-  products: any[];
+  products: Niche[];
 }
 
 const NicheProductsList = ({ products }: NicheProductsListProps) => {

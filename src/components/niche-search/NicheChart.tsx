@@ -12,11 +12,12 @@ import {
   Area,
   Bar,
   BarChart,
-  ComposedChart
+  ComposedChart,
+  TooltipProps
 } from "recharts";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface NicheChartProps {
   data: any[];
@@ -54,8 +55,8 @@ const NicheChart = ({ data }: NicheChartProps) => {
             <XAxis dataKey="month" />
             <YAxis yAxisId="left" orientation="left" />
             <YAxis yAxisId="right" orientation="right" />
-            <Tooltip content={(props) => <ChartTooltipContent {...props} />} />
-            <Legend content={(props) => <ChartLegendContent {...props} nameKey="dataKey" />} />
+            <Tooltip />
+            <Legend />
             <Area 
               yAxisId="left"
               type="monotone"
@@ -85,8 +86,8 @@ const NicheChart = ({ data }: NicheChartProps) => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip content={(props) => <ChartTooltipContent {...props} />} />
-            <Legend content={(props) => <ChartLegendContent {...props} nameKey="dataKey" />} />
+            <Tooltip />
+            <Legend />
             <Bar dataKey="demand" name="Продажи (шт)" fill="#8884d8" />
             <Bar dataKey="supply" name="Продажи (₸)" fill="#82ca9d" />
           </BarChart>
@@ -101,8 +102,8 @@ const NicheChart = ({ data }: NicheChartProps) => {
             <XAxis dataKey="month" />
             <YAxis yAxisId="left" orientation="left" />
             <YAxis yAxisId="right" orientation="right" />
-            <Tooltip content={(props) => <ChartTooltipContent {...props} />} />
-            <Legend content={(props) => <ChartLegendContent {...props} nameKey="dataKey" />} />
+            <Tooltip />
+            <Legend />
             <Bar yAxisId="left" dataKey="demand" name="Продажи (шт)" fill="#8884d8" />
             <Line yAxisId="right" type="monotone" dataKey="supply" name="Продажи (₸)" stroke="#82ca9d" />
           </ComposedChart>
@@ -117,8 +118,8 @@ const NicheChart = ({ data }: NicheChartProps) => {
             <XAxis dataKey="month" />
             <YAxis yAxisId="left" orientation="left" />
             <YAxis yAxisId="right" orientation="right" />
-            <Tooltip content={(props) => <ChartTooltipContent {...props} />} />
-            <Legend content={(props) => <ChartLegendContent {...props} nameKey="dataKey" />} />
+            <Tooltip />
+            <Legend />
             <Line 
               yAxisId="left" 
               type="monotone" 

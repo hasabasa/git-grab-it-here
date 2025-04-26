@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import NicheChart from "@/components/niche-search/NicheChart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockNiches } from "@/data/mockData";
-import { kaspiCommissions } from "@/data/mockData";
+import { mockNiches, mockGoldCommissions } from "@/data/mockData";
 import NicheProductsList from "@/components/niche-search/NicheProductsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Получаем уникальные категории из комиссий Kaspi
-const categories = [...new Set(kaspiCommissions.map(commission => commission.category))];
+const categories = [...new Set(mockGoldCommissions.map(commission => commission.category))];
 
 const NicheSearchPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || "");
