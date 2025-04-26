@@ -20,6 +20,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const KaspiIntegration = () => {
   const [stores, setStores] = useState<KaspiStore[]>([]);
@@ -107,20 +113,38 @@ const KaspiIntegration = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button 
-              onClick={() => handleSync(store.id)}
-              disabled={isSyncing === store.id}
-              className="flex-1 mr-2"
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
-              {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => handleRemoveStore(store.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    onClick={() => handleSync(store.id)}
+                    disabled={isSyncing === store.id}
+                    className="flex-1 mr-2"
+                  >
+                    <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
+                    {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Импортировать товары из магазина Kaspi
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleRemoveStore(store.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Отключить магазин
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </CardFooter>
         </Card>
       ))}
@@ -128,10 +152,19 @@ const KaspiIntegration = () => {
       <Collapsible open={isAddingStore} onOpenChange={setIsAddingStore}>
         <CollapsibleTrigger asChild>
           {!isAddingStore && (
-            <Button className="w-full">
-              <Plus className="mr-2 h-4 w-4" />
-              Подключить новый магазин
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="w-full">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Подключить новый магазин
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Добавить новый магазин Kaspi
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </CollapsibleTrigger>
         <CollapsibleContent>
