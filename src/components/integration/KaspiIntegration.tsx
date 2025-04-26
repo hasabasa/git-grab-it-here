@@ -20,9 +20,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "./useAuth"; // Новый хук для авторизации
 
 const KaspiIntegration = () => {
+  const { user, signIn, signUp } = useAuth();
   const [stores, setStores] = useState<KaspiStore[]>([]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isAddingStore, setIsAddingStore] = useState(false);
   const [newStoreName, setNewStoreName] = useState("");
   const [newMerchantId, setNewMerchantId] = useState("");
@@ -55,8 +59,8 @@ const KaspiIntegration = () => {
   };
 
   const handleAddStore = () => {
-    if (!newStoreName || !newMerchantId || !apiKey) {
-      toast.error("Пожалуйста, заполните все поля");
+    if (!user) {
+      toast.error("Пожалуйста, войдите в аккаунт");
       return;
     }
 
@@ -64,6 +68,7 @@ const KaspiIntegration = () => {
       id: Date.now().toString(),
       merchantId: newMerchantId,
       name: newStoreName,
+      userId: user.id, // Привязка магазина к пользователю
       productsCount: 0,
       lastSync: new Date().toISOString(),
       isActive: true
@@ -95,6 +100,61 @@ const KaspiIntegration = () => {
       ));
     }, 2000);
   };
+
+  const handleSignIn = async () => {
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      toast.error("Ошибка входа");
+    }
+  };
+
+  const handleSignUp = async () => {
+    try {
+      await signUp(email, password);
+    } catch (error) {
+      toast.error("Ошибка регистрации");
+    }
+  };
+
+  if (!user) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Вход в систему</CardTitle>
+          <CardDescription>
+            Добавляйте и управляйте магазинами Kaspi
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Email</Label>
+            <Input 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+            />
+          </div>
+          <div>
+            <Label>Пароль</Label>
+            <Input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" onClick={handleSignUp}>
+            Регистрация
+          </Button>
+          <Button onClick={handleSignIn}>
+            Войти
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <TooltipProvider>
