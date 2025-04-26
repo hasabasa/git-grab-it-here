@@ -146,81 +146,73 @@ const KaspiIntegration = () => {
           </Card>
         ))}
 
-        <Collapsible open={isAddingStore} onOpenChange={setIsAddingStore}>
-          <CollapsibleTrigger asChild>
-            {!isAddingStore && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Подключить новый магазин
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Добавить новый магазин Kaspi
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <Card>
-              <CardHeader>
-                <CardTitle>Новый магазин</CardTitle>
-                <CardDescription>
-                  Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="store-name">Название магазина</Label>
-                    <Input
-                      id="store-name"
-                      placeholder="Введите название магазина"
-                      value={newStoreName}
-                      onChange={(e) => setNewStoreName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="merchant-id">ID Магазина</Label>
-                    <Input
-                      id="merchant-id"
-                      placeholder="Введите ID вашего магазина на Kaspi"
-                      value={newMerchantId}
-                      onChange={(e) => setNewMerchantId(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="api-key">API Ключ</Label>
-                    <Input
-                      id="api-key"
-                      type="password"
-                      placeholder="Введите API ключ"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500">
-                      API ключ можно получить в личном кабинете продавца Kaspi
-                    </p>
-                  </div>
+        {/* Fixed the collapsible and button issue */}
+        {!isAddingStore ? (
+          <Button 
+            className="w-full" 
+            onClick={() => setIsAddingStore(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Подключить новый магазин
+          </Button>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Новый магазин</CardTitle>
+              <CardDescription>
+                Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="store-name">Название магазина</Label>
+                  <Input
+                    id="store-name"
+                    placeholder="Введите название магазина"
+                    value={newStoreName}
+                    onChange={(e) => setNewStoreName(e.target.value)}
+                  />
                 </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsAddingStore(false)}
-                  className="mr-2"
-                >
-                  Отмена
-                </Button>
-                <Button onClick={handleAddStore}>
-                  <Link2 className="mr-2 h-4 w-4" />
-                  Подключить магазин
-                </Button>
-              </CardFooter>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
+                <div className="space-y-2">
+                  <Label htmlFor="merchant-id">ID Магазина</Label>
+                  <Input
+                    id="merchant-id"
+                    placeholder="Введите ID вашего магазина на Kaspi"
+                    value={newMerchantId}
+                    onChange={(e) => setNewMerchantId(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="api-key">API Ключ</Label>
+                  <Input
+                    id="api-key"
+                    type="password"
+                    placeholder="Введите API ключ"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    API ключ можно получить в личном кабинете продавца Kaspi
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddingStore(false)}
+                className="mr-2"
+              >
+                Отмена
+              </Button>
+              <Button onClick={handleAddStore}>
+                <Link2 className="mr-2 h-4 w-4" />
+                Подключить магазин
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </TooltipProvider>
   );
