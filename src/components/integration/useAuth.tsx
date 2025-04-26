@@ -11,8 +11,13 @@ export const useAuth = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const session = supabase.auth.getSession();
-    setUser(session?.user || null);
+    // Correctly handle the Promise returned by getSession
+    const fetchSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user || null);
+    };
+    
+    fetchSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
