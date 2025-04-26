@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,19 +7,89 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { motion } from "framer-motion";
 import { mockCompetitors } from "@/data/mockData";
 import { Competitor } from "@/types";
+import { toast } from "sonner";
+import { fetchCompetitors, updateProductPrice } from "@/lib/salesUtils";
 
 interface CompetitorsListProps {
   productId: number;
 }
 
 const CompetitorsList = ({ productId }: CompetitorsListProps) => {
-  const [competitors, setCompetitors] = useState(
-    mockCompetitors.filter(comp => comp.productId === productId)
-  );
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null); // В реальном приложении получаем из хранилища
 
-  const handleSetPrice = (competitorId: number) => {
-    console.log("Setting price based on competitor:", competitorId);
+  useEffect(() => {
+    // Загрузка конкурентов при изменении выбранного товара
+    const loadCompetitors = async () => {
+      setIsLoading(true);
+      try {
+        // Для демонстрации используем мок данные
+        const mockData = mockCompetitors.filter(comp => comp.productId === productId);
+        setCompetitors(mockData);
+        
+        // В реальном приложении используем API
+        /*
+        if (!apiKey) {
+          toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
+          return;
+        }
+        const result = await fetchCompetitors(productId, apiKey);
+        setCompetitors(result.data);
+        */
+      } catch (error) {
+        console.error("Error loading competitors:", error);
+        toast.error("Ошибка при загрузке конкурентов");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadCompetitors();
+  }, [productId]);
+
+  const handleSetPrice = async (competitorId: number) => {
+    const competitor = competitors.find(c => c.id === competitorId);
+    if (!competitor) return;
+    
+    try {
+      // Устанавливаем цену на 1 тенге ниже, чем у конкурента
+      const newPrice = competitor.price - 1;
+      
+      // Для демонстрации показываем уведомление
+      toast.success(`Цена обновлена до ${newPrice.toLocaleString()} ₸`);
+      
+      // В реальном приложении отправляем запрос на обновление цены
+      /*
+      if (!apiKey) {
+        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
+        return;
+      }
+      await updateProductPrice(productId, newPrice, apiKey);
+      */
+      
+      // Обновляем UI, чтобы показать, что цена изменилась
+      // Этот код для демонстрации, в реальном приложении нужно обновить данные из API
+      const updatedCompetitors = competitors.map(c => {
+        if (c.id === competitor.id) {
+          return { ...c, priceChange: -1 };
+        }
+        return c;
+      });
+      setCompetitors(updatedCompetitors);
+    } catch (error) {
+      console.error("Error updating price:", error);
+      toast.error("Ошибка при обновлении цены");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

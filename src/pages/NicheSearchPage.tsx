@@ -6,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { mockNiches, mockGoldCommissions } from "@/data/mockData";
 import NicheProductsList from "@/components/niche-search/NicheProductsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { searchNiches } from "@/lib/salesUtils";
 
 // Получаем уникальные категории из комиссий Kaspi
 const categories = [...new Set(mockGoldCommissions.map(commission => commission.category))];
@@ -15,21 +18,56 @@ const NicheSearchPage = () => {
   const [products, setProducts] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState("products");
+  const [apiKey, setApiKey] = useState<string | null>(null); // В реальном приложении получаем из хранилища
 
-  // Получаем товары по категории
-  useEffect(() => {
-    if (selectedCategory) {
-      setIsLoading(true);
+  // Функция для поиска ниш с использованием API
+  const fetchNiches = async (category: string) => {
+    setIsLoading(true);
+    
+    try {
+      // Для демонстрации используем мок данные с задержкой
+      // В реальном приложении здесь будет вызов API через searchNiches
       
-      // Имитация загрузки данных с сервера
       setTimeout(() => {
         const categoryProducts = mockNiches.filter(niche => 
-          niche.category === selectedCategory
+          niche.category === category
         );
         
         setProducts(categoryProducts);
         setIsLoading(false);
+        
+        if (categoryProducts.length === 0) {
+          toast.info("В выбранной категории не найдено товаров");
+        } else {
+          toast.success(`Найдено ${categoryProducts.length} товаров`);
+        }
       }, 800);
+      
+      // Закомментированный код для реального API
+      /*
+      if (!apiKey) {
+        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
+        setIsLoading(false);
+        return;
+      }
+      
+      const result = await searchNiches(category, apiKey);
+      setProducts(result.data);
+      toast.success(`Найдено ${result.data.length} товаров`);
+      */
+    } catch (error) {
+      console.error("Error fetching niches:", error);
+      toast.error("Ошибка при поиске ниш");
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Получаем товары по категории
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchNiches(selectedCategory);
     }
   }, [selectedCategory]);
 
@@ -47,21 +85,31 @@ const NicheSearchPage = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <Select 
-              value={selectedCategory} 
-              onValueChange={setSelectedCategory}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Выберите категорию" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-4">
+              <Select 
+                value={selectedCategory} 
+                onValueChange={setSelectedCategory}
+                disabled={isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Выберите категорию" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Button 
+                onClick={() => fetchNiches(selectedCategory)} 
+                disabled={isLoading || !selectedCategory}
+              >
+                {isLoading ? "Загрузка..." : "Обновить"}
+              </Button>
+            </div>
             
             {isLoading ? (
               <div className="flex justify-center py-8">
