@@ -1,6 +1,7 @@
 
 import { MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SubscriptionBadge from "@/components/subscription/SubscriptionBadge";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -23,6 +24,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       </div>
       
       <div className="flex items-center gap-4">
+        <SubscriptionBadge plan="free" daysLeft={0} />
         <Button variant="outline" size="sm">
           Помощь
         </Button>

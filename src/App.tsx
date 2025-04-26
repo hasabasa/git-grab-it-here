@@ -11,6 +11,8 @@ import SalesPage from "./pages/SalesPage";
 import UnitEconomicsPage from "./pages/UnitEconomicsPage";
 import CrmPage from "./pages/CrmPage";
 import NicheSearchPage from "./pages/NicheSearchPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
+import IntegrationPage from "./pages/IntegrationPage";
 import NotFound from "./pages/NotFound";
 import { MotionConfig } from "framer-motion";
 
@@ -29,6 +31,8 @@ const App = () => (
               <Route path="/unit-economics" element={<UnitEconomicsPage />} />
               <Route path="/crm" element={<CrmPage />} />
               <Route path="/niche-search" element={<NicheSearchPage />} />
+              <Route path="/subscription" element={<SubscriptionPage />} />
+              <Route path="/integrations" element={<IntegrationPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

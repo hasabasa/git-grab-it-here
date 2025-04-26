@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, BarChart2, Search, Calendar, ClipboardList } from "lucide-react";
+import { ArrowLeft, ArrowRight, BarChart2, Search, Calendar, ClipboardList, Crown, Link2 } from "lucide-react";
 import Calculator from "@/components/icons/Calculator";
 import { Button } from "@/components/ui/button";
 
@@ -38,6 +38,16 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       title: "Поиск ниш",
       icon: Search,
       path: "/niche-search",
+    },
+    {
+      title: "Тарифы",
+      icon: Crown,
+      path: "/subscription",
+    },
+    {
+      title: "Интеграции",
+      icon: Link2,
+      path: "/integrations",
     },
   ];
 
