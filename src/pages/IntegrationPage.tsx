@@ -16,7 +16,6 @@ const IntegrationPage = () => {
       <Tabs defaultValue="kaspi">
         <TabsList>
           <TabsTrigger value="kaspi">Kaspi.kz</TabsTrigger>
-          <TabsTrigger value="other" disabled>Другие платформы</TabsTrigger>
         </TabsList>
         <TabsContent value="kaspi" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -65,3 +64,4 @@ const IntegrationPage = () => {
 };
 
 export default IntegrationPage;
+
