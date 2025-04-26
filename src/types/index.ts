@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number;
   name: string;
@@ -70,4 +69,13 @@ export interface Niche {
     demand: number;
     supply: number;
   }>;
+}
+
+export interface KaspiStore {
+  id: string;
+  merchantId: string;
+  name: string;
+  productsCount: number;
+  lastSync: string;
+  isActive: boolean;
 }

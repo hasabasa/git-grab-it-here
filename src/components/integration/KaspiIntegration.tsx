@@ -13,131 +13,187 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Link2, RefreshCw, ShoppingCart } from "lucide-react";
+import { Link2, Package, Plus, RefreshCw, Store, Trash2 } from "lucide-react";
+import { KaspiStore } from "@/types";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const KaspiIntegration = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [stores, setStores] = useState<KaspiStore[]>([]);
+  const [isAddingStore, setIsAddingStore] = useState(false);
+  const [newStoreName, setNewStoreName] = useState("");
+  const [newMerchantId, setNewMerchantId] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [merchantId, setMerchantId] = useState("");
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncing, setIsSyncing] = useState<string | null>(null);
 
-  const handleConnect = () => {
-    if (!apiKey || !merchantId) {
+  const handleAddStore = () => {
+    if (!newStoreName || !newMerchantId || !apiKey) {
       toast.error("Пожалуйста, заполните все поля");
       return;
     }
-    
-    // В реальном приложении здесь будет проверка API ключа
-    setIsConnected(true);
+
+    const newStore: KaspiStore = {
+      id: Date.now().toString(),
+      merchantId: newMerchantId,
+      name: newStoreName,
+      productsCount: 0,
+      lastSync: new Date().toISOString(),
+      isActive: true
+    };
+
+    setStores([...stores, newStore]);
+    setIsAddingStore(false);
+    setNewStoreName("");
+    setNewMerchantId("");
+    setApiKey("");
     toast.success("Магазин успешно подключен!");
   };
 
-  const handleDisconnect = () => {
-    setIsConnected(false);
-    setApiKey("");
-    setMerchantId("");
+  const handleRemoveStore = (storeId: string) => {
+    setStores(stores.filter(store => store.id !== storeId));
     toast("Магазин отключен");
   };
 
-  const handleSync = () => {
-    if (!isConnected) {
-      toast.error("Сначала подключите магазин");
-      return;
-    }
-    
-    setIsSyncing(true);
-    
-    // Имитация синхронизации
+  const handleSync = (storeId: string) => {
+    setIsSyncing(storeId);
     setTimeout(() => {
-      setIsSyncing(false);
+      setIsSyncing(null);
       toast.success("Товары успешно синхронизированы");
+      // Обновляем количество товаров для демонстрации
+      setStores(stores.map(store => 
+        store.id === storeId 
+          ? { ...store, productsCount: store.productsCount + 147, lastSync: new Date().toISOString() }
+          : store
+      ));
     }, 2000);
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Интеграция с Kaspi</CardTitle>
-          {isConnected && (
-            <Badge className="bg-green-500">Подключено</Badge>
-          )}
-        </div>
-        <CardDescription>
-          Подключите ваш магазин Kaspi.kz для автоматического импорта товаров и управления ценами
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {!isConnected ? (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="merchant-id">ID Магазина</Label>
-              <Input
-                id="merchant-id"
-                placeholder="Введите ID вашего магазина на Kaspi"
-                value={merchantId}
-                onChange={(e) => setMerchantId(e.target.value)}
-              />
+    <div className="space-y-6">
+      {stores.map(store => (
+        <Card key={store.id}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Store className="h-5 w-5 text-orange-500" />
+                <CardTitle>{store.name}</CardTitle>
+              </div>
+              <Badge className="bg-green-500">Подключено</Badge>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="api-key">API Ключ</Label>
-              <Input
-                id="api-key"
-                type="password"
-                placeholder="Введите API ключ"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-              <p className="text-xs text-gray-500">
-                API ключ можно получить в личном кабинете продавца Kaspi
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
+            <CardDescription>
+              ID магазина: {store.merchantId}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium text-gray-500">ID Магазина</div>
-                <div className="mt-1 font-medium">{merchantId}</div>
+                <div className="text-sm font-medium text-gray-500">Товаров</div>
+                <div className="mt-1 font-medium">{store.productsCount}</div>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium text-gray-500">Товаров</div>
-                <div className="mt-1 font-medium">147</div>
+                <div className="text-sm font-medium text-gray-500">Последняя синхронизация</div>
+                <div className="mt-1 font-medium">
+                  {new Date(store.lastSync).toLocaleString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <ShoppingCart className="h-4 w-4 text-orange-500" />
-              <span className="text-sm">Последняя синхронизация: сегодня, 14:30</span>
-            </div>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        {!isConnected ? (
-          <Button onClick={handleConnect} className="w-full">
-            <Link2 className="mr-2 h-4 w-4" />
-            Подключить магазин
-          </Button>
-        ) : (
-          <div className="flex w-full space-x-2">
+          </CardContent>
+          <CardFooter className="flex justify-between">
             <Button 
-              onClick={handleSync} 
-              className="flex-1"
-              disabled={isSyncing}
+              onClick={() => handleSync(store.id)}
+              disabled={isSyncing === store.id}
+              className="flex-1 mr-2"
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Синхронизация...' : 'Синхронизировать товары'}
+              <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
+              {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
             </Button>
             <Button 
               variant="outline" 
-              onClick={handleDisconnect}
+              onClick={() => handleRemoveStore(store.id)}
             >
-              Отключить
+              <Trash2 className="h-4 w-4" />
             </Button>
-          </div>
-        )}
-      </CardFooter>
-    </Card>
+          </CardFooter>
+        </Card>
+      ))}
+
+      <Collapsible open={isAddingStore} onOpenChange={setIsAddingStore}>
+        <CollapsibleTrigger asChild>
+          {!isAddingStore && (
+            <Button className="w-full">
+              <Plus className="mr-2 h-4 w-4" />
+              Подключить новый магазин
+            </Button>
+          )}
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Новый магазин</CardTitle>
+              <CardDescription>
+                Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="store-name">Название магазина</Label>
+                  <Input
+                    id="store-name"
+                    placeholder="Введите название магазина"
+                    value={newStoreName}
+                    onChange={(e) => setNewStoreName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="merchant-id">ID Магазина</Label>
+                  <Input
+                    id="merchant-id"
+                    placeholder="Введите ID вашего магазина на Kaspi"
+                    value={newMerchantId}
+                    onChange={(e) => setNewMerchantId(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="api-key">API Ключ</Label>
+                  <Input
+                    id="api-key"
+                    type="password"
+                    placeholder="Введите API ключ"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    API ключ можно получить в личном кабинете продавца Kaspi
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddingStore(false)}
+                className="mr-2"
+              >
+                Отмена
+              </Button>
+              <Button onClick={handleAddStore}>
+                <Link2 className="mr-2 h-4 w-4" />
+                Подключить магазин
+              </Button>
+            </CardFooter>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 };
 
