@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Link2, Package, Plus, RefreshCw, Store, Trash2 } from "lucide-react";
+import { Link2, Package, Plus, RefreshCw, Store, Trash2, AlertTriangle } from "lucide-react";
 import { KaspiStore } from "@/types";
 import {
   Tooltip,
@@ -23,7 +24,7 @@ import {
 import { useAuth } from "./useAuth"; // Новый хук для авторизации
 
 const KaspiIntegration = () => {
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, isSupabaseConfigured } = useAuth();
   const [stores, setStores] = useState<KaspiStore[]>([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -116,6 +117,37 @@ const KaspiIntegration = () => {
       toast.error("Ошибка регистрации");
     }
   };
+
+  // Show error message if Supabase is not configured
+  if (!isSupabaseConfigured) {
+    return (
+      <Card className="border-yellow-300 bg-yellow-50">
+        <CardHeader>
+          <div className="flex items-center gap-2 text-yellow-600">
+            <AlertTriangle />
+            <CardTitle>Требуется настройка Supabase</CardTitle>
+          </div>
+          <CardDescription>
+            Для работы с аутентификацией необходимо настроить подключение к Supabase
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm">
+            Чтобы использовать функции авторизации и хранения данных, необходимо установить следующие переменные окружения:
+          </p>
+          <div className="mt-4 p-4 bg-gray-100 rounded-md font-mono text-xs">
+            <p>VITE_SUPABASE_URL=ваш_url_supabase</p>
+            <p>VITE_SUPABASE_ANON_KEY=ваш_anon_key_supabase</p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button variant="outline" onClick={() => toast.info("Для настройки переменных окружения обратитесь к документации.")}>
+            Подробнее
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   if (!user) {
     return (
