@@ -1,7 +1,8 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, BarChart2, Search, Calendar, ClipboardList, Settings } from "lucide-react";
+import { ArrowLeft, ArrowRight, BarChart2, Search, Calendar, ClipboardList } from "lucide-react";
+import Calculator from "@/components/icons/Calculator";
 import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
