@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +15,6 @@ import { toast } from "sonner";
 import { Link2, Package, Plus, RefreshCw, Store, Trash2 } from "lucide-react";
 import { KaspiStore } from "@/types";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -34,6 +28,31 @@ const KaspiIntegration = () => {
   const [newMerchantId, setNewMerchantId] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [isSyncing, setIsSyncing] = useState<string | null>(null);
+  const [isLoadingStoreName, setIsLoadingStoreName] = useState(false);
+
+  const fetchStoreName = async (merchantId: string) => {
+    // Имитация API запроса
+    setIsLoadingStoreName(true);
+    try {
+      // В реальном приложении здесь был бы запрос к API Kaspi
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const mockStoreName = `Магазин ${merchantId}`;
+      setNewStoreName(mockStoreName);
+      toast.success("Название магазина получено");
+    } catch (error) {
+      toast.error("Не удалось получить название магазина");
+    } finally {
+      setIsLoadingStoreName(false);
+    }
+  };
+
+  const handleMerchantIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMerchantId(value);
+    if (value.length >= 5) { // Предполагаем, что ID магазина должен быть минимум 5 символов
+      fetchStoreName(value);
+    }
+  };
 
   const handleAddStore = () => {
     if (!newStoreName || !newMerchantId || !apiKey) {
@@ -146,7 +165,6 @@ const KaspiIntegration = () => {
           </Card>
         ))}
 
-        {/* Fixed the collapsible and button issue */}
         {!isAddingStore ? (
           <Button 
             className="w-full" 
@@ -166,22 +184,28 @@ const KaspiIntegration = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="store-name">Название магазина</Label>
-                  <Input
-                    id="store-name"
-                    placeholder="Введите название магазина"
-                    value={newStoreName}
-                    onChange={(e) => setNewStoreName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="merchant-id">ID Магазина</Label>
                   <Input
                     id="merchant-id"
                     placeholder="Введите ID вашего магазина на Kaspi"
                     value={newMerchantId}
-                    onChange={(e) => setNewMerchantId(e.target.value)}
+                    onChange={handleMerchantIdChange}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="store-name">Название магазина</Label>
+                  <Input
+                    id="store-name"
+                    placeholder="Название магазина будет получено автоматически"
+                    value={newStoreName}
+                    onChange={(e) => setNewStoreName(e.target.value)}
+                    disabled={isLoadingStoreName}
+                  />
+                  {isLoadingStoreName && (
+                    <p className="text-xs text-gray-500">
+                      Получение названия магазина...
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="api-key">API Ключ</Label>
@@ -201,12 +225,20 @@ const KaspiIntegration = () => {
             <CardFooter className="flex justify-between">
               <Button 
                 variant="outline" 
-                onClick={() => setIsAddingStore(false)}
+                onClick={() => {
+                  setIsAddingStore(false);
+                  setNewStoreName("");
+                  setNewMerchantId("");
+                  setApiKey("");
+                }}
                 className="mr-2"
               >
                 Отмена
               </Button>
-              <Button onClick={handleAddStore}>
+              <Button 
+                onClick={handleAddStore}
+                disabled={isLoadingStoreName}
+              >
                 <Link2 className="mr-2 h-4 w-4" />
                 Подключить магазин
               </Button>
