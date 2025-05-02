@@ -55,7 +55,8 @@ const KaspiIntegration = () => {
       
       if (error) throw error;
       
-      setStores(data || []);
+      // Устанавливаем данные магазинов
+      setStores(data as KaspiStore[] || []);
     } catch (error: any) {
       console.error('Error loading stores:', error);
       toast.error('Ошибка при загрузке магазинов');
@@ -95,22 +96,25 @@ const KaspiIntegration = () => {
     }
 
     try {
+      const newStore = {
+        merchant_id: newMerchantId,
+        name: newStoreName,
+        user_id: user.id,
+        api_key: apiKey,
+        products_count: 0,
+        last_sync: new Date().toISOString(),
+        is_active: true
+      };
+
       const { data, error } = await supabase
         .from('kaspi_stores')
-        .insert([{
-          merchant_id: newMerchantId,
-          name: newStoreName,
-          user_id: user.id,
-          api_key: apiKey,
-          products_count: 0,
-          last_sync: new Date().toISOString()
-        }])
+        .insert([newStore])
         .select()
         .single();
       
       if (error) throw error;
       
-      setStores([...stores, data]);
+      setStores([...stores, data as KaspiStore]);
       setIsAddingStore(false);
       setNewStoreName("");
       setNewMerchantId("");
@@ -145,11 +149,15 @@ const KaspiIntegration = () => {
       // В реальном приложении здесь был бы API запрос к Edge Function для синхронизации с Kaspi
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Находим текущий счетчик продуктов для этого магазина
+      const currentStore = stores.find(s => s.id === storeId);
+      const currentCount = currentStore?.products_count || 0;
+      
       // Обновление количества товаров и времени синхронизации
       const { error } = await supabase
         .from('kaspi_stores')
         .update({
-          products_count: stores.find(s => s.id === storeId)?.products_count! + 147,
+          products_count: currentCount + 147,
           last_sync: new Date().toISOString()
         })
         .eq('id', storeId);
@@ -159,7 +167,7 @@ const KaspiIntegration = () => {
       // Обновляем состояние
       setStores(stores.map(store => 
         store.id === storeId 
-          ? { ...store, productsCount: store.productsCount + 147, lastSync: new Date().toISOString() }
+          ? { ...store, products_count: (store.products_count || 0) + 147, last_sync: new Date().toISOString() }
           : store
       ));
       

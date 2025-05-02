@@ -1,173 +1,146 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-
+// Заголовки CORS для обеспечения доступа из веб-приложения
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Обработчик для разрешения запросов CORS preflight
+const handleCorsRequest = () => {
+  return new Response(null, {
+    headers: corsHeaders,
+    status: 204,
+  });
+};
+
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Обработка CORS preflight запросов
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsRequest();
   }
 
   try {
-    // Парсим тело запроса
-    const { storeId, apiKey } = await req.json();
-    
+    // Создаем клиент Supabase с помощью переменных окружения
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Создаем анонимный клиент для проверки JWT
+    const authHeader = req.headers.get("Authorization") || "";
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing Authorization header" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Получаем данные из тела запроса
+    const requestData = await req.json();
+    const { storeId } = requestData;
+
     if (!storeId) {
       return new Response(
         JSON.stringify({ error: "Store ID is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
-    
-    // Создаем клиент Supabase с сервисным ключом для работы с БД
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+
     // Получаем информацию о магазине
-    const { data: store, error: storeError } = await supabase
+    const { data: storeData, error: storeError } = await supabase
       .from("kaspi_stores")
       .select("*")
       .eq("id", storeId)
       .single();
-      
-    if (storeError) {
-      throw new Error(`Error fetching store: ${storeError.message}`);
-    }
-    
-    // В реальном приложении здесь бы мы делали запрос к API Kaspi 
-    // для получения товаров, используя store.merchant_id и apiKey
-    
-    // Имитируем получение товаров с Kaspi
-    const mockProducts = generateMockProducts(store.merchant_id, 10);
-    
-    // Сохраняем товары в БД
-    for (const product of mockProducts) {
-      // Проверяем, существует ли товар уже в БД
-      const { data: existingProduct } = await supabase
-        .from("products")
-        .select("*")
-        .eq("kaspi_product_id", product.kaspi_product_id)
-        .eq("store_id", storeId)
-        .maybeSingle();
-        
-      if (existingProduct) {
-        // Обновляем существующий товар
-        await supabase
-          .from("products")
-          .update({
-            name: product.name,
-            price: product.price,
-            image_url: product.image_url,
-            category: product.category,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", existingProduct.id);
-      } else {
-        // Создаем новый товар
-        const { data: newProduct, error: insertError } = await supabase
-          .from("products")
-          .insert([{
-            store_id: storeId,
-            kaspi_product_id: product.kaspi_product_id,
-            name: product.name,
-            price: product.price,
-            image_url: product.image_url,
-            category: product.category,
-            bot_active: false,
-            min_profit: 1000,
-            max_profit: 10000
-          }])
-          .select()
-          .single();
-          
-        if (insertError) {
-          console.error(`Error inserting product: ${insertError.message}`);
-          continue;
+
+    if (storeError || !storeData) {
+      console.error("Error fetching store:", storeError);
+      return new Response(
+        JSON.stringify({ error: "Store not found" }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
-        
-        // Создаем конкурентов для товара
-        const competitors = generateMockCompetitors(newProduct.id, 5);
-        for (const competitor of competitors) {
-          await supabase
-            .from("competitors")
-            .insert([competitor]);
-        }
-      }
+      );
     }
+
+    // В реальном приложении здесь был бы код для интеграции с API Kaspi
+    // и импорта товаров в базу данных
+
+    // Имитируем синхронизацию товаров (для примера добавляем 5 тестовых товаров)
+    const mockProducts = [];
+    const categories = ["Электроника", "Бытовая техника", "Мебель", "Одежда", "Спорт"];
     
-    // Обновляем информацию о последней синхронизации
-    await supabase
+    for (let i = 0; i < 5; i++) {
+      mockProducts.push({
+        store_id: storeId,
+        name: `Тестовый товар ${i + 1}`,
+        price: Math.floor(Math.random() * 50000) + 5000,
+        kaspi_product_id: `KP${Math.floor(Math.random() * 1000000)}`,
+        image_url: `https://picsum.photos/200/300?random=${i}`,
+        category: categories[Math.floor(Math.random() * categories.length)],
+        bot_active: false
+      });
+    }
+
+    // Сохраняем товары в базе данных
+    const { data: insertedProducts, error: insertError } = await supabase
+      .from("products")
+      .insert(mockProducts)
+      .select();
+
+    if (insertError) {
+      console.error("Error inserting products:", insertError);
+      return new Response(
+        JSON.stringify({ error: "Failed to insert products" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Обновляем счетчик товаров в магазине
+    const { error: updateError } = await supabase
       .from("kaspi_stores")
-      .update({
-        products_count: mockProducts.length,
+      .update({ 
+        products_count: storeData.products_count + mockProducts.length,
         last_sync: new Date().toISOString()
       })
       .eq("id", storeId);
-    
+
+    if (updateError) {
+      console.error("Error updating store:", updateError);
+    }
+
+    // Возвращаем результат
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Successfully synced ${mockProducts.length} products` 
+        message: `Synchronized ${mockProducts.length} products`,
+        products: insertedProducts
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
-    
   } catch (error) {
-    console.error("Error in sync-products function:", error);
-    
+    console.error("Error processing request:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Internal Server Error" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
   }
 });
-
-// Вспомогательные функции для генерации тестовых данных
-function generateMockProducts(merchantId: string, count: number) {
-  const categories = ["Электроника", "Бытовая техника", "Смартфоны", "Ноутбуки", "Аксессуары"];
-  const products = [];
-  
-  for (let i = 0; i < count; i++) {
-    const category = categories[Math.floor(Math.random() * categories.length)];
-    const price = Math.floor(Math.random() * 100000) + 5000;
-    
-    products.push({
-      kaspi_product_id: `PROD-${merchantId}-${i}`,
-      name: `${category} - Модель X${i}`,
-      price,
-      image_url: `https://picsum.photos/id/${i + 100}/200/200`,
-      category
-    });
-  }
-  
-  return products;
-}
-
-function generateMockCompetitors(productId: string, count: number) {
-  const competitors = [];
-  const sellerNames = ["MegaShop", "TechStore", "GadgetMart", "ElectroWorld", "SmartZone"];
-  
-  for (let i = 0; i < count; i++) {
-    const basePrice = Math.floor(Math.random() * 100000) + 5000;
-    const priceChange = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 1000);
-    
-    competitors.push({
-      product_id: productId,
-      name: `Конкурент ${i + 1}`,
-      price: basePrice,
-      price_change: priceChange,
-      rating: (Math.random() * 4 + 1).toFixed(1),
-      has_delivery: Math.random() > 0.5,
-      seller_name: sellerNames[Math.floor(Math.random() * sellerNames.length)]
-    });
-  }
-  
-  return competitors;
-}

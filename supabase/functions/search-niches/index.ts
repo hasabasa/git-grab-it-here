@@ -1,107 +1,115 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-
+// Заголовки CORS для обеспечения доступа из веб-приложения
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Обработчик для разрешения запросов CORS preflight
+const handleCorsRequest = () => {
+  return new Response(null, {
+    headers: corsHeaders,
+    status: 204,
+  });
+};
+
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Обработка CORS preflight запросов
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsRequest();
   }
 
   try {
-    // Парсим тело запроса
-    const { category, userId } = await req.json();
-    
+    // Создаем клиент Supabase с помощью переменных окружения
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Создаем анонимный клиент для проверки JWT
+    const authHeader = req.headers.get("Authorization") || "";
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing Authorization header" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Получаем данные из тела запроса
+    const requestData = await req.json();
+    const { category, userId } = requestData;
+
     if (!category) {
       return new Response(
         JSON.stringify({ error: "Category is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
-    
-    // Создаем клиент Supabase с сервисным ключом для работы с БД
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
-    // В реальном приложении здесь мы делали бы запрос к API Kaspi 
-    // для получения данных по категории
-    
-    // Имитируем получение данных о нишах
-    const nichesData = generateMockNichesData(category);
-    
-    // Сохраняем историю поиска в БД
-    if (userId) {
-      await supabase
-        .from("niche_search_history")
-        .insert([{
-          user_id: userId, 
-          category, 
-          results_count: nichesData.length
-        }])
-        .select();
+
+    // В реальном приложении здесь был бы код для поиска ниш в API Kaspi
+    // по указанной категории
+
+    // Имитируем поиск ниш (возвращаем случайные данные)
+    const mockNiches = [];
+    for (let i = 0; i < 10; i++) {
+      const soldQuantity = Math.floor(Math.random() * 500) + 50;
+      const price = Math.floor(Math.random() * 50000) + 5000;
+      
+      // Генерируем данные графика продаж за 6 месяцев
+      const chartData = [];
+      for (let j = 0; j < 6; j++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (5 - j));
+        
+        chartData.push({
+          month: date.toLocaleString('default', { month: 'short' }),
+          sales: Math.floor(Math.random() * 500) + 50
+        });
+      }
+      
+      mockNiches.push({
+        id: `NICHE${i}`,
+        name: `Товар в нише ${category} #${i + 1}`,
+        category: category,
+        price: price,
+        soldQuantity: soldQuantity,
+        revenue: price * soldQuantity,
+        rating: (Math.random() * 2 + 3).toFixed(1),
+        sellers: Math.floor(Math.random() * 20) + 1,
+        chartData: chartData
+      });
     }
-    
+
+    // Сортируем ниши по выручке (от большей к меньшей)
+    mockNiches.sort((a, b) => b.revenue - a.revenue);
+
+    // Возвращаем результат
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: nichesData
+        data: mockNiches
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
-    
   } catch (error) {
-    console.error("Error in search-niches function:", error);
-    
+    console.error("Error processing request:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Internal Server Error" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
   }
 });
-
-// Функция для генерации тестовых данных по нишам
-function generateMockNichesData(category: string) {
-  const niches = [];
-  const count = Math.floor(Math.random() * 10) + 5;
-  
-  const competitions = ["Низкая", "Средняя", "Высокая"];
-  
-  for (let i = 0; i < count; i++) {
-    const totalSales = Math.floor(Math.random() * 10000000) + 100000;
-    const lowestPrice = Math.floor(Math.random() * 100000) + 5000;
-    const sellersCount = Math.floor(Math.random() * 50) + 1;
-    const competition = competitions[Math.floor(Math.random() * competitions.length)];
-    
-    // Генерируем данные за 6 месяцев для графика
-    const chartData = [];
-    let currentDate = new Date();
-    currentDate.setMonth(currentDate.getMonth() - 6);
-    
-    for (let month = 0; month < 6; month++) {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-      chartData.push({
-        month: currentDate.toISOString().substr(0, 7),
-        sales: Math.floor(Math.random() * 1000000) + 100000
-      });
-    }
-    
-    niches.push({
-      name: `${category} - Модель ${String.fromCharCode(65 + i)}`,
-      category,
-      totalSales,
-      lowestPrice,
-      sellersCount,
-      competition,
-      chartData
-    });
-  }
-  
-  return niches;
-}

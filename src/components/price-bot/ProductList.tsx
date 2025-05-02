@@ -5,8 +5,8 @@ import { Product } from "@/types";
 
 interface ProductListProps {
   products: Product[];
-  activeProductId: number | null;
-  onProductSelect: (productId: number) => void;
+  activeProductId: string | null;
+  onProductSelect: (productId: string) => void;
 }
 
 const ProductList = ({ products, activeProductId, onProductSelect }: ProductListProps) => {
@@ -31,9 +31,9 @@ const ProductList = ({ products, activeProductId, onProductSelect }: ProductList
           <div className="flex items-start justify-between">
             <div className="flex items-center">
               <div className="h-10 w-10 rounded-lg bg-gray-200 mr-3 overflow-hidden">
-                {product.image && (
+                {(product.image || product.image_url) && (
                   <img 
-                    src={product.image} 
+                    src={product.image || product.image_url} 
                     alt={product.name} 
                     className="h-full w-full object-cover"
                   />
@@ -43,13 +43,13 @@ const ProductList = ({ products, activeProductId, onProductSelect }: ProductList
                 <div className="font-medium line-clamp-2">{product.name}</div>
                 <div className="text-sm mt-1 flex items-center">
                   <span className={activeProductId === product.id ? 'text-primary-foreground' : 'text-gray-500'}>
-                    {product.price.toLocaleString()} ₸
+                    {Number(product.price).toLocaleString()} ₸
                   </span>
                   <Badge 
-                    variant={product.botActive ? 'default' : 'outline'} 
+                    variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
                     className="ml-2 text-xs"
                   >
-                    {product.botActive ? 'Активен' : 'Пауза'}
+                    {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
                   </Badge>
                 </div>
               </div>

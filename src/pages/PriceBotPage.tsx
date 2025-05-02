@@ -4,14 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, Play, Pause } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
 import CompetitorsList from "@/components/price-bot/CompetitorsList";
-import { mockProducts } from "@/data/mockData";
-import { runPriceBot } from "@/lib/salesUtils";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ProductList from "@/components/price-bot/ProductList";
@@ -49,22 +46,29 @@ const PriceBotPage = () => {
           min_profit,
           max_profit,
           store_id,
+          category,
           kaspi_stores(name)
         `)
         .order('name');
       
       if (error) throw error;
       
-      // Преобразуем данные в нужный формат
-      const formattedProducts = data?.map(product => ({
+      // Преобразуем данные в формат, соответствующий нашему типу Product
+      const formattedProducts: Product[] = data?.map(product => ({
         id: product.id,
         name: product.name,
         price: product.price,
         image: product.image_url || '',
+        image_url: product.image_url,
         botActive: product.bot_active,
+        bot_active: product.bot_active,
         minProfit: product.min_profit || 0,
+        min_profit: product.min_profit || 0,
         maxProfit: product.max_profit || 0,
-        storeName: product.kaspi_stores?.name || ''
+        max_profit: product.max_profit || 0,
+        storeName: product.kaspi_stores?.name || '',
+        store_id: product.store_id,
+        category: product.category || ''
       })) || [];
 
       setProducts(formattedProducts);
@@ -116,7 +120,7 @@ const PriceBotPage = () => {
       setProducts(prevProducts => 
         prevProducts.map(product => 
           selectedProducts.includes(product.id) 
-            ? { ...product, botActive: action === 'start' }
+            ? { ...product, botActive: action === 'start', bot_active: action === 'start' }
             : product
         )
       );
@@ -164,8 +168,11 @@ const PriceBotPage = () => {
             ? { 
                 ...product, 
                 botActive: settings.isActive,
+                bot_active: settings.isActive,
                 minProfit: settings.minProfit,
-                maxProfit: settings.maxProfit
+                min_profit: settings.minProfit,
+                maxProfit: settings.maxProfit,
+                max_profit: settings.maxProfit
               }
             : product
         )
@@ -284,10 +291,10 @@ const PriceBotPage = () => {
                                 {Number(product.price).toLocaleString()} ₸
                               </span>
                               <Badge 
-                                variant={product.botActive ? 'default' : 'outline'} 
+                                variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
                                 className="ml-2 text-xs"
                               >
-                                {product.botActive ? 'Активен' : 'Пауза'}
+                                {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
                               </Badge>
                             </div>
                           </div>
@@ -314,8 +321,8 @@ const PriceBotPage = () => {
                   <CardTitle>
                     {products.find(p => p.id === activeProduct)?.name}
                   </CardTitle>
-                  <Badge variant={products.find(p => p.id === activeProduct)?.botActive ? 'default' : 'outline'}>
-                    {products.find(p => p.id === activeProduct)?.botActive ? 'Активен' : 'На паузе'}
+                  <Badge variant={(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'default' : 'outline'}>
+                    {(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'Активен' : 'На паузе'}
                   </Badge>
                 </div>
                 <TabsList className="grid grid-cols-2 w-[400px]">
@@ -331,7 +338,7 @@ const PriceBotPage = () => {
                 </TabsContent>
                 <TabsContent value="settings">
                   <PriceBotSettings 
-                    productId={activeProduct} 
+                    productId={activeProduct as any} 
                     onSave={handleSaveSettings}
                   />
                 </TabsContent>

@@ -30,19 +30,8 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
         
         if (error) throw error;
         
-        // Преобразуем данные в нужный формат
-        const formattedCompetitors = data?.map(comp => ({
-          id: comp.id,
-          productId: comp.product_id,
-          name: comp.name,
-          price: comp.price,
-          priceChange: comp.price_change || 0,
-          rating: comp.rating || 0,
-          delivery: comp.has_delivery || false,
-          seller: comp.seller_name || ''
-        })) || [];
-        
-        setCompetitors(formattedCompetitors);
+        // Используем приведение типов для правильной работы с данными из Supabase
+        setCompetitors(data as Competitor[] || []);
       } catch (error) {
         console.error("Error loading competitors:", error);
         toast.error("Ошибка при загрузке конкурентов");
@@ -92,7 +81,7 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
       // Обновляем UI
       const updatedCompetitors = competitors.map(c => {
         if (c.id === competitor.id) {
-          return { ...c, priceChange: -1 };
+          return { ...c, price_change: -1 };
         }
         return c;
       });
@@ -126,10 +115,10 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{competitor.name}</h3>
-                    <Badge variant="secondary">{competitor.rating.toFixed(1)} ★</Badge>
+                    <Badge variant="secondary">{(competitor.rating || 0).toFixed(1)} ★</Badge>
                   </div>
                   <div className="text-sm text-gray-500 mt-1">
-                    {competitor.delivery ? "С доставкой" : "Без доставки"} • {competitor.seller}
+                    {competitor.has_delivery ? "С доставкой" : "Без доставки"} • {competitor.seller_name || competitor.seller || ''}
                   </div>
                 </div>
 
@@ -137,15 +126,15 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
                   <div className="text-center">
                     <div className="flex items-center gap-1">
                       <span className="text-xl font-semibold">{Number(competitor.price).toLocaleString()} ₸</span>
-                      {competitor.priceChange > 0 ? (
+                      {(competitor.price_change || competitor.priceChange || 0) > 0 ? (
                         <ArrowUp className="h-4 w-4 text-red-500" />
-                      ) : competitor.priceChange < 0 ? (
+                      ) : (competitor.price_change || competitor.priceChange || 0) < 0 ? (
                         <ArrowDown className="h-4 w-4 text-green-500" />
                       ) : null}
                     </div>
-                    {competitor.priceChange !== 0 && (
+                    {(competitor.price_change || competitor.priceChange || 0) !== 0 && (
                       <div className="text-xs text-gray-500">
-                        {Math.abs(competitor.priceChange).toLocaleString()} ₸
+                        {Math.abs(competitor.price_change || competitor.priceChange || 0).toLocaleString()} ₸
                       </div>
                     )}
                   </div>
