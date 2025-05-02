@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Play, Pause } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
 import CompetitorsList from "@/components/price-bot/CompetitorsList";
 import { Product } from "@/types";

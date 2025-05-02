@@ -1,9 +1,9 @@
 
-import { Product, Competitor, Task } from "@/types";
+import { Product, Competitor, Task, Niche, SalesData } from "@/types";
 
 export const mockProducts: Product[] = [
   {
-    id: 1,
+    id: "1",
     name: "iPhone 13 128GB",
     price: 385000,
     image: "https://resources.cdn-kaspi.kz/shop/medias/sys_master/images/images/h49/hc0/46392662523934/apple-iphone-13-128gb-cernyj-102298404-1-Container.jpg",
@@ -13,7 +13,7 @@ export const mockProducts: Product[] = [
     maxProfit: 25000,
   },
   {
-    id: 2,
+    id: "2",
     name: "Samsung Galaxy S21 FE",
     price: 297000,
     image: "https://resources.cdn-kaspi.kz/shop/medias/sys_master/images/images/h00/h18/62349965877278/samsung-galaxy-s21-fe-sm-g990-44900-256gb-zelenyj-103993386-1.jpg",
@@ -21,7 +21,7 @@ export const mockProducts: Product[] = [
     botActive: false,
   },
   {
-    id: 3,
+    id: "3",
     name: "Apple Watch Series 7",
     price: 195000,
     image: "https://resources.cdn-kaspi.kz/shop/medias/sys_master/images/images/h1a/h69/63158968057886/apple-watch-series-7-41-mm-cernyj-102582811-1.jpg",
@@ -31,7 +31,7 @@ export const mockProducts: Product[] = [
     maxProfit: 15000,
   },
   {
-    id: 4,
+    id: "4",
     name: "MacBook Air M1 13.3 2020",
     price: 499900,
     image: "https://resources.cdn-kaspi.kz/shop/medias/sys_master/images/images/h65/h0f/33125684084766/apple-macbook-air-2020-13-3-mgn63-seryj-100797845-1-Container.jpg",
@@ -39,7 +39,7 @@ export const mockProducts: Product[] = [
     botActive: false,
   },
   {
-    id: 5,
+    id: "5",
     name: "AirPods Pro",
     price: 89990,
     image: "https://resources.cdn-kaspi.kz/shop/medias/sys_master/images/images/hb6/h3d/46637140508702/apple-airpods-pro-belyj-4804718-1-Container.jpg",
@@ -52,8 +52,9 @@ export const mockProducts: Product[] = [
 
 export const mockCompetitors: Competitor[] = [
   {
-    id: 101,
-    productId: 1,
+    id: "101",
+    product_id: "1",
+    productId: "1",
     name: "iPhone 13 128GB Черный",
     price: 387500,
     priceChange: 2500,
@@ -62,8 +63,9 @@ export const mockCompetitors: Competitor[] = [
     seller: "MediaMarket",
   },
   {
-    id: 102,
-    productId: 1,
+    id: "102",
+    product_id: "1",
+    productId: "1",
     name: "iPhone 13 128GB Черный",
     price: 390000,
     priceChange: 0,
@@ -72,8 +74,9 @@ export const mockCompetitors: Competitor[] = [
     seller: "iPoint",
   },
   {
-    id: 103,
-    productId: 1,
+    id: "103",
+    product_id: "1",
+    productId: "1",
     name: "iPhone 13 128GB Черный",
     price: 384000,
     priceChange: -1000,
@@ -82,8 +85,9 @@ export const mockCompetitors: Competitor[] = [
     seller: "Digital Store",
   },
   {
-    id: 104,
-    productId: 3,
+    id: "104",
+    product_id: "3",
+    productId: "3",
     name: "Apple Watch Series 7 41mm",
     price: 199000,
     priceChange: 0,
@@ -92,8 +96,9 @@ export const mockCompetitors: Competitor[] = [
     seller: "Apple City",
   },
   {
-    id: 105,
-    productId: 3,
+    id: "105",
+    product_id: "3",
+    productId: "3",
     name: "Apple Watch Series 7 41mm",
     price: 193000,
     priceChange: -2000,
@@ -102,8 +107,9 @@ export const mockCompetitors: Competitor[] = [
     seller: "iCenter",
   },
   {
-    id: 106,
-    productId: 5,
+    id: "106",
+    product_id: "5",
+    productId: "5",
     name: "AirPods Pro",
     price: 92000,
     priceChange: 2010,
@@ -113,7 +119,7 @@ export const mockCompetitors: Competitor[] = [
   }
 ];
 
-export const mockSalesData = [
+export const mockSalesData: SalesData[] = [
   { date: "2023-03-01", count: 5, amount: 1500000 },
   { date: "2023-03-02", count: 3, amount: 950000 },
   { date: "2023-03-03", count: 7, amount: 2100000 },
@@ -244,7 +250,7 @@ export const mockTasks: Task[] = [
   }
 ];
 
-export const mockNiches = [
+export const mockNiches: Niche[] = [
   {
     name: "iPhone 13",
     category: "Смартфоны",

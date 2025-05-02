@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { mockProducts } from "@/data/mockData";
 
 interface PriceBotSettingsProps {
-  productId: number;
+  productId: string;
   onSave: (settings: any) => void;
 }
 

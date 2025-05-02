@@ -1,3 +1,4 @@
+
 export interface KaspiStore {
   id: string;
   merchant_id: string;
@@ -51,4 +52,48 @@ export interface Competitor {
   seller_name?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+// Adding missing interfaces based on error messages
+
+export interface SalesData {
+  date: string;
+  count: number;
+  amount: number;
+}
+
+export interface Task {
+  id: number;
+  title: string;
+  description: string;
+  client: string;
+  type: string;
+  reminderType: string;
+  dueDate?: string;
+  status: "pending" | "completed" | "overdue";
+  createdAt: string;
+}
+
+export interface Niche {
+  name: string;
+  category: string;
+  sellersCount: number;
+  lowestPrice: number;
+  totalSales: number;
+  competition: string;
+  chartData: {
+    month: string;
+    demand: number;
+    supply: number;
+  }[];
+}
+
+export interface KaspiCommission {
+  category: string;
+  commission: string;
+}
+
+export interface DeliveryRate {
+  city: string;
+  rate: number;
 }
