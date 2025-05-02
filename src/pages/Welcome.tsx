@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import AuthComponent from "@/components/integration/AuthComponent";
 
 const Welcome = () => {
   const modules = [
@@ -39,13 +40,17 @@ const Welcome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 flex flex-col justify-center items-center p-6">
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <h1 className="text-5xl font-bold text-gray-900 mb-4">
           Добро пожаловать в Kaspi Price
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Платформа для управления ценами, анализа продаж и увеличения прибыли на маркетплейсе Kaspi
         </p>
+      </div>
+
+      <div className="w-full max-w-md mb-8">
+        <AuthComponent />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl">

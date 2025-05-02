@@ -73,7 +73,9 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Welcome />} />
-              <Route element={<DashboardLayout />}>
+              
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<Navigate to="/price-bot" replace />} />
                 <Route 
                   path="/price-bot" 
                   element={
