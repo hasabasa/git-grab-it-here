@@ -8,68 +8,79 @@ import NicheProductsList from "@/components/niche-search/NicheProductsList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { searchNiches } from "@/lib/salesUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/integration/useAuth";
+import AuthComponent from "@/components/integration/AuthComponent";
 
 // Получаем уникальные категории из комиссий Kaspi
 const categories = [...new Set(mockGoldCommissions.map(commission => commission.category))];
 
 const NicheSearchPage = () => {
+  const { user, loading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || "");
   const [products, setProducts] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState("products");
-  const [apiKey, setApiKey] = useState<string | null>(null); // В реальном приложении получаем из хранилища
 
   // Функция для поиска ниш с использованием API
   const fetchNiches = async (category: string) => {
+    if (!user) {
+      toast.error("Для поиска ниш необходимо авторизоваться");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      // Для демонстрации используем мок данные с задержкой
-      // В реальном приложении здесь будет вызов API через searchNiches
+      // Вызываем Edge Function для поиска ниш
+      const { data, error } = await supabase.functions.invoke('search-niches', {
+        body: { category, userId: user.id }
+      });
       
-      setTimeout(() => {
-        const categoryProducts = mockNiches.filter(niche => 
-          niche.category === category
-        );
-        
-        setProducts(categoryProducts);
-        setIsLoading(false);
-        
-        if (categoryProducts.length === 0) {
-          toast.info("В выбранной категории не найдено товаров");
-        } else {
-          toast.success(`Найдено ${categoryProducts.length} товаров`);
-        }
-      }, 800);
+      if (error) throw error;
       
-      // Закомментированный код для реального API
-      /*
-      if (!apiKey) {
-        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
-        setIsLoading(false);
-        return;
+      setProducts(data.data || []);
+      
+      if (data.data.length === 0) {
+        toast.info("В выбранной категории не найдено товаров");
+      } else {
+        toast.success(`Найдено ${data.data.length} товаров`);
       }
-      
-      const result = await searchNiches(category, apiKey);
-      setProducts(result.data);
-      toast.success(`Найдено ${result.data.length} товаров`);
-      */
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching niches:", error);
-      toast.error("Ошибка при поиске ниш");
+      toast.error("Ошибка при поиске ниш: " + (error.message || ''));
       setProducts([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Получаем товары по категории
+  // Получаем товары по категории при первой загрузке или смене категории
   useEffect(() => {
-    if (selectedCategory) {
+    if (user && selectedCategory) {
       fetchNiches(selectedCategory);
     }
-  }, [selectedCategory]);
+  }, [user, selectedCategory]);
+
+  // Если идет загрузка аутентификации, показываем индикатор загрузки
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Если пользователь не авторизован, показываем компонент авторизации
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Поиск ниш</h1>
+        <p className="text-gray-600">Для использования поиска ниш необходима авторизация</p>
+        <AuthComponent />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

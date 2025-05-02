@@ -5,38 +5,44 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
-import { mockCompetitors } from "@/data/mockData";
-import { Competitor } from "@/types";
 import { toast } from "sonner";
-import { fetchCompetitors, updateProductPrice } from "@/lib/salesUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { Competitor } from "@/types";
 
 interface CompetitorsListProps {
-  productId: number;
+  productId: string;
 }
 
 const CompetitorsList = ({ productId }: CompetitorsListProps) => {
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(null); // В реальном приложении получаем из хранилища
 
   useEffect(() => {
     // Загрузка конкурентов при изменении выбранного товара
     const loadCompetitors = async () => {
       setIsLoading(true);
       try {
-        // Для демонстрации используем мок данные
-        const mockData = mockCompetitors.filter(comp => comp.productId === productId);
-        setCompetitors(mockData);
+        // Загружаем конкурентов из Supabase
+        const { data, error } = await supabase
+          .from('competitors')
+          .select('*')
+          .eq('product_id', productId);
         
-        // В реальном приложении используем API
-        /*
-        if (!apiKey) {
-          toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
-          return;
-        }
-        const result = await fetchCompetitors(productId, apiKey);
-        setCompetitors(result.data);
-        */
+        if (error) throw error;
+        
+        // Преобразуем данные в нужный формат
+        const formattedCompetitors = data?.map(comp => ({
+          id: comp.id,
+          productId: comp.product_id,
+          name: comp.name,
+          price: comp.price,
+          priceChange: comp.price_change || 0,
+          rating: comp.rating || 0,
+          delivery: comp.has_delivery || false,
+          seller: comp.seller_name || ''
+        })) || [];
+        
+        setCompetitors(formattedCompetitors);
       } catch (error) {
         console.error("Error loading competitors:", error);
         toast.error("Ошибка при загрузке конкурентов");
@@ -45,31 +51,45 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
       }
     };
     
-    loadCompetitors();
+    if (productId) {
+      loadCompetitors();
+    }
   }, [productId]);
 
-  const handleSetPrice = async (competitorId: number) => {
+  const handleSetPrice = async (competitorId: string) => {
     const competitor = competitors.find(c => c.id === competitorId);
     if (!competitor) return;
     
     try {
-      // Устанавливаем цену на 1 тенге ниже, чем у конкурента
-      const newPrice = competitor.price - 1;
+      // Получаем текущие данные о продукте
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
       
-      // Для демонстрации показываем уведомление
+      if (productError) throw productError;
+      
+      // Устанавливаем цену на 1 тенге ниже, чем у конкурента
+      const newPrice = Number(competitor.price) - 1;
+      
+      // Проверяем минимальную прибыльность
+      // В реальном приложении здесь будет проверка себестоимости и минимальной прибыли
+      
+      // Обновляем цену в БД
+      const { error } = await supabase
+        .from('products')
+        .update({
+          price: newPrice,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', productId);
+        
+      if (error) throw error;
+      
       toast.success(`Цена обновлена до ${newPrice.toLocaleString()} ₸`);
       
-      // В реальном приложении отправляем запрос на обновление цены
-      /*
-      if (!apiKey) {
-        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
-        return;
-      }
-      await updateProductPrice(productId, newPrice, apiKey);
-      */
-      
-      // Обновляем UI, чтобы показать, что цена изменилась
-      // Этот код для демонстрации, в реальном приложении нужно обновить данные из API
+      // Обновляем UI
       const updatedCompetitors = competitors.map(c => {
         if (c.id === competitor.id) {
           return { ...c, priceChange: -1 };
@@ -77,9 +97,9 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
         return c;
       });
       setCompetitors(updatedCompetitors);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating price:", error);
-      toast.error("Ошибка при обновлении цены");
+      toast.error(error.message || "Ошибка при обновлении цены");
     }
   };
 
@@ -116,7 +136,7 @@ const CompetitorsList = ({ productId }: CompetitorsListProps) => {
                 <div className="flex items-center gap-3">
                   <div className="text-center">
                     <div className="flex items-center gap-1">
-                      <span className="text-xl font-semibold">{competitor.price.toLocaleString()} ₸</span>
+                      <span className="text-xl font-semibold">{Number(competitor.price).toLocaleString()} ₸</span>
                       {competitor.priceChange > 0 ? (
                         <ArrowUp className="h-4 w-4 text-red-500" />
                       ) : competitor.priceChange < 0 ? (

@@ -13,16 +13,71 @@ import CompetitorsList from "@/components/price-bot/CompetitorsList";
 import { mockProducts } from "@/data/mockData";
 import { runPriceBot } from "@/lib/salesUtils";
 import { Product } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import ProductList from "@/components/price-bot/ProductList";
+import { useAuth } from "@/components/integration/useAuth";
+import AuthComponent from "@/components/integration/AuthComponent";
 
 const PriceBotPage = () => {
-  const [activeProduct, setActiveProduct] = useState<number | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(null); // В реальном приложении получаем из хранилища
+  const [loadingProducts, setLoadingProducts] = useState(false);
   
-  const handleProductSelect = (productId: number) => {
+  useEffect(() => {
+    if (user) {
+      loadUserProducts();
+    }
+  }, [user]);
+
+  const loadUserProducts = async () => {
+    if (!user) return;
+    
+    setLoadingProducts(true);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id, 
+          name, 
+          price, 
+          image_url,
+          bot_active,
+          min_profit,
+          max_profit,
+          store_id,
+          kaspi_stores(name)
+        `)
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Преобразуем данные в нужный формат
+      const formattedProducts = data?.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_url || '',
+        botActive: product.bot_active,
+        minProfit: product.min_profit || 0,
+        maxProfit: product.max_profit || 0,
+        storeName: product.kaspi_stores?.name || ''
+      })) || [];
+
+      setProducts(formattedProducts);
+    } catch (error: any) {
+      console.error('Error loading products:', error);
+      toast.error('Ошибка при загрузке товаров');
+      setProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+  
+  const handleProductSelect = (productId: string) => {
     setActiveProduct(productId);
   };
 
@@ -30,7 +85,7 @@ const PriceBotPage = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleProductSelection = (productId: number) => {
+  const toggleProductSelection = (productId: string) => {
     setSelectedProducts(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
@@ -46,10 +101,18 @@ const PriceBotPage = () => {
 
     setIsLoading(true);
     try {
-      // Для демонстрации имитируем запрос с задержкой
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Обновляем статус ботов в Supabase
+      const { error } = await supabase
+        .from('products')
+        .update({
+          bot_active: action === 'start',
+          updated_at: new Date().toISOString()
+        })
+        .in('id', selectedProducts);
+        
+      if (error) throw error;
       
-      // Обновляем состояние товаров локально
+      // Обновляем локальное состояние
       setProducts(prevProducts => 
         prevProducts.map(product => 
           selectedProducts.includes(product.id) 
@@ -58,27 +121,14 @@ const PriceBotPage = () => {
         )
       );
       
-      // В реальном приложении, отправляем запрос на API
-      /*
-      if (!apiKey) {
-        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
-        return;
-      }
-      
-      await runPriceBot(
-        selectedProducts,
-        apiKey
-      );
-      */
-      
       toast.success(
         `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
       );
       
       setSelectedProducts([]);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error ${action === 'start' ? 'starting' : 'stopping'} bot:`, error);
-      toast.error(`Ошибка при ${action === 'start' ? 'запуске' : 'остановке'} бота`);
+      toast.error(error.message || `Ошибка при ${action === 'start' ? 'запуске' : 'остановке'} бота`);
     } finally {
       setIsLoading(false);
     }
@@ -94,8 +144,18 @@ const PriceBotPage = () => {
   
   const handleSaveSettings = async (settings: any) => {
     try {
-      // Имитация сохранения настроек
-      toast.success("Настройки бота сохранены");
+      // Обновляем настройки в Supabase
+      const { error } = await supabase
+        .from('products')
+        .update({
+          bot_active: settings.isActive,
+          min_profit: settings.minProfit,
+          max_profit: settings.maxProfit,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', settings.productId);
+        
+      if (error) throw error;
       
       // Обновляем локальное состояние
       setProducts(prevProducts => 
@@ -111,27 +171,32 @@ const PriceBotPage = () => {
         )
       );
       
-      // В реальном приложении отправляем запрос на API
-      /*
-      if (!apiKey) {
-        toast.error("API ключ не найден. Пожалуйста, подключите магазин Kaspi");
-        return;
-      }
-      
-      const response = await fetch(`https://your-supabase-url.supabase.co/functions/v1/save-bot-settings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(settings)
-      });
-      */
-    } catch (error) {
+      toast.success("Настройки бота сохранены");
+    } catch (error: any) {
       console.error("Error saving bot settings:", error);
-      toast.error("Ошибка при сохранении настроек бота");
+      toast.error(error.message || "Ошибка при сохранении настроек бота");
     }
   };
+
+  // Если идет загрузка аутентификации, показываем индикатор загрузки
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Если пользователь не авторизован, показываем компонент авторизации
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Бот демпинга</h1>
+        <p className="text-gray-600">Для использования функционала бота необходима авторизация</p>
+        <AuthComponent />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -178,13 +243,13 @@ const PriceBotPage = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              {isLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : (
-                filteredProducts.map((product) => (
+            {loadingProducts ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {filteredProducts.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => handleProductSelect(product.id)}
@@ -216,7 +281,7 @@ const PriceBotPage = () => {
                             <div className="font-medium line-clamp-2">{product.name}</div>
                             <div className="text-sm mt-1 flex items-center">
                               <span className={activeProduct === product.id ? 'text-primary-foreground' : 'text-gray-500'}>
-                                {product.price.toLocaleString()} ₸
+                                {Number(product.price).toLocaleString()} ₸
                               </span>
                               <Badge 
                                 variant={product.botActive ? 'default' : 'outline'} 
@@ -230,14 +295,14 @@ const PriceBotPage = () => {
                       </div>
                     </div>
                   </div>
-                ))
-              )}
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-6 text-gray-500">
-                  Товары не найдены
-                </div>
-              )}
-            </div>
+                ))}
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-6 text-gray-500">
+                    {products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены"}
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 

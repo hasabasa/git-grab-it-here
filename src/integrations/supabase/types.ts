@@ -9,7 +9,169 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      competitors: {
+        Row: {
+          created_at: string
+          has_delivery: boolean | null
+          id: string
+          name: string
+          price: number
+          price_change: number | null
+          product_id: string
+          rating: number | null
+          seller_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          has_delivery?: boolean | null
+          id?: string
+          name: string
+          price: number
+          price_change?: number | null
+          product_id: string
+          rating?: number | null
+          seller_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          has_delivery?: boolean | null
+          id?: string
+          name?: string
+          price?: number
+          price_change?: number | null
+          product_id?: string
+          rating?: number | null
+          seller_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kaspi_stores: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          last_sync: string | null
+          merchant_id: string
+          name: string
+          products_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_sync?: string | null
+          merchant_id: string
+          name: string
+          products_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_sync?: string | null
+          merchant_id?: string
+          name?: string
+          products_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          bot_active: boolean
+          category: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          kaspi_product_id: string
+          max_profit: number | null
+          min_profit: number | null
+          name: string
+          price: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          bot_active?: boolean
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          kaspi_product_id: string
+          max_profit?: number | null
+          min_profit?: number | null
+          name: string
+          price: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          bot_active?: boolean
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          kaspi_product_id?: string
+          max_profit?: number | null
+          min_profit?: number | null
+          name?: string
+          price?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "kaspi_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

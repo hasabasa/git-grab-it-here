@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,26 +14,55 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Link2, Package, Plus, RefreshCw, Store, Trash2, AlertTriangle } from "lucide-react";
-import { KaspiStore } from "@/types";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAuth } from "./useAuth"; // Новый хук для авторизации
+import { useAuth } from "./useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { KaspiStore } from "@/types";
+import AuthComponent from "./AuthComponent";
 
 const KaspiIntegration = () => {
-  const { user, signIn, signUp, isSupabaseConfigured } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [stores, setStores] = useState<KaspiStore[]>([]);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isAddingStore, setIsAddingStore] = useState(false);
   const [newStoreName, setNewStoreName] = useState("");
   const [newMerchantId, setNewMerchantId] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [isSyncing, setIsSyncing] = useState<string | null>(null);
   const [isLoadingStoreName, setIsLoadingStoreName] = useState(false);
+  const [loadingStores, setLoadingStores] = useState(false);
+
+  // Загружаем магазины пользователя из Supabase
+  useEffect(() => {
+    if (user) {
+      loadUserStores();
+    }
+  }, [user]);
+
+  const loadUserStores = async () => {
+    if (!user) return;
+    
+    setLoadingStores(true);
+    try {
+      const { data, error } = await supabase
+        .from('kaspi_stores')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setStores(data || []);
+    } catch (error: any) {
+      console.error('Error loading stores:', error);
+      toast.error('Ошибка при загрузке магазинов');
+    } finally {
+      setLoadingStores(false);
+    }
+  };
 
   const fetchStoreName = async (merchantId: string) => {
     // Имитация API запроса
@@ -59,283 +88,259 @@ const KaspiIntegration = () => {
     }
   };
 
-  const handleAddStore = () => {
+  const handleAddStore = async () => {
     if (!user) {
       toast.error("Пожалуйста, войдите в аккаунт");
       return;
     }
 
-    const newStore: KaspiStore = {
-      id: Date.now().toString(),
-      merchantId: newMerchantId,
-      name: newStoreName,
-      userId: user.id, // Привязка магазина к пользователю
-      productsCount: 0,
-      lastSync: new Date().toISOString(),
-      isActive: true
-    };
-
-    setStores([...stores, newStore]);
-    setIsAddingStore(false);
-    setNewStoreName("");
-    setNewMerchantId("");
-    setApiKey("");
-    toast.success("Магазин успешно подключен!");
+    try {
+      const { data, error } = await supabase
+        .from('kaspi_stores')
+        .insert([{
+          merchant_id: newMerchantId,
+          name: newStoreName,
+          user_id: user.id,
+          api_key: apiKey,
+          products_count: 0,
+          last_sync: new Date().toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      setStores([...stores, data]);
+      setIsAddingStore(false);
+      setNewStoreName("");
+      setNewMerchantId("");
+      setApiKey("");
+      toast.success("Магазин успешно подключен!");
+    } catch (error: any) {
+      console.error('Error adding store:', error);
+      toast.error(error.message || 'Ошибка при добавлении магазина');
+    }
   };
 
-  const handleRemoveStore = (storeId: string) => {
-    setStores(stores.filter(store => store.id !== storeId));
-    toast("Магазин отключен");
+  const handleRemoveStore = async (storeId: string) => {
+    try {
+      const { error } = await supabase
+        .from('kaspi_stores')
+        .delete()
+        .eq('id', storeId);
+      
+      if (error) throw error;
+      
+      setStores(stores.filter(store => store.id !== storeId));
+      toast("Магазин отключен");
+    } catch (error: any) {
+      console.error('Error removing store:', error);
+      toast.error(error.message || 'Ошибка при отключении магазина');
+    }
   };
 
-  const handleSync = (storeId: string) => {
+  const handleSync = async (storeId: string) => {
     setIsSyncing(storeId);
-    setTimeout(() => {
-      setIsSyncing(null);
-      toast.success("Товары успешно синхронизированы");
-      // Обновляем количество товаров для демонстрации
+    try {
+      // В реальном приложении здесь был бы API запрос к Edge Function для синхронизации с Kaspi
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Обновление количества товаров и времени синхронизации
+      const { error } = await supabase
+        .from('kaspi_stores')
+        .update({
+          products_count: stores.find(s => s.id === storeId)?.products_count! + 147,
+          last_sync: new Date().toISOString()
+        })
+        .eq('id', storeId);
+      
+      if (error) throw error;
+      
+      // Обновляем состояние
       setStores(stores.map(store => 
         store.id === storeId 
           ? { ...store, productsCount: store.productsCount + 147, lastSync: new Date().toISOString() }
           : store
       ));
-    }, 2000);
-  };
-
-  const handleSignIn = async () => {
-    try {
-      await signIn(email, password);
+      
+      toast.success("Товары успешно синхронизированы");
     } catch (error) {
-      toast.error("Ошибка входа");
+      console.error('Error syncing store:', error);
+      toast.error('Ошибка синхронизации магазина');
+    } finally {
+      setIsSyncing(null);
     }
   };
 
-  const handleSignUp = async () => {
-    try {
-      await signUp(email, password);
-    } catch (error) {
-      toast.error("Ошибка регистрации");
-    }
-  };
-
-  // Show error message if Supabase is not configured
-  if (!isSupabaseConfigured) {
-    return (
-      <Card className="border-yellow-300 bg-yellow-50">
-        <CardHeader>
-          <div className="flex items-center gap-2 text-yellow-600">
-            <AlertTriangle />
-            <CardTitle>Требуется настройка Supabase</CardTitle>
-          </div>
-          <CardDescription>
-            Для работы с аутентификацией необходимо настроить подключение к Supabase
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm">
-            Чтобы использовать функции авторизации и хранения данных, необходимо установить следующие переменные окружения:
-          </p>
-          <div className="mt-4 p-4 bg-gray-100 rounded-md font-mono text-xs">
-            <p>VITE_SUPABASE_URL=ваш_url_supabase</p>
-            <p>VITE_SUPABASE_ANON_KEY=ваш_anon_key_supabase</p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline" onClick={() => toast.info("Для настройки переменных окружения обратитесь к документации.")}>
-            Подробнее
-          </Button>
-        </CardFooter>
-      </Card>
-    );
+  // Отображаем компонент аутентификации, если пользователь не вошел
+  if (!user && !authLoading) {
+    return <AuthComponent />;
   }
 
-  if (!user) {
+  if (authLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Вход в систему</CardTitle>
-          <CardDescription>
-            Добавляйте и управляйте магазинами Kaspi
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Email</Label>
-            <Input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-            />
-          </div>
-          <div>
-            <Label>Пароль</Label>
-            <Input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={handleSignUp}>
-            Регистрация
-          </Button>
-          <Button onClick={handleSignIn}>
-            Войти
-          </Button>
-        </CardFooter>
-      </Card>
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {stores.map(store => (
-          <Card key={store.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Store className="h-5 w-5 text-orange-500" />
-                  <CardTitle>{store.name}</CardTitle>
-                </div>
-                <Badge className="bg-green-500">Подключено</Badge>
-              </div>
-              <CardDescription>
-                ID магазина: {store.merchantId}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Товаров</div>
-                  <div className="mt-1 font-medium">{store.productsCount}</div>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Последняя синхронизация</div>
-                  <div className="mt-1 font-medium">
-                    {new Date(store.lastSync).toLocaleString('ru-RU', {
-                      day: 'numeric',
-                      month: 'long',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+        {loadingStores ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <>
+            {stores.map(store => (
+              <Card key={store.id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Store className="h-5 w-5 text-orange-500" />
+                      <CardTitle>{store.name}</CardTitle>
+                    </div>
+                    <Badge className="bg-green-500">Подключено</Badge>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    onClick={() => handleSync(store.id)}
-                    disabled={isSyncing === store.id}
-                    className="flex-1 mr-2"
-                  >
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
-                    {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Импортировать товары из магазина Kaspi
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
+                  <CardDescription>
+                    ID магазина: {store.merchant_id}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="text-sm font-medium text-gray-500">Товаров</div>
+                      <div className="mt-1 font-medium">{store.products_count}</div>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="text-sm font-medium text-gray-500">Последняя синхронизация</div>
+                      <div className="mt-1 font-medium">
+                        {new Date(store.last_sync || Date.now()).toLocaleString('ru-RU', {
+                          day: 'numeric',
+                          month: 'long',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={() => handleSync(store.id)}
+                        disabled={isSyncing === store.id}
+                        className="flex-1 mr-2"
+                      >
+                        <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
+                        {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Импортировать товары из магазина Kaspi
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleRemoveStore(store.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Отключить магазин
+                    </TooltipContent>
+                  </Tooltip>
+                </CardFooter>
+              </Card>
+            ))}
+
+            {!isAddingStore ? (
+              <Button 
+                className="w-full" 
+                onClick={() => setIsAddingStore(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Подключить новый магазин
+              </Button>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Новый магазин</CardTitle>
+                  <CardDescription>
+                    Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="merchant-id">ID Магазина</Label>
+                      <Input
+                        id="merchant-id"
+                        placeholder="Введите ID вашего магазина на Kaspi"
+                        value={newMerchantId}
+                        onChange={handleMerchantIdChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="store-name">Название магазина</Label>
+                      <Input
+                        id="store-name"
+                        placeholder="Название магазина будет получено автоматически"
+                        value={newStoreName}
+                        onChange={(e) => setNewStoreName(e.target.value)}
+                        disabled={isLoadingStoreName}
+                      />
+                      {isLoadingStoreName && (
+                        <p className="text-xs text-gray-500">
+                          Получение названия магазина...
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="api-key">API Ключ</Label>
+                      <Input
+                        id="api-key"
+                        type="password"
+                        placeholder="Введите API ключ"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                      />
+                      <p className="text-xs text-gray-500">
+                        API ключ можно получить в личном кабинете продавца Kaspi
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
                   <Button 
                     variant="outline" 
-                    onClick={() => handleRemoveStore(store.id)}
+                    onClick={() => {
+                      setIsAddingStore(false);
+                      setNewStoreName("");
+                      setNewMerchantId("");
+                      setApiKey("");
+                    }}
+                    className="mr-2"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Отмена
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Отключить магазин
-                </TooltipContent>
-              </Tooltip>
-            </CardFooter>
-          </Card>
-        ))}
-
-        {!isAddingStore ? (
-          <Button 
-            className="w-full" 
-            onClick={() => setIsAddingStore(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Подключить новый магазин
-          </Button>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Новый магазин</CardTitle>
-              <CardDescription>
-                Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="merchant-id">ID Магазина</Label>
-                  <Input
-                    id="merchant-id"
-                    placeholder="Введите ID вашего магазина на Kaspi"
-                    value={newMerchantId}
-                    onChange={handleMerchantIdChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="store-name">Название магазина</Label>
-                  <Input
-                    id="store-name"
-                    placeholder="Название магазина будет получено автоматически"
-                    value={newStoreName}
-                    onChange={(e) => setNewStoreName(e.target.value)}
-                    disabled={isLoadingStoreName}
-                  />
-                  {isLoadingStoreName && (
-                    <p className="text-xs text-gray-500">
-                      Получение названия магазина...
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="api-key">API Ключ</Label>
-                  <Input
-                    id="api-key"
-                    type="password"
-                    placeholder="Введите API ключ"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500">
-                    API ключ можно получить в личном кабинете продавца Kaspi
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setIsAddingStore(false);
-                  setNewStoreName("");
-                  setNewMerchantId("");
-                  setApiKey("");
-                }}
-                className="mr-2"
-              >
-                Отмена
-              </Button>
-              <Button 
-                onClick={handleAddStore}
-                disabled={isLoadingStoreName}
-              >
-                <Link2 className="mr-2 h-4 w-4" />
-                Подключить магазин
-              </Button>
-            </CardFooter>
-          </Card>
+                  <Button 
+                    onClick={handleAddStore}
+                    disabled={!newMerchantId || !newStoreName || isLoadingStoreName}
+                  >
+                    <Link2 className="mr-2 h-4 w-4" />
+                    Подключить магазин
+                  </Button>
+                </CardFooter>
+              </Card>
+            )}
+          </>
         )}
       </div>
     </TooltipProvider>
