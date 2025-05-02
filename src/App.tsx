@@ -75,9 +75,9 @@ const App = () => {
               <Route path="/" element={<Welcome />} />
               
               <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<Navigate to="/price-bot" replace />} />
+                <Route index element={<Navigate to="/dashboard/price-bot" replace />} />
                 <Route 
-                  path="/price-bot" 
+                  path="price-bot" 
                   element={
                     <ProtectedRoute>
                       <PriceBotPage />
@@ -85,7 +85,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/sales" 
+                  path="sales" 
                   element={
                     <ProtectedRoute>
                       <SalesPage />
@@ -93,7 +93,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/unit-economics" 
+                  path="unit-economics" 
                   element={
                     <ProtectedRoute>
                       <UnitEconomicsPage />
@@ -101,7 +101,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/crm" 
+                  path="crm" 
                   element={
                     <ProtectedRoute>
                       <CrmPage />
@@ -109,7 +109,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/niche-search" 
+                  path="niche-search" 
                   element={
                     <ProtectedRoute>
                       <NicheSearchPage />
@@ -117,7 +117,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/subscription" 
+                  path="subscription" 
                   element={
                     <ProtectedRoute>
                       <SubscriptionPage />
@@ -125,7 +125,7 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/integrations" 
+                  path="integrations" 
                   element={
                     <ProtectedRoute>
                       <IntegrationPage />

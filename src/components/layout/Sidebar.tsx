@@ -17,37 +17,37 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     {
       title: "Бот демпинга",
       icon: ArrowRight,
-      path: "/price-bot",
+      path: "/dashboard/price-bot",
     },
     {
       title: "Мои продажи",
       icon: BarChart2,
-      path: "/sales",
+      path: "/dashboard/sales",
     },
     {
       title: "Юнит-экономика",
       icon: Calculator,
-      path: "/unit-economics",
+      path: "/dashboard/unit-economics",
     },
     {
       title: "CRM и напоминания",
       icon: ClipboardList,
-      path: "/crm",
+      path: "/dashboard/crm",
     },
     {
       title: "Поиск ниш",
       icon: Search,
-      path: "/niche-search",
+      path: "/dashboard/niche-search",
     },
     {
       title: "Тарифы",
       icon: Crown,
-      path: "/subscription",
+      path: "/dashboard/subscription",
     },
     {
       title: "Интеграции",
       icon: Link2,
-      path: "/integrations",
+      path: "/dashboard/integrations",
     },
   ];
 

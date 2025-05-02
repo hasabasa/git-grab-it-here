@@ -9,31 +9,31 @@ const Welcome = () => {
     {
       title: "Бот демпинга",
       description: "Динамическое ценообразование для опережения конкурентов",
-      path: "/price-bot",
+      path: "/dashboard/price-bot",
       icon: "🔥"
     },
     {
       title: "Мои продажи",
       description: "Статистика и аналитика продаж",
-      path: "/sales",
+      path: "/dashboard/sales",
       icon: "📈"
     },
     {
       title: "Юнит-экономика",
       description: "Расчет прибыли с учетом комиссий и доставки",
-      path: "/unit-economics",
+      path: "/dashboard/unit-economics",
       icon: "🔢"
     },
     {
       title: "CRM и напоминания",
       description: "Работа с клиентами и задачами",
-      path: "/crm",
+      path: "/dashboard/crm",
       icon: "✅"
     },
     {
       title: "Поиск ниш",
       description: "Анализ спроса и предложения",
-      path: "/niche-search",
+      path: "/dashboard/niche-search",
       icon: "📊"
     }
   ];
