@@ -74,7 +74,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Welcome />} />
               
-              <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route path="dashboard" element={<DashboardLayout />}>
                 <Route index element={<Navigate to="price-bot" replace />} />
                 <Route 
                   path="price-bot" 
