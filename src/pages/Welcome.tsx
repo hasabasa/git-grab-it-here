@@ -2,6 +2,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Welcome = () => {
   const modules = [
@@ -47,6 +49,13 @@ const Welcome = () => {
           Платформа для управления ценами, анализа продаж и увеличения прибыли на маркетплейсе Kaspi
         </p>
       </div>
+
+      <Alert className="bg-blue-50 border-blue-200 mb-8 max-w-3xl">
+        <AlertCircle className="h-4 w-4 text-blue-500" />
+        <AlertDescription className="text-blue-700">
+          Вы находитесь в демо-режиме. Все модули доступны для просмотра без авторизации. Для сохранения данных требуется регистрация.
+        </AlertDescription>
+      </Alert>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl">
         {modules.map((module) => (

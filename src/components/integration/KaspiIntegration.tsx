@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Link2, Package, Plus, RefreshCw, Store, Trash2, AlertTriangle } from "lucide-react";
+import { Link2, Package, Plus, RefreshCw, Store, Trash2, AlertTriangle, LogIn } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +23,7 @@ import {
 import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { KaspiStore } from "@/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import AuthComponent from "./AuthComponent";
 
 const KaspiIntegration = () => {
@@ -36,10 +37,37 @@ const KaspiIntegration = () => {
   const [isLoadingStoreName, setIsLoadingStoreName] = useState(false);
   const [loadingStores, setLoadingStores] = useState(false);
 
+  // Демонстрационные магазины
+  const demoStores: KaspiStore[] = [
+    {
+      id: '1',
+      merchant_id: 'demo-123',
+      name: 'Демонстрационный магазин',
+      user_id: 'demo',
+      api_key: '****',
+      products_count: 157,
+      last_sync: new Date().toISOString(),
+      is_active: true
+    },
+    {
+      id: '2',
+      merchant_id: 'demo-456',
+      name: 'Тестовый магазин',
+      user_id: 'demo',
+      api_key: '****',
+      products_count: 86,
+      last_sync: new Date(Date.now() - 86400000).toISOString(),
+      is_active: true
+    }
+  ];
+
   // Загружаем магазины пользователя из Supabase
   useEffect(() => {
     if (user) {
       loadUserStores();
+    } else {
+      // Для демонстрации без авторизации
+      setStores(demoStores);
     }
   }, [user]);
 
@@ -91,7 +119,7 @@ const KaspiIntegration = () => {
 
   const handleAddStore = async () => {
     if (!user) {
-      toast.error("Пожалуйста, войдите в аккаунт");
+      toast.error("Пожалуйста, войдите в аккаунт для сохранения данных");
       return;
     }
 
@@ -127,6 +155,11 @@ const KaspiIntegration = () => {
   };
 
   const handleRemoveStore = async (storeId: string) => {
+    if (!user) {
+      toast.error("Эта функция доступна только после входа в аккаунт");
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('kaspi_stores')
@@ -144,6 +177,11 @@ const KaspiIntegration = () => {
   };
 
   const handleSync = async (storeId: string) => {
+    if (!user) {
+      toast.error("Для синхронизации требуется авторизация");
+      return;
+    }
+    
     setIsSyncing(storeId);
     try {
       // В реальном приложении здесь был бы API запрос к Edge Function для синхронизации с Kaspi
@@ -180,10 +218,14 @@ const KaspiIntegration = () => {
     }
   };
 
-  // Отображаем компонент аутентификации, если пользователь не вошел
-  if (!user && !authLoading) {
-    return <AuthComponent />;
-  }
+  const demoAddStore = () => {
+    if (user) {
+      setIsAddingStore(true);
+      return;
+    }
+    
+    toast.error("Для добавления магазина требуется авторизация");
+  };
 
   if (authLoading) {
     return (
@@ -196,6 +238,18 @@ const KaspiIntegration = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
+        {!user && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="text-amber-700">
+              Вы просматриваете демонстрационные данные. Для подключения реальных магазинов требуется 
+              <Button variant="link" asChild className="p-0 h-auto font-semibold">
+                <a href="/"> войти в систему</a>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {loadingStores ? (
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -240,7 +294,7 @@ const KaspiIntegration = () => {
                     <TooltipTrigger asChild>
                       <Button 
                         onClick={() => handleSync(store.id)}
-                        disabled={isSyncing === store.id}
+                        disabled={isSyncing === store.id || !user}
                         className="flex-1 mr-2"
                       >
                         <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
@@ -256,6 +310,7 @@ const KaspiIntegration = () => {
                       <Button 
                         variant="outline" 
                         onClick={() => handleRemoveStore(store.id)}
+                        disabled={!user}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -271,10 +326,19 @@ const KaspiIntegration = () => {
             {!isAddingStore ? (
               <Button 
                 className="w-full" 
-                onClick={() => setIsAddingStore(true)}
+                onClick={demoAddStore}
               >
-                <Plus className="mr-2 h-4 w-4" />
-                Подключить новый магазин
+                {user ? (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Подключить новый магазин
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Войдите для добавления магазина
+                  </>
+                )}
               </Button>
             ) : (
               <Card>

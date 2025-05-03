@@ -10,8 +10,9 @@ import DateRangePicker from "@/components/sales/DateRangePicker";
 import { mockSalesData } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const SalesPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -22,7 +23,11 @@ const SalesPage = () => {
 
   // Функция для получения данных о продажах
   const fetchSalesData = async () => {
-    if (!user) return;
+    if (!user) {
+      // В демо-режиме используем мок данные
+      setSalesData(mockSalesData);
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -42,9 +47,7 @@ const SalesPage = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchSalesData();
-    }
+    fetchSalesData();
   }, [user]);
 
   const handleExport = (format: "excel" | "csv") => {
@@ -66,17 +69,6 @@ const SalesPage = () => {
     );
   }
 
-  // Если пользователь не авторизован, показываем компонент авторизации
-  if (!user) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Мои продажи</h1>
-        <p className="text-gray-600">Для просмотра продаж необходима авторизация</p>
-        <AuthComponent />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -88,15 +80,24 @@ const SalesPage = () => {
             onDateRangeChange={setDateRange}
           />
           
-          <Button variant="outline" onClick={() => handleExport("excel")}>
+          <Button variant="outline" onClick={() => handleExport("excel")} disabled={!user}>
             Экспорт в Excel
           </Button>
           
-          <Button variant="outline" onClick={() => handleExport("csv")}>
+          <Button variant="outline" onClick={() => handleExport("csv")} disabled={!user}>
             Экспорт в CSV
           </Button>
         </div>
       </div>
+      
+      {!user && (
+        <Alert className="bg-amber-50 border-amber-200">
+          <AlertCircle className="h-4 w-4 text-amber-500" />
+          <AlertDescription className="text-amber-700">
+            Вы просматриваете демо-данные. Для работы с реальными данными требуется авторизация.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
