@@ -9,16 +9,17 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Устанавливаем слушатель событий аутентификации
+    // Set up auth listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event);
         setSession(session);
         setUser(session?.user || null);
         setLoading(false);
       }
     );
 
-    // Проверяем текущую сессию пользователя
+    // Then check current session
     const getSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();

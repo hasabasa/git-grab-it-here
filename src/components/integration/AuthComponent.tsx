@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -20,33 +20,42 @@ export const AuthComponent = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    // Проверяем текущую сессию пользователя
-    const checkSession = async () => {
+  // Check existing session
+  const checkSession = async () => {
+    try {
       const { data } = await supabase.auth.getSession();
-      
       if (data.session) {
         setUser(data.session.user);
       }
-      
-      // Устанавливаем слушатель событий аутентификации
-      const { data: authListener } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          if (session) {
-            setUser(session.user);
-          } else {
-            setUser(null);
-          }
+    } catch (error) {
+      console.error("Error checking session:", error);
+    }
+  };
+
+  // Setup auth listener
+  const setupAuthListener = () => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          setUser(session.user);
+        } else {
+          setUser(null);
         }
-      );
+      }
+    );
+    
+    return authListener?.subscription;
+  };
 
-      return () => {
-        authListener.subscription.unsubscribe();
-      };
-    };
-
+  // Check on component mount
+  useState(() => {
     checkSession();
-  }, []);
+    const subscription = setupAuthListener();
+    
+    return () => {
+      subscription?.unsubscribe();
+    };
+  });
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +71,7 @@ export const AuthComponent = () => {
       
       toast.success('Проверьте почту для подтверждения аккаунта');
     } catch (error: any) {
+      console.error("Signup error:", error);
       toast.error(error.message || 'Ошибка при регистрации');
     } finally {
       setLoading(false);
