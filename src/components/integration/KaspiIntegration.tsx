@@ -37,7 +37,7 @@ const KaspiIntegration = () => {
   const [isLoadingStoreName, setIsLoadingStoreName] = useState(false);
   const [loadingStores, setLoadingStores] = useState(false);
 
-  // Демонстрационные магазины
+  // Демонстрационные магазины с добавленными полями created_at и updated_at
   const demoStores: KaspiStore[] = [
     {
       id: '1',
@@ -47,7 +47,9 @@ const KaspiIntegration = () => {
       api_key: '****',
       products_count: 157,
       last_sync: new Date().toISOString(),
-      is_active: true
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: '2',
@@ -57,7 +59,9 @@ const KaspiIntegration = () => {
       api_key: '****',
       products_count: 86,
       last_sync: new Date(Date.now() - 86400000).toISOString(),
-      is_active: true
+      is_active: true,
+      created_at: new Date(Date.now() - 604800000).toISOString(), // Неделю назад
+      updated_at: new Date(Date.now() - 86400000).toISOString() // День назад
     }
   ];
 
