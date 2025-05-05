@@ -56,22 +56,31 @@ const NicheProductsList = ({ products }: NicheProductsListProps) => {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Продажи</p>
-                      <p className="font-bold text-lg">{product.totalSales.toLocaleString()} ₸</p>
+                      <p className="font-bold text-lg">
+                        {product.totalSales !== undefined ? 
+                          product.totalSales.toLocaleString() : '0'} ₸
+                      </p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Цена от</p>
-                      <p className="font-medium">{product.lowestPrice.toLocaleString()} ₸</p>
+                      <p className="font-medium">
+                        {product.lowestPrice !== undefined ? 
+                          product.lowestPrice.toLocaleString() : '0'} ₸
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Продавцов</p>
-                      <p className="font-medium">{product.sellersCount}</p>
+                      <p className="font-medium">{product.sellersCount || 0}</p>
                     </div>
                     <div className="space-y-1 md:text-right md:col-span-1">
                       <p className="text-sm text-muted-foreground">Потенциальная прибыль</p>
-                      <p className="font-medium">{Math.round(product.totalSales * 0.15).toLocaleString()} ₸</p>
+                      <p className="font-medium">
+                        {product.totalSales !== undefined ? 
+                          Math.round(product.totalSales * 0.15).toLocaleString() : '0'} ₸
+                      </p>
                     </div>
                   </div>
                 </CardContent>
