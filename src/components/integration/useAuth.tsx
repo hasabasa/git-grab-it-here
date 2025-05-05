@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
 export const useAuth = () => {
-  // Создаем демо-пользователя по умолчанию
+  // Создаем демо-пользователя по умолчанию с необходимыми полями User типа
   const demoUser = {
     id: 'demo-user',
     email: 'demo@kaspi-price.kz',
@@ -13,8 +13,18 @@ export const useAuth = () => {
     },
     app_metadata: {
       role: 'demo'
-    }
-  } as User;
+    },
+    aud: 'authenticated', // Добавляем обязательное поле aud
+    created_at: new Date().toISOString(), // Добавляем дату создания
+    updated_at: new Date().toISOString(), // Добавляем дату обновления
+    phone: null, // Добавляем опциональные поля
+    confirmation_sent_at: null,
+    confirmed_at: null,
+    last_sign_in_at: null,
+    role: null,
+    factors: null,
+    identities: []
+  } as User; // Используем assertion типа для преобразования
 
   const [user, setUser] = useState<User | null>(demoUser); // По умолчанию используем демо-пользователя
   const [session, setSession] = useState<Session | null>(null);
