@@ -12,10 +12,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Info } from "lucide-react";
 
 const SalesPage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isDemo } = useAuth();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
   const [salesData, setSalesData] = useState(mockSalesData);
@@ -23,39 +23,34 @@ const SalesPage = () => {
 
   // Функция для получения данных о продажах
   const fetchSalesData = async () => {
-    if (!user) {
-      // В демо-режиме используем мок данные
-      setSalesData(mockSalesData);
-      return;
-    }
+    // В демо-режиме всегда используем мок данные
+    setSalesData(mockSalesData);
     
-    setIsLoading(true);
-    try {
-      // В реальном приложении здесь был бы запрос к API для получения данных о продажах
-      // из системы Kaspi через Supabase Edge Function
-      
-      // Для демонстрации используем мок данные
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSalesData(mockSalesData);
-      
-    } catch (error) {
-      console.error("Error fetching sales data:", error);
-      toast.error("Ошибка при загрузке данных о продажах");
-    } finally {
-      setIsLoading(false);
+    // Если не демо-режим и пользователь авторизован, пытаемся загрузить реальные данные
+    if (!isDemo && user) {
+      setIsLoading(true);
+      try {
+        // В реальном приложении здесь был бы запрос к API для получения данных о продажах
+        // из системы Kaspi через Supabase Edge Function
+        
+        // Для демонстрации используем мок данные
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSalesData(mockSalesData);
+        
+      } catch (error) {
+        console.error("Error fetching sales data:", error);
+        toast.error("Ошибка при загрузке данных о продажах");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchSalesData();
-  }, [user]);
+  }, [user, isDemo]);
 
   const handleExport = (format: "excel" | "csv") => {
-    if (!user) {
-      toast.error("Для экспорта данных необходимо авторизоваться");
-      return;
-    }
-    
     toast.success(`Экспорт данных в формате ${format} начат`);
     // Реализация экспорта данных будет добавлена позже
   };
@@ -80,21 +75,21 @@ const SalesPage = () => {
             onDateRangeChange={setDateRange}
           />
           
-          <Button variant="outline" onClick={() => handleExport("excel")} disabled={!user}>
+          <Button variant="outline" onClick={() => handleExport("excel")}>
             Экспорт в Excel
           </Button>
           
-          <Button variant="outline" onClick={() => handleExport("csv")} disabled={!user}>
+          <Button variant="outline" onClick={() => handleExport("csv")}>
             Экспорт в CSV
           </Button>
         </div>
       </div>
       
-      {!user && (
-        <Alert className="bg-amber-50 border-amber-200">
-          <AlertCircle className="h-4 w-4 text-amber-500" />
-          <AlertDescription className="text-amber-700">
-            Вы просматриваете демо-данные. Для работы с реальными данными требуется авторизация.
+      {isDemo && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertDescription className="text-blue-700">
+            Вы просматриваете демо-данные. Подключите свой магазин Kaspi для просмотра реальных данных.
           </AlertDescription>
         </Alert>
       )}

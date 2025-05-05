@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
@@ -14,25 +14,77 @@ import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ProductList from "@/components/price-bot/ProductList";
 import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+// Демо-данные продуктов
+const demoProducts: Product[] = [
+  {
+    id: 'demo-1',
+    name: 'Смартфон Apple iPhone 13 128Gb черный',
+    price: 389990,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    botActive: true,
+    bot_active: true,
+    minProfit: 5,
+    min_profit: 5,
+    maxProfit: 15,
+    max_profit: 15,
+    storeName: 'Демо магазин',
+    store_id: 'demo',
+    category: 'Электроника'
+  },
+  {
+    id: 'demo-2',
+    name: 'Ноутбук Apple MacBook Air 13 MGN63 серый',
+    price: 499990,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    botActive: false,
+    bot_active: false,
+    minProfit: 3,
+    min_profit: 3,
+    maxProfit: 10,
+    max_profit: 10,
+    storeName: 'Демо магазин',
+    store_id: 'demo',
+    category: 'Компьютеры'
+  },
+  {
+    id: 'demo-3',
+    name: 'Наушники Apple AirPods Pro 2 (2022) белый',
+    price: 129990,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
+    botActive: true,
+    bot_active: true,
+    minProfit: 7,
+    min_profit: 7,
+    maxProfit: 12,
+    max_profit: 12,
+    storeName: 'Демо магазин',
+    store_id: 'demo',
+    category: 'Аксессуары'
+  }
+];
 
 const PriceBotPage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isDemo } = useAuth();
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(demoProducts); // По умолчанию используем демо-продукты
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
   
   useEffect(() => {
-    if (user) {
+    if (user && !isDemo) {
       loadUserProducts();
     }
-  }, [user]);
+  }, [user, isDemo]);
 
   const loadUserProducts = async () => {
-    if (!user) return;
+    if (!user || isDemo) return;
     
     setLoadingProducts(true);
     try {
@@ -76,7 +128,7 @@ const PriceBotPage = () => {
     } catch (error: any) {
       console.error('Error loading products:', error);
       toast.error('Ошибка при загрузке товаров');
-      setProducts([]);
+      // В случае ошибки оставляем демо-продукты
     } finally {
       setLoadingProducts(false);
     }
@@ -105,30 +157,46 @@ const PriceBotPage = () => {
     }
 
     setIsLoading(true);
+    
     try {
-      // Обновляем статус ботов в Supabase
-      const { error } = await supabase
-        .from('products')
-        .update({
-          bot_active: action === 'start',
-          updated_at: new Date().toISOString()
-        })
-        .in('id', selectedProducts);
+      if (isDemo) {
+        // В демо-режиме просто обновляем локальное состояние
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            selectedProducts.includes(product.id) 
+              ? { ...product, botActive: action === 'start', bot_active: action === 'start' }
+              : product
+          )
+        );
         
-      if (error) throw error;
-      
-      // Обновляем локальное состояние
-      setProducts(prevProducts => 
-        prevProducts.map(product => 
-          selectedProducts.includes(product.id) 
-            ? { ...product, botActive: action === 'start', bot_active: action === 'start' }
-            : product
-        )
-      );
-      
-      toast.success(
-        `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
-      );
+        toast.success(
+          `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
+        );
+      } else {
+        // При реальной авторизации обновляем данные в Supabase
+        const { error } = await supabase
+          .from('products')
+          .update({
+            bot_active: action === 'start',
+            updated_at: new Date().toISOString()
+          })
+          .in('id', selectedProducts);
+          
+        if (error) throw error;
+        
+        // Обновляем локальное состояние
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            selectedProducts.includes(product.id) 
+              ? { ...product, botActive: action === 'start', bot_active: action === 'start' }
+              : product
+          )
+        );
+        
+        toast.success(
+          `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
+        );
+      }
       
       setSelectedProducts([]);
     } catch (error: any) {
@@ -149,37 +217,58 @@ const PriceBotPage = () => {
   
   const handleSaveSettings = async (settings: any) => {
     try {
-      // Обновляем настройки в Supabase
-      const { error } = await supabase
-        .from('products')
-        .update({
-          bot_active: settings.isActive,
-          min_profit: settings.minProfit,
-          max_profit: settings.maxProfit,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', settings.productId);
+      if (isDemo) {
+        // В демо-режиме просто обновляем локальное состояние
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            product.id === settings.productId 
+              ? { 
+                  ...product, 
+                  botActive: settings.isActive,
+                  bot_active: settings.isActive,
+                  minProfit: settings.minProfit,
+                  min_profit: settings.minProfit,
+                  maxProfit: settings.maxProfit,
+                  max_profit: settings.maxProfit
+                }
+              : product
+          )
+        );
         
-      if (error) throw error;
-      
-      // Обновляем локальное состояние
-      setProducts(prevProducts => 
-        prevProducts.map(product => 
-          product.id === settings.productId 
-            ? { 
-                ...product, 
-                botActive: settings.isActive,
-                bot_active: settings.isActive,
-                minProfit: settings.minProfit,
-                min_profit: settings.minProfit,
-                maxProfit: settings.maxProfit,
-                max_profit: settings.maxProfit
-              }
-            : product
-        )
-      );
-      
-      toast.success("Настройки бота сохранены");
+        toast.success("Настройки бота сохранены");
+      } else {
+        // В обычном режиме обновляем настройки в Supabase
+        const { error } = await supabase
+          .from('products')
+          .update({
+            bot_active: settings.isActive,
+            min_profit: settings.minProfit,
+            max_profit: settings.maxProfit,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', settings.productId);
+          
+        if (error) throw error;
+        
+        // Обновляем локальное состояние
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            product.id === settings.productId 
+              ? { 
+                  ...product, 
+                  botActive: settings.isActive,
+                  bot_active: settings.isActive,
+                  minProfit: settings.minProfit,
+                  min_profit: settings.minProfit,
+                  maxProfit: settings.maxProfit,
+                  max_profit: settings.maxProfit
+                }
+              : product
+          )
+        );
+        
+        toast.success("Настройки бота сохранены");
+      }
     } catch (error: any) {
       console.error("Error saving bot settings:", error);
       toast.error(error.message || "Ошибка при сохранении настроек бота");
@@ -191,17 +280,6 @@ const PriceBotPage = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
-  // Если пользователь не авторизован, показываем компонент авторизации
-  if (!user) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Бот демпинга</h1>
-        <p className="text-gray-600">Для использования функционала бота необходима авторизация</p>
-        <AuthComponent />
       </div>
     );
   }
@@ -228,6 +306,15 @@ const PriceBotPage = () => {
           </Button>
         </div>
       </div>
+
+      {isDemo && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertDescription className="text-blue-700">
+            Вы работаете в демо-режиме. Все изменения будут сохранены только в памяти браузера.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-1">
@@ -339,7 +426,7 @@ const PriceBotPage = () => {
                 </TabsContent>
                 <TabsContent value="settings">
                   <PriceBotSettings 
-                    productId={activeProduct as any} 
+                    productId={activeProduct} 
                     onSave={handleSaveSettings}
                   />
                 </TabsContent>

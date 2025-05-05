@@ -4,17 +4,41 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  // Создаем демо-пользователя по умолчанию
+  const demoUser = {
+    id: 'demo-user',
+    email: 'demo@kaspi-price.kz',
+    user_metadata: {
+      name: 'Демо пользователь'
+    },
+    app_metadata: {
+      role: 'demo'
+    }
+  } as User;
+
+  const [user, setUser] = useState<User | null>(demoUser); // По умолчанию используем демо-пользователя
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Убираем начальную загрузку
+  const [isDemo, setIsDemo] = useState(true); // Флаг демо-режима
 
   useEffect(() => {
     // Set up auth listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event);
-        setSession(session);
-        setUser(session?.user || null);
+        
+        // Если пользователь авторизован, используем данные из сессии
+        if (session?.user) {
+          setSession(session);
+          setUser(session.user);
+          setIsDemo(false);
+        } else {
+          // В противном случае используем демо-пользователя
+          setSession(null);
+          setUser(demoUser);
+          setIsDemo(true);
+        }
+        
         setLoading(false);
       }
     );
@@ -23,10 +47,22 @@ export const useAuth = () => {
     const getSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        setSession(data?.session);
-        setUser(data?.session?.user || null);
+        
+        if (data?.session?.user) {
+          setSession(data.session);
+          setUser(data.session.user);
+          setIsDemo(false);
+        } else {
+          // Если сессии нет, используем демо-пользователя
+          setSession(null);
+          setUser(demoUser);
+          setIsDemo(true);
+        }
       } catch (error) {
         console.error('Error checking session:', error);
+        // В случае ошибки также используем демо-пользователя
+        setUser(demoUser);
+        setIsDemo(true);
       } finally {
         setLoading(false);
       }
@@ -52,6 +88,10 @@ export const useAuth = () => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    
+    // Возвращаемся к демо-пользователю после выхода
+    setUser(demoUser);
+    setIsDemo(true);
   };
 
   return { 
@@ -61,6 +101,7 @@ export const useAuth = () => {
     signIn, 
     signOut,
     loading,
+    isDemo, // Экспортируем флаг демо-режима
     isSupabaseConfigured: true 
   };
 };
