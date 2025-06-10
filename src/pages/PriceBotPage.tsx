@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
 import CompetitorsList from "@/components/price-bot/CompetitorsList";
+import StoreSelector from "@/components/price-bot/StoreSelector";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ProductList from "@/components/price-bot/ProductList";
@@ -30,8 +30,8 @@ const demoProducts: Product[] = [
     min_profit: 5,
     maxProfit: 15,
     max_profit: 15,
-    storeName: 'Демо магазин',
-    store_id: 'demo',
+    storeName: 'Демонстрационный магазин',
+    store_id: 'demo-1',
     category: 'Электроника'
   },
   {
@@ -46,8 +46,8 @@ const demoProducts: Product[] = [
     min_profit: 3,
     maxProfit: 10,
     max_profit: 10,
-    storeName: 'Демо магазин',
-    store_id: 'demo',
+    storeName: 'Демонстрационный магазин',
+    store_id: 'demo-1',
     category: 'Компьютеры'
   },
   {
@@ -62,33 +62,54 @@ const demoProducts: Product[] = [
     min_profit: 7,
     maxProfit: 12,
     max_profit: 12,
-    storeName: 'Демо магазин',
-    store_id: 'demo',
+    storeName: 'Тестовый магазин',
+    store_id: 'demo-2',
     category: 'Аксессуары'
   }
 ];
 
 const PriceBotPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState<Product[]>(demoProducts); // По умолчанию используем демо-продукты
+  const [products, setProducts] = useState<Product[]>(demoProducts);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
+
+  // Загружаем выбранный магазин из localStorage при инициализации
+  useEffect(() => {
+    const savedStoreId = localStorage.getItem('selectedStoreId');
+    if (savedStoreId && savedStoreId !== 'null') {
+      setSelectedStoreId(savedStoreId);
+    }
+  }, []);
+
+  // Сохраняем выбранный магазин в localStorage
+  useEffect(() => {
+    if (selectedStoreId !== null) {
+      localStorage.setItem('selectedStoreId', selectedStoreId);
+    } else {
+      localStorage.removeItem('selectedStoreId');
+    }
+  }, [selectedStoreId]);
   
   useEffect(() => {
     if (user && !isDemo) {
       loadUserProducts();
+    } else {
+      // В демо-режиме фильтруем продукты по выбранному магазину
+      setProducts(demoProducts);
     }
-  }, [user, isDemo]);
+  }, [user, isDemo, selectedStoreId]);
 
   const loadUserProducts = async () => {
     if (!user || isDemo) return;
     
     setLoadingProducts(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('products')
         .select(`
           id, 
@@ -101,12 +122,17 @@ const PriceBotPage = () => {
           store_id,
           category,
           kaspi_stores(name)
-        `)
-        .order('name');
+        `);
+
+      // Фильтруем по выбранному магазину, если он выбран
+      if (selectedStoreId) {
+        query = query.eq('store_id', selectedStoreId);
+      }
+      
+      const { data, error } = await query.order('name');
       
       if (error) throw error;
       
-      // Преобразуем данные в формат, соответствующий нашему типу Product
       const formattedProducts: Product[] = data?.map(product => ({
         id: product.id,
         name: product.name,
@@ -128,7 +154,6 @@ const PriceBotPage = () => {
     } catch (error: any) {
       console.error('Error loading products:', error);
       toast.error('Ошибка при загрузке товаров');
-      // В случае ошибки оставляем демо-продукты
     } finally {
       setLoadingProducts(false);
     }
@@ -138,9 +163,18 @@ const PriceBotPage = () => {
     setActiveProduct(productId);
   };
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleStoreChange = (storeId: string | null) => {
+    setSelectedStoreId(storeId);
+    setActiveProduct(null); // Сбрасываем выбранный продукт при смене магазина
+    setSelectedProducts([]); // Сбрасываем выбранные продукты
+  };
+
+  // Фильтруем продукты по выбранному магазину и поисковому запросу
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStore = selectedStoreId === null || product.store_id === selectedStoreId;
+    return matchesSearch && matchesStore;
+  });
 
   const toggleProductSelection = (productId: string) => {
     setSelectedProducts(prev => 
@@ -160,7 +194,6 @@ const PriceBotPage = () => {
     
     try {
       if (isDemo) {
-        // В демо-режиме просто обновляем локальное состояние
         setProducts(prevProducts => 
           prevProducts.map(product => 
             selectedProducts.includes(product.id) 
@@ -173,7 +206,6 @@ const PriceBotPage = () => {
           `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
         );
       } else {
-        // При реальной авторизации обновляем данные в Supabase
         const { error } = await supabase
           .from('products')
           .update({
@@ -184,7 +216,6 @@ const PriceBotPage = () => {
           
         if (error) throw error;
         
-        // Обновляем локальное состояние
         setProducts(prevProducts => 
           prevProducts.map(product => 
             selectedProducts.includes(product.id) 
@@ -218,7 +249,6 @@ const PriceBotPage = () => {
   const handleSaveSettings = async (settings: any) => {
     try {
       if (isDemo) {
-        // В демо-режиме просто обновляем локальное состояние
         setProducts(prevProducts => 
           prevProducts.map(product => 
             product.id === settings.productId 
@@ -237,7 +267,6 @@ const PriceBotPage = () => {
         
         toast.success("Настройки бота сохранены");
       } else {
-        // В обычном режиме обновляем настройки в Supabase
         const { error } = await supabase
           .from('products')
           .update({
@@ -250,7 +279,6 @@ const PriceBotPage = () => {
           
         if (error) throw error;
         
-        // Обновляем локальное состояние
         setProducts(prevProducts => 
           prevProducts.map(product => 
             product.id === settings.productId 
@@ -275,7 +303,6 @@ const PriceBotPage = () => {
     }
   };
 
-  // Если идет загрузка аутентификации, показываем индикатор загрузки
   if (authLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -316,11 +343,21 @@ const PriceBotPage = () => {
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Селектор магазинов */}
+        <div className="lg:col-span-1">
+          <StoreSelector 
+            selectedStoreId={selectedStoreId}
+            onStoreChange={handleStoreChange}
+          />
+        </div>
+
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle>Мои товары</CardTitle>
-            <CardDescription>Выберите товар для настройки бота</CardDescription>
+            <CardDescription>
+              {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
+            </CardDescription>
             <div className="flex items-center gap-4 mt-2">
               <Input 
                 placeholder="Поиск товаров..." 
@@ -385,6 +422,11 @@ const PriceBotPage = () => {
                                 {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
                               </Badge>
                             </div>
+                            {product.storeName && (
+                              <div className={`text-xs mt-1 ${activeProduct === product.id ? 'text-primary-foreground/70' : 'text-gray-400'}`}>
+                                {product.storeName}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
