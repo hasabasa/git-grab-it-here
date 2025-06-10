@@ -24,20 +24,18 @@ import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { KaspiStore } from "@/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import AuthComponent from "./AuthComponent";
 
 const KaspiIntegration = () => {
   const { user, loading: authLoading } = useAuth();
   const [stores, setStores] = useState<KaspiStore[]>([]);
   const [isAddingStore, setIsAddingStore] = useState(false);
-  const [newStoreName, setNewStoreName] = useState("");
-  const [newMerchantId, setNewMerchantId] = useState("");
-  const [apiKey, setApiKey] = useState("");
+  const [kaspiEmail, setKaspiEmail] = useState("");
+  const [kaspiPassword, setKaspiPassword] = useState("");
   const [isSyncing, setIsSyncing] = useState<string | null>(null);
-  const [isLoadingStoreName, setIsLoadingStoreName] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [loadingStores, setLoadingStores] = useState(false);
 
-  // Демонстрационные магазины с добавленными полями created_at и updated_at
+  // Демонстрационные магазины
   const demoStores: KaspiStore[] = [
     {
       id: '1',
@@ -60,8 +58,8 @@ const KaspiIntegration = () => {
       products_count: 86,
       last_sync: new Date(Date.now() - 86400000).toISOString(),
       is_active: true,
-      created_at: new Date(Date.now() - 604800000).toISOString(), // Неделю назад
-      updated_at: new Date(Date.now() - 86400000).toISOString() // День назад
+      created_at: new Date(Date.now() - 604800000).toISOString(),
+      updated_at: new Date(Date.now() - 86400000).toISOString()
     }
   ];
 
@@ -87,7 +85,6 @@ const KaspiIntegration = () => {
       
       if (error) throw error;
       
-      // Устанавливаем данные магазинов
       setStores(data as KaspiStore[] || []);
     } catch (error: any) {
       console.error('Error loading stores:', error);
@@ -97,42 +94,29 @@ const KaspiIntegration = () => {
     }
   };
 
-  const fetchStoreName = async (merchantId: string) => {
-    // Имитация API запроса
-    setIsLoadingStoreName(true);
-    try {
-      // В реальном приложении здесь был бы запрос к API Kaspi
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockStoreName = `Магазин ${merchantId}`;
-      setNewStoreName(mockStoreName);
-      toast.success("Название магазина получено");
-    } catch (error) {
-      toast.error("Не удалось получить название магазина");
-    } finally {
-      setIsLoadingStoreName(false);
-    }
-  };
-
-  const handleMerchantIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNewMerchantId(value);
-    if (value.length >= 5) { // Предполагаем, что ID магазина должен быть минимум 5 символов
-      fetchStoreName(value);
-    }
-  };
-
-  const handleAddStore = async () => {
+  const handleConnectStore = async () => {
     if (!user) {
-      toast.error("Пожалуйста, войдите в аккаунт для сохранения данных");
+      toast.error("Пожалуйста, войдите в аккаунт для подключения магазина");
       return;
     }
 
+    if (!kaspiEmail || !kaspiPassword) {
+      toast.error("Пожалуйста, заполните все поля");
+      return;
+    }
+
+    setIsConnecting(true);
     try {
-      const newStore = {
-        merchant_id: newMerchantId,
-        name: newStoreName,
+      // В реальном приложении здесь будет запрос к API для авторизации в Kaspi
+      // и получения данных магазина
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Имитируем получение данных магазина
+      const mockStoreData = {
+        merchant_id: `kaspi_${Date.now()}`,
+        name: `Магазин ${kaspiEmail.split('@')[0]}`,
         user_id: user.id,
-        api_key: apiKey,
+        api_key: 'auto_generated_token',
         products_count: 0,
         last_sync: new Date().toISOString(),
         is_active: true
@@ -140,7 +124,7 @@ const KaspiIntegration = () => {
 
       const { data, error } = await supabase
         .from('kaspi_stores')
-        .insert([newStore])
+        .insert([mockStoreData])
         .select()
         .single();
       
@@ -148,13 +132,14 @@ const KaspiIntegration = () => {
       
       setStores([...stores, data as KaspiStore]);
       setIsAddingStore(false);
-      setNewStoreName("");
-      setNewMerchantId("");
-      setApiKey("");
+      setKaspiEmail("");
+      setKaspiPassword("");
       toast.success("Магазин успешно подключен!");
     } catch (error: any) {
-      console.error('Error adding store:', error);
-      toast.error(error.message || 'Ошибка при добавлении магазина');
+      console.error('Error connecting store:', error);
+      toast.error('Ошибка при подключении магазина. Проверьте данные для входа.');
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -188,14 +173,11 @@ const KaspiIntegration = () => {
     
     setIsSyncing(storeId);
     try {
-      // В реальном приложении здесь был бы API запрос к Edge Function для синхронизации с Kaspi
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Находим текущий счетчик продуктов для этого магазина
       const currentStore = stores.find(s => s.id === storeId);
       const currentCount = currentStore?.products_count || 0;
       
-      // Обновление количества товаров и времени синхронизации
       const { error } = await supabase
         .from('kaspi_stores')
         .update({
@@ -206,7 +188,6 @@ const KaspiIntegration = () => {
       
       if (error) throw error;
       
-      // Обновляем состояние
       setStores(stores.map(store => 
         store.id === storeId 
           ? { ...store, products_count: (store.products_count || 0) + 147, last_sync: new Date().toISOString() }
@@ -335,7 +316,7 @@ const KaspiIntegration = () => {
                 {user ? (
                   <>
                     <Plus className="mr-2 h-4 w-4" />
-                    Подключить новый магазин
+                    Подключить магазин Kaspi
                   </>
                 ) : (
                   <>
@@ -347,48 +328,34 @@ const KaspiIntegration = () => {
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Новый магазин</CardTitle>
+                  <CardTitle>Подключение магазина Kaspi</CardTitle>
                   <CardDescription>
-                    Подключите ваш магазин Kaspi.kz для автоматического импорта товаров
+                    Введите данные от вашего аккаунта Kaspi для автоматического подключения магазина
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="merchant-id">ID Магазина</Label>
+                      <Label htmlFor="kaspi-email">Email от Kaspi</Label>
                       <Input
-                        id="merchant-id"
-                        placeholder="Введите ID вашего магазина на Kaspi"
-                        value={newMerchantId}
-                        onChange={handleMerchantIdChange}
+                        id="kaspi-email"
+                        type="email"
+                        placeholder="Введите email от аккаунта Kaspi"
+                        value={kaspiEmail}
+                        onChange={(e) => setKaspiEmail(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="store-name">Название магазина</Label>
+                      <Label htmlFor="kaspi-password">Пароль от Kaspi</Label>
                       <Input
-                        id="store-name"
-                        placeholder="Название магазина будет получено автоматически"
-                        value={newStoreName}
-                        onChange={(e) => setNewStoreName(e.target.value)}
-                        disabled={isLoadingStoreName}
-                      />
-                      {isLoadingStoreName && (
-                        <p className="text-xs text-gray-500">
-                          Получение названия магазина...
-                        </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="api-key">API Ключ</Label>
-                      <Input
-                        id="api-key"
+                        id="kaspi-password"
                         type="password"
-                        placeholder="Введите API ключ"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="Введите пароль от аккаунта Kaspi"
+                        value={kaspiPassword}
+                        onChange={(e) => setKaspiPassword(e.target.value)}
                       />
                       <p className="text-xs text-gray-500">
-                        API ключ можно получить в личном кабинете продавца Kaspi
+                        Ваши данные защищены и используются только для подключения магазина
                       </p>
                     </div>
                   </div>
@@ -398,20 +365,20 @@ const KaspiIntegration = () => {
                     variant="outline" 
                     onClick={() => {
                       setIsAddingStore(false);
-                      setNewStoreName("");
-                      setNewMerchantId("");
-                      setApiKey("");
+                      setKaspiEmail("");
+                      setKaspiPassword("");
                     }}
                     className="mr-2"
+                    disabled={isConnecting}
                   >
                     Отмена
                   </Button>
                   <Button 
-                    onClick={handleAddStore}
-                    disabled={!newMerchantId || !newStoreName || isLoadingStoreName}
+                    onClick={handleConnectStore}
+                    disabled={!kaspiEmail || !kaspiPassword || isConnecting}
                   >
                     <Link2 className="mr-2 h-4 w-4" />
-                    Подключить магазин
+                    {isConnecting ? 'Подключение...' : 'Подключить магазин'}
                   </Button>
                 </CardFooter>
               </Card>
