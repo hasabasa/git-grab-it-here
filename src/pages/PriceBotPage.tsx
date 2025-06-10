@@ -73,7 +73,7 @@ const PriceBotPage = () => {
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState<Product[]>(demoProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -96,11 +96,11 @@ const PriceBotPage = () => {
   }, [selectedStoreId]);
   
   useEffect(() => {
-    if (user && !isDemo) {
-      loadUserProducts();
-    } else {
-      // В демо-режиме фильтруем продукты по выбранному магазину
+    if (isDemo) {
+      // В демо-режиме просто используем демо-данные
       setProducts(demoProducts);
+    } else if (user) {
+      loadUserProducts();
     }
   }, [user, isDemo, selectedStoreId]);
 
@@ -172,6 +172,7 @@ const PriceBotPage = () => {
   // Фильтруем продукты по выбранному магазину и поисковому запросу
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    // В демо-режиме также фильтруем по выбранному магазину
     const matchesStore = selectedStoreId === null || product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
