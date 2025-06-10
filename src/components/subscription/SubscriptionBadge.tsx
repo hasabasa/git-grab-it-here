@@ -11,7 +11,7 @@ import {
 import { Link } from "react-router-dom";
 
 interface SubscriptionBadgeProps {
-  plan?: "free" | "standard" | "premium";
+  plan?: "free" | "pro";
   daysLeft?: number;
 }
 
@@ -21,21 +21,15 @@ const SubscriptionBadge = ({
 }: SubscriptionBadgeProps) => {
   const getPlanDetails = () => {
     switch(plan) {
-      case "premium":
+      case "pro":
         return {
-          label: "Премиум",
-          color: "bg-amber-500",
-          textColor: "text-white"
-        };
-      case "standard":
-        return {
-          label: "Стандарт",
-          color: "bg-blue-500",
+          label: "Pro",
+          color: "bg-gradient-to-r from-purple-500 to-blue-500",
           textColor: "text-white"
         };
       default:
         return {
-          label: "Бесплатный",
+          label: "Демо",
           color: "bg-gray-200",
           textColor: "text-gray-700"
         };
@@ -48,7 +42,7 @@ const SubscriptionBadge = ({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link to="/subscription">
+          <Link to="/dashboard/subscription">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -58,7 +52,7 @@ const SubscriptionBadge = ({
               <Badge className={`${color} ${textColor}`}>
                 {label}
               </Badge>
-              {plan !== "free" && daysLeft > 0 && (
+              {plan === "pro" && daysLeft > 0 && (
                 <span className="text-xs text-gray-500 ml-1">
                   {daysLeft} дн.
                 </span>
@@ -68,7 +62,7 @@ const SubscriptionBadge = ({
         </TooltipTrigger>
         <TooltipContent>
           {plan === "free" ? 
-            "Улучшите свой тариф для доступа ко всем функциям" : 
+            "Подключите Pro план для полного доступа" : 
             `Ваш тариф: ${label}. Осталось: ${daysLeft} дн.`
           }
         </TooltipContent>
