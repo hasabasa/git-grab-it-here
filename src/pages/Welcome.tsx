@@ -6,6 +6,7 @@ import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import DemoModeButton from "@/components/auth/DemoModeButton";
+
 const Welcome = () => {
   const modules = [{
     title: "Бот демпинга",
@@ -248,14 +249,16 @@ const Welcome = () => {
             delay: index * 0.1
           }}>
                 <Card className="h-full bg-white/80 backdrop-blur-sm border-0 hover:shadow-xl transition-all duration-300">
-                  <CardHeader className="text-center">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4 mx-auto`}>
-                      <span className="text-3xl">{feature.icon}</span>
+                  <CardHeader className="text-center pb-6">
+                    <div className="flex justify-center mb-6">
+                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-lg`}>
+                        <span className="text-2xl">{feature.icon}</span>
+                      </div>
                     </div>
-                    <CardTitle className="text-xl mb-2">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl mb-3 text-center">{feature.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 text-center leading-relaxed">
+                  <CardContent className="text-center px-6 pb-8">
+                    <p className="text-gray-600 leading-relaxed">
                       {feature.description}
                     </p>
                   </CardContent>
