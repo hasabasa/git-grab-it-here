@@ -1,20 +1,17 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Crown, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle, Crown, Zap } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
-
 const PricingSection = () => {
-  return (
-    <div className="relative py-20">
+  return <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Выберите свой план</h2>
-            <p className="text-xl text-gray-600">
+            <h2 className="text-4xl font-bold text-white mb-4">Выберите свой план</h2>
+            <p className="text-xl text-gray-300">
               Начните бесплатно или получите полный доступ к платформе
             </p>
           </div>
@@ -39,12 +36,10 @@ const PricingSection = () => {
 
               <CardContent className="px-8">
                 <div className="space-y-4 mb-8">
-                  {["Просмотр всех модулей", "Тестовые данные", "Изучение интерфейса", "Понимание возможностей", "Без ограничений по времени"].map((feature, i) => (
-                    <div key={i} className="flex items-center">
+                  {["Просмотр всех модулей", "Тестовые данные", "Изучение интерфейса", "Понимание возможностей", "Без ограничений по времени"].map((feature, i) => <div key={i} className="flex items-center">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
                       <span className="text-gray-700">{feature}</span>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
 
                 <DemoModeButton />
@@ -76,12 +71,10 @@ const PricingSection = () => {
 
               <CardContent className="px-8">
                 <div className="space-y-4 mb-8">
-                  {["Полный доступ ко всем модулям", "Неограниченное количество товаров", "Сохранение всех данных", "Приоритетная поддержка 24/7", "API для интеграций", "Персональный менеджер"].map((feature, i) => (
-                    <div key={i} className="flex items-center">
+                  {["Полный доступ ко всем модулям", "Неограниченное количество товаров", "Сохранение всех данных", "Приоритетная поддержка 24/7", "API для интеграций", "Персональный менеджер"].map((feature, i) => <div key={i} className="flex items-center">
                       <CheckCircle className="h-5 w-5 text-yellow-400 mr-3" />
                       <span className="text-white">{feature}</span>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
 
                 <Link to="/dashboard/subscription">
@@ -97,14 +90,16 @@ const PricingSection = () => {
 
         <ScrollAnimation animation="fade" delay={600}>
           <div className="text-center mt-12">
-            <p className="text-gray-600">
-              💳 Принимаем все виды оплат • 🔒 Безопасные платежи • 📞 Поддержка 24/7
-            </p>
+            
+            <Link to="/auth">
+              <Button variant="outline" size="lg" className="bg-white/10 text-white border-white/30 hover:bg-white/20 smooth-hover">
+                Зарегистрироваться сейчас
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </ScrollAnimation>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PricingSection;
