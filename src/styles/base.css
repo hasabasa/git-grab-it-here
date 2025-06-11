@@ -84,11 +84,30 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 2rem;
+    /* Единый фон для всего сайта */
+    background: linear-gradient(135deg,
+      rgba(248, 250, 252, 1) 0%,
+      rgba(239, 246, 255, 0.9) 15%,
+      rgba(237, 233, 254, 0.8) 30%,
+      rgba(248, 250, 252, 0.9) 45%,
+      rgba(239, 246, 255, 0.8) 60%,
+      rgba(237, 233, 254, 0.9) 75%,
+      rgba(248, 250, 252, 1) 100%
+    );
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     overflow-x: hidden;
+    background: transparent;
+    min-height: 100vh;
+  }
+
+  #root {
+    background: transparent;
+    min-height: 100vh;
   }
 
   /* Custom scrollbar */

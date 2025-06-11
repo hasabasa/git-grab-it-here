@@ -7,19 +7,18 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const HeroSection = () => {
   return (
-    <div className="relative min-h-screen bg-seamless">
-      {/* Animated background gradients */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/5 to-cyan-600/10 animate-gradient-shift bg-[length:400%_400%]" />
+    <div className="relative min-h-screen bg-transparent">
+      {/* Subtle animated overlays */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full filter blur-3xl animate-float" />
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-400/20 rounded-full filter blur-3xl animate-float float-delayed" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/5 rounded-full filter blur-3xl animate-float" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-400/5 rounded-full filter blur-3xl animate-float float-delayed" />
       </div>
       
       <div className="relative max-w-7xl mx-auto px-6 py-20 z-10">
         <ScrollAnimation animation="fade" delay={200}>
           <div className="text-center mb-16">
             <ScrollAnimation animation="scale" delay={400}>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-blue-700 mb-6 glass-enhanced">
+              <div className="inline-flex items-center gap-2 bg-white/40 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-blue-700 mb-6 glass-enhanced">
                 <Crown className="h-4 w-4" />
                 Платформа №1 для продавцов Kaspi
               </div>
@@ -40,7 +39,7 @@ const HeroSection = () => {
             
             <ScrollAnimation animation="slide-up" delay={1000}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
-                <div className="glass-enhanced rounded-lg p-6 smooth-hover ambient-glow">
+                <div className="glass-enhanced rounded-lg p-6 smooth-hover ambient-glow bg-white/20 backdrop-blur-sm">
                   <div className="flex items-center gap-3 mb-3 justify-center">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                       <Brain className="h-5 w-5 text-white" />
@@ -52,7 +51,7 @@ const HeroSection = () => {
                   </p>
                 </div>
                 
-                <div className="glass-enhanced rounded-lg p-6 smooth-hover ambient-glow">
+                <div className="glass-enhanced rounded-lg p-6 smooth-hover ambient-glow bg-white/20 backdrop-blur-sm">
                   <div className="flex items-center gap-3 mb-3 justify-center">
                     <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                       <Target className="h-5 w-5 text-white" />

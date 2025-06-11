@@ -6,7 +6,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const GrowthSection = () => {
   return (
-    <div className="relative py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900 section-blend-top section-blend-bottom blur-edge-both">
+    <div className="relative py-20 bg-gradient-to-r from-blue-900/80 via-slate-900/80 to-purple-900/80 backdrop-blur-sm">
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-float" />
@@ -31,15 +31,15 @@ const GrowthSection = () => {
         
         <ScrollAnimation animation="slide-up" delay={200}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="glass-enhanced bg-white/10 rounded-lg p-6 smooth-hover">
+            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
               <div className="text-3xl font-bold text-yellow-400 mb-2">500+</div>
               <div className="text-white">Довольных клиентов</div>
             </div>
-            <div className="glass-enhanced bg-white/10 rounded-lg p-6 smooth-hover">
+            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
               <div className="text-3xl font-bold text-green-400 mb-2">40%</div>
               <div className="text-white">Рост продаж</div>
             </div>
-            <div className="glass-enhanced bg-white/10 rounded-lg p-6 smooth-hover">
+            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
               <div className="text-3xl font-bold text-blue-400 mb-2">24/7</div>
               <div className="text-white">Поддержка</div>
             </div>
