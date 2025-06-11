@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const PricingSection = () => {
   return (
-    <div className="relative py-20 bg-gray-50">
+    <div className="relative py-20">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
