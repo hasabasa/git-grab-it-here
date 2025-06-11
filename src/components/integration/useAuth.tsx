@@ -12,18 +12,20 @@ export const useAuth = () => {
   useEffect(() => {
     console.log("useAuth: Initializing auth state");
     
-    // Check if demo mode is set in localStorage
+    // Check if demo mode is set in localStorage first
     const demoMode = localStorage.getItem('kaspi-demo-mode');
     console.log("Demo mode from localStorage:", demoMode);
     
     if (demoMode === 'true') {
       console.log("Setting demo mode to true");
       setIsDemo(true);
+      setUser(null);
+      setSession(null);
       setLoading(false);
       return;
     }
 
-    // Set up auth listener first
+    // Set up auth listener
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session?.user?.email);
@@ -35,14 +37,18 @@ export const useAuth = () => {
         } else {
           setSession(null);
           setUser(null);
-          setIsDemo(false);
+          // Don't reset isDemo here if we're in demo mode
+          const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
+          if (currentDemoMode !== 'true') {
+            setIsDemo(false);
+          }
         }
         
         setLoading(false);
       }
     );
 
-    // Then check current session
+    // Check current session
     const getSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
@@ -54,12 +60,19 @@ export const useAuth = () => {
         } else {
           setSession(null);
           setUser(null);
-          setIsDemo(false);
+          // Don't reset isDemo here if we're in demo mode
+          const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
+          if (currentDemoMode !== 'true') {
+            setIsDemo(false);
+          }
         }
       } catch (error) {
         console.error('Error checking session:', error);
         setUser(null);
-        setIsDemo(false);
+        const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
+        if (currentDemoMode !== 'true') {
+          setIsDemo(false);
+        }
       } finally {
         setLoading(false);
       }
@@ -87,6 +100,7 @@ export const useAuth = () => {
     localStorage.removeItem('kaspi-demo-mode');
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    setIsDemo(false);
   };
 
   const enterDemoMode = () => {

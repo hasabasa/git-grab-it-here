@@ -12,9 +12,12 @@ const DemoModeButton = () => {
     console.log("Demo button clicked");
     try {
       enterDemoMode();
-      console.log("Demo mode entered");
-      navigate("/dashboard");
-      console.log("Navigation to dashboard initiated");
+      console.log("Demo mode entered, navigating...");
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        navigate("/dashboard");
+        console.log("Navigation to dashboard completed");
+      }, 100);
     } catch (error) {
       console.error("Error entering demo mode:", error);
     }
