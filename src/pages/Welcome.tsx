@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, Search, CheckCircle, Crown, Play, Zap, Activity, BarChart3, Target, Brain, Shield } from "lucide-react";
+import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, Search, CheckCircle, Crown, Zap, Activity, BarChart3, Target, Brain, Shield } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import DemoModeButton from "@/components/auth/DemoModeButton";
@@ -626,7 +626,7 @@ const Welcome = () => {
               <Card className="relative overflow-hidden h-full bg-white/95 backdrop-blur-sm border-2 border-gray-200">
                 <CardHeader className="text-center pb-8">
                   <div className="mb-4">
-                    <Play className="h-12 w-12 text-blue-500 mx-auto" />
+                    <Zap className="h-12 w-12 text-blue-500 mx-auto" />
                   </div>
                   <CardTitle className="text-2xl mb-2">Демо-режим</CardTitle>
                   <p className="text-gray-600">Попробуйте все функции бесплатно</p>
