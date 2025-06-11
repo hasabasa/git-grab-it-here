@@ -103,7 +103,7 @@ const ModulesSection = () => {
               key={module.path}
               animation="scale"
               delay={visibleModules.includes(index) ? index * 200 : 0}
-              className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
+              className={`group opacity-100 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
             >
               <Card className="overflow-hidden smooth-hover h-full border bg-white shadow-xl">
                 <CardHeader className="pb-4">
@@ -125,7 +125,7 @@ const ModulesSection = () => {
                   
                   <motion.div className="bg-gray-50 p-4 rounded-lg mb-4 relative overflow-hidden border border-gray-200 transition-all duration-300" whileHover={{
                     borderColor: "rgba(59, 130, 246, 0.3)",
-                    background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",
+                    backgroundColor: "#f8fafc",
                     scale: 1.02,
                     transition: { duration: 0.2 }
                   }}>
@@ -208,19 +208,13 @@ const ModulesSection = () => {
                       </motion.div>
                     </motion.div>
 
-                    <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200 to-transparent -skew-x-12 opacity-0" whileHover={{
-                      x: ["-100%", "200%"],
-                      opacity: [0, 0.3, 0],
-                      transition: { duration: 0.8, ease: "easeInOut" }
-                    }} />
-
                     <motion.div className="absolute top-2 right-2" whileHover={{
                       scale: 1.2,
                       rotate: 10,
                       transition: { duration: 0.2 }
                     }}>
                       <motion.div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200" whileHover={{
-                        background: "#dcfce7",
+                        backgroundColor: "#dcfce7",
                         transition: { duration: 0.2 }
                       }}>
                         <motion.span whileHover={{
@@ -232,9 +226,8 @@ const ModulesSection = () => {
                       </motion.div>
                     </motion.div>
 
-                    <motion.div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0" whileHover={{
-                      width: ["0%", "100%"],
-                      opacity: [0, 1, 1],
+                    <motion.div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 w-0" whileHover={{
+                      width: "100%",
                       transition: { duration: 0.8, ease: "easeInOut" }
                     }} />
                   </motion.div>
@@ -252,10 +245,8 @@ const ModulesSection = () => {
                           <ArrowRight className="h-4 w-4" />
                         </motion.div>
                         
-                        <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" initial={{
-                          x: "-100%"
-                        }} whileHover={{
-                          x: "100%",
+                        <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 translate-x-[-100%]" whileHover={{
+                          translateX: "100%",
                           transition: { duration: 0.5, ease: "easeInOut" }
                         }} />
                       </Button>
