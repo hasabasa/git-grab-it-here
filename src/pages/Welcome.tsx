@@ -6,6 +6,8 @@ import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import DemoModeButton from "@/components/auth/DemoModeButton";
+import Footer from "@/components/layout/Footer";
+
 const Welcome = () => {
   const modules = [{
     title: "Бот демпинга",
@@ -755,6 +757,9 @@ const Welcome = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>;
 };
 export default Welcome;
