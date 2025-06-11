@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,11 +85,60 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0px)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
+				},
+				'slide-in-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(30px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'fade-in-scale': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.95)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					}
+				},
+				'shimmer': {
+					'0%': {
+						backgroundPosition: '-200% center'
+					},
+					'100%': {
+						backgroundPosition: '200% center'
+					}
+				},
+				'gradient-shift': {
+					'0%, 100%': {
+						backgroundPosition: '0% 50%'
+					},
+					'50%': {
+						backgroundPosition: '100% 50%'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 6s ease-in-out infinite',
+				'slide-in-up': 'slide-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+				'fade-in-scale': 'fade-in-scale 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+				'shimmer': 'shimmer 2s infinite',
+				'gradient-shift': 'gradient-shift 3s ease infinite'
 			}
 		}
 	},
