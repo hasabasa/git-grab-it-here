@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,13 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle, Crown, Zap } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
+
 const PricingSection = () => {
-  return <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20 bg-gray-50">
+  return (
+    <div className="relative py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">Выберите свой план</h2>
-            <p className="text-xl text-gray-300">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Выберите свой план</h2>
+            <p className="text-xl text-gray-600">
               Начните бесплатно или получите полный доступ к платформе
             </p>
           </div>
@@ -100,6 +103,8 @@ const PricingSection = () => {
           </div>
         </ScrollAnimation>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PricingSection;
