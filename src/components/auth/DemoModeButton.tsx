@@ -13,9 +13,11 @@ const DemoModeButton = () => {
     try {
       enterDemoMode();
       console.log("Demo mode entered, navigating...");
-      // Navigate immediately after setting demo mode
-      navigate("/dashboard");
-      console.log("Navigation to dashboard completed");
+      // Small delay to ensure state is set before navigation
+      setTimeout(() => {
+        navigate("/dashboard");
+        console.log("Navigation to dashboard completed");
+      }, 100);
     } catch (error) {
       console.error("Error entering demo mode:", error);
     }
@@ -23,13 +25,13 @@ const DemoModeButton = () => {
 
   return (
     <Button 
-      variant="outline" 
       size="lg" 
-      className="w-full sm:w-auto text-sm sm:text-base py-3 sm:py-4 px-4 sm:px-6 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-colors min-h-[48px]"
+      className="w-full text-base sm:text-lg py-5 sm:py-6 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+      variant="outline"
       onClick={handleDemoClick}
     >
-      <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
-      <span className="truncate">Попробовать демо</span>
+      <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+      Попробовать демо
     </Button>
   );
 };

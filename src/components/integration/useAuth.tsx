@@ -103,7 +103,7 @@ export const useAuth = () => {
   };
 
   const enterDemoMode = () => {
-    console.log("Entering demo mode");
+    console.log("Entering demo mode - setting localStorage and state");
     localStorage.setItem('kaspi-demo-mode', 'true');
     setIsDemo(true);
     setUser(null);
