@@ -9,7 +9,7 @@ import TrustSection from "@/components/welcome/TrustSection";
 
 const Welcome = () => {
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <HeroSection />
       <FeaturesSection />
       <ModulesSection />
