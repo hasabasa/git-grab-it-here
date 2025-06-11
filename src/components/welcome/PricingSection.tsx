@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle, Crown, Zap } from "lucide-react";
+import { CheckCircle, Crown, Zap } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
 
@@ -97,15 +97,9 @@ const PricingSection = () => {
 
         <ScrollAnimation animation="fade" delay={600}>
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600">
               💳 Принимаем все виды оплат • 🔒 Безопасные платежи • 📞 Поддержка 24/7
             </p>
-            <Link to="/auth">
-              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 smooth-hover">
-                Зарегистрироваться сейчас
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </ScrollAnimation>
       </div>
