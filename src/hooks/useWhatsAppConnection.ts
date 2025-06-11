@@ -33,11 +33,28 @@ export const useWhatsAppConnection = () => {
     try {
       setLoading(true)
       
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Необходимо войти в систему')
+        return
+      }
+
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
-        body: { action: 'create_session' }
+        body: { action: 'create_session' },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('Function error:', error)
+        throw error
+      }
+
+      if (!data) {
+        throw new Error('Нет данных от сервера')
+      }
 
       setSession({
         id: data.session_id,
@@ -57,7 +74,8 @@ export const useWhatsAppConnection = () => {
       }, 10000)
       
     } catch (error: any) {
-      toast.error(`Ошибка создания сессии: ${error.message}`)
+      console.error('Create session error:', error)
+      toast.error(`Ошибка создания сессии: ${error.message || 'Неизвестная ошибка'}`)
     } finally {
       setLoading(false)
     }
@@ -70,20 +88,33 @@ export const useWhatsAppConnection = () => {
     }
 
     try {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Необходимо войти в систему')
+        return
+      }
+
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: {
           action: 'send_message',
           session_id: session.id,
           phone,
           message
+        },
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('Send message error:', error)
+        throw error
+      }
 
       // Добавляем сообщение в локальный стейт
       const newMessage: WhatsAppMessage = {
-        id: data.message_id,
+        id: data?.message_id || Date.now().toString(),
         session_id: session.id,
         contact_phone: phone,
         message_text: message,
@@ -97,7 +128,8 @@ export const useWhatsAppConnection = () => {
       toast.success('Сообщение отправлено')
 
     } catch (error: any) {
-      toast.error(`Ошибка отправки: ${error.message}`)
+      console.error('Send message error:', error)
+      toast.error(`Ошибка отправки: ${error.message || 'Неизвестная ошибка'}`)
     }
   }
 
@@ -105,12 +137,29 @@ export const useWhatsAppConnection = () => {
     if (!session?.id) return
 
     try {
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error('User not authenticated')
+        return
+      }
+
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
-        body: { action: 'get_messages', session_id: session.id }
+        body: { 
+          action: 'get_messages', 
+          session_id: session.id 
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
-      if (error) throw error
-      setMessages(data.messages || [])
+      if (error) {
+        console.error('Load messages error:', error)
+        throw error
+      }
+      
+      setMessages(data?.messages || [])
 
     } catch (error: any) {
       console.error('Ошибка загрузки сообщений:', error.message)
