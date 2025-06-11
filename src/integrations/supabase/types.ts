@@ -172,6 +172,130 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          is_blocked: boolean | null
+          last_seen: string | null
+          name: string | null
+          phone: string
+          profile_pic_url: string | null
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_blocked?: boolean | null
+          last_seen?: string | null
+          name?: string | null
+          phone: string
+          profile_pic_url?: string | null
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_blocked?: boolean | null
+          last_seen?: string | null
+          name?: string | null
+          phone?: string
+          profile_pic_url?: string | null
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_contacts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          contact_name: string | null
+          contact_phone: string
+          created_at: string
+          delivery_status: string | null
+          id: string
+          is_outgoing: boolean
+          message_text: string | null
+          message_type: string
+          session_id: string
+          timestamp: string
+        }
+        Insert: {
+          contact_name?: string | null
+          contact_phone: string
+          created_at?: string
+          delivery_status?: string | null
+          id?: string
+          is_outgoing?: boolean
+          message_text?: string | null
+          message_type?: string
+          session_id: string
+          timestamp?: string
+        }
+        Update: {
+          contact_name?: string | null
+          contact_phone?: string
+          created_at?: string
+          delivery_status?: string | null
+          id?: string
+          is_outgoing?: boolean
+          message_text?: string | null
+          message_type?: string
+          session_id?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          is_connected: boolean
+          last_activity: string | null
+          qr_code: string | null
+          session_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          last_activity?: string | null
+          qr_code?: string | null
+          session_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          last_activity?: string | null
+          qr_code?: string | null
+          session_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

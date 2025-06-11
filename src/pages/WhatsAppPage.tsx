@@ -1,15 +1,17 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Plus, Search, ExternalLink, Users, MessageSquare, QrCode } from "lucide-react";
+import { MessageCircle, Plus, Search, Users, MessageSquare, Smartphone } from "lucide-react";
 import { WhatsAppContact } from "@/types";
 import ContactsList from "@/components/whatsapp/ContactsList";
 import ContactForm from "@/components/whatsapp/ContactForm";
 import ChatsList from "@/components/whatsapp/ChatsList";
+import QRCodeAuth from "@/components/whatsapp/QRCodeAuth";
+import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -52,6 +54,16 @@ const WhatsAppPage = () => {
   const [contacts, setContacts] = useState<WhatsAppContact[]>(demoContacts);
   const [searchTerm, setSearchTerm] = useState("");
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<{ phone: string; name: string } | undefined>();
+
+  const {
+    session,
+    messages,
+    loading,
+    qrCode,
+    createSession,
+    sendMessage,
+  } = useWhatsAppConnection();
 
   // Фильтрация контактов по поисковому запросу
   const filteredContacts = contacts.filter(contact =>
@@ -59,17 +71,6 @@ const WhatsAppPage = () => {
     contact.phone.includes(searchTerm) ||
     contact.company?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleOpenWhatsApp = (phone?: string) => {
-    const baseUrl = 'https://web.whatsapp.com';
-    if (phone) {
-      const formattedPhone = phone.replace(/[^\d]/g, '');
-      const url = `${baseUrl}/send?phone=${formattedPhone}`;
-      window.open(url, '_blank');
-    } else {
-      window.open(baseUrl, '_blank');
-    }
-  };
 
   const handleAddContact = (contactData: Omit<WhatsAppContact, 'id' | 'createdAt'>) => {
     const newContact: WhatsAppContact = {
@@ -79,6 +80,13 @@ const WhatsAppPage = () => {
     };
     setContacts([...contacts, newContact]);
     setIsContactFormOpen(false);
+  };
+
+  const handleSelectContact = (contact: WhatsAppContact) => {
+    setSelectedContact({
+      phone: contact.phone,
+      name: contact.name
+    });
   };
 
   const activeContactsCount = contacts.filter(c => c.status === 'active').length;
@@ -118,15 +126,17 @@ const WhatsAppPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">WhatsApp Web</CardTitle>
-            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            <Smartphone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => handleOpenWhatsApp()}
+              onClick={() => {
+                window.open('https://web.whatsapp.com', '_blank');
+              }}
               size="sm"
               className="gap-2 w-full"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Smartphone className="h-4 w-4" />
               Открыть
             </Button>
           </CardContent>
@@ -134,87 +144,80 @@ const WhatsAppPage = () => {
       </div>
 
       {/* Основной контент */}
-      <Tabs defaultValue="web" className="space-y-4">
+      <Tabs defaultValue="chat" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="web">WhatsApp Web</TabsTrigger>
+          <TabsTrigger value="chat">Чат WhatsApp</TabsTrigger>
           <TabsTrigger value="contacts">Контакты</TabsTrigger>
-          <TabsTrigger value="chats">Чаты</TabsTrigger>
+          <TabsTrigger value="history">История чатов</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="web">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <QrCode className="h-5 w-5" />
-                WhatsApp Web
-              </CardTitle>
-              <CardDescription>
-                Войдите в WhatsApp Web с помощью QR-кода и общайтесь с клиентами
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 mb-2 flex items-center gap-2">
-                  <QrCode className="h-4 w-4" />
-                  Как войти в WhatsApp Web:
-                </h4>
-                <ol className="text-sm text-green-700 space-y-1 list-decimal list-inside">
-                  <li>Откройте WhatsApp на вашем телефоне</li>
-                  <li>Нажмите на меню (три точки) → "Связанные устройства"</li>
-                  <li>Нажмите "Привязать устройство"</li>
-                  <li>Отсканируйте QR-код ниже камерой телефона</li>
-                </ol>
-              </div>
+        <TabsContent value="chat" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Левая колонка - Подключение */}
+            <div>
+              <QRCodeAuth
+                qrCode={qrCode}
+                isConnected={session?.is_connected || false}
+                onCreateSession={createSession}
+                loading={loading}
+              />
               
-              <div className="text-center">
-                <Button
-                  onClick={() => handleOpenWhatsApp()}
-                  size="lg"
-                  className="gap-2"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                  Открыть WhatsApp Web в новой вкладке
-                </Button>
-              </div>
+              {session?.is_connected && (
+                <Card className="mt-4">
+                  <CardHeader>
+                    <CardTitle className="text-sm">Быстрый выбор контакта</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {contacts.slice(0, 5).map((contact) => (
+                        <Button
+                          key={contact.id}
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start"
+                          onClick={() => handleSelectContact(contact)}
+                        >
+                          <MessageCircle className="h-3 w-3 mr-2" />
+                          {contact.name}
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-muted p-3 border-b flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">WhatsApp Web</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Отсканируйте QR-код для входа
+            {/* Правая колонка - Чат */}
+            <div>
+              {session?.is_connected ? (
+                <WhatsAppChat
+                  messages={messages}
+                  onSendMessage={sendMessage}
+                  selectedContact={selectedContact}
+                />
+              ) : (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Smartphone className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium mb-2">Подключите WhatsApp</h3>
+                    <p className="text-muted-foreground text-center">
+                      Отсканируйте QR-код для начала общения с клиентами
                     </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenWhatsApp()}
-                    className="gap-1"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    Открыть отдельно
-                  </Button>
-                </div>
-                <div className="relative" style={{ height: '600px' }}>
-                  <iframe
-                    src="https://web.whatsapp.com"
-                    className="w-full h-full border-0"
-                    title="WhatsApp Web"
-                    allow="camera; microphone"
-                  />
-                </div>
-              </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
 
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-medium mb-2">💡 Советы по использованию:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Используйте кнопки "Написать" рядом с контактами для быстрого перехода к чатам</li>
-                  <li>Держите телефон подключенным к интернету для работы WhatsApp Web</li>
-                  <li>Вы можете открыть WhatsApp Web в отдельной вкладке для удобства</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          {session?.is_connected && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h4 className="font-medium text-green-800 mb-2">✅ WhatsApp активен</h4>
+              <p className="text-sm text-green-700">
+                Теперь вы можете отправлять и получать сообщения прямо в платформе. 
+                Все сообщения сохраняются в истории.
+              </p>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="contacts" className="space-y-4">
@@ -245,15 +248,86 @@ const WhatsAppPage = () => {
             </Dialog>
           </div>
 
-          {/* Список контактов */}
-          <ContactsList
-            contacts={filteredContacts}
-            onOpenWhatsApp={handleOpenWhatsApp}
-          />
+          {/* Список контактов с кнопкой выбора для чата */}
+          <div className="grid gap-4">
+            {filteredContacts.map((contact) => (
+              <Card key={contact.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-medium">{contact.name}</h3>
+                        <Badge variant={contact.status === 'active' ? 'default' : 'secondary'}>
+                          {contact.status === 'active' ? 'Активен' : 'Неактивен'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>📞 {contact.phone}</p>
+                        {contact.company && <p>🏢 {contact.company}</p>}
+                        {contact.lastMessage && (
+                          <p className="flex items-center gap-1">
+                            💬 {contact.lastMessage.length > 50 
+                              ? `${contact.lastMessage.substring(0, 50)}...` 
+                              : contact.lastMessage}
+                          </p>
+                        )}
+                        {contact.lastMessageDate && (
+                          <p className="flex items-center gap-1">
+                            📅 {contact.lastMessageDate}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {contact.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {contact.tags.map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      {session?.is_connected && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleSelectContact(contact)}
+                          className="gap-1"
+                        >
+                          <MessageCircle className="h-3 w-3" />
+                          Чат
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const formattedPhone = contact.phone.replace(/[^\d]/g, '');
+                          const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
+                          window.open(url, '_blank');
+                        }}
+                        className="gap-1"
+                      >
+                        <MessageSquare className="h-3 w-3" />
+                        Web
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
-        <TabsContent value="chats">
-          <ChatsList contacts={contacts} onOpenWhatsApp={handleOpenWhatsApp} />
+        <TabsContent value="history">
+          <ChatsList contacts={contacts} onOpenWhatsApp={(phone) => {
+            const formattedPhone = phone.replace(/[^\d]/g, '');
+            const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
+            window.open(url, '_blank');
+          }} />
         </TabsContent>
       </Tabs>
     </div>
