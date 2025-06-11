@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +9,12 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const PricingSection = () => {
   return (
-    <div className="relative py-20">
+    <div className="relative py-20 bg-background">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Выберите свой план</h2>
-            <p className="text-xl text-gray-600">
+            <h2 className="text-4xl font-bold text-foreground mb-4">Выберите свой план</h2>
+            <p className="text-xl text-muted-foreground">
               Начните бесплатно или получите полный доступ к платформе
             </p>
           </div>
