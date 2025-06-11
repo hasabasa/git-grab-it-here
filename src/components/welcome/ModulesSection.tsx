@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,7 +85,7 @@ const ModulesSection = () => {
   ];
 
   return (
-    <div className="relative py-20 bg-white">
+    <div className="relative py-20">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">

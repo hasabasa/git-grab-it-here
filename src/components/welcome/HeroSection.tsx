@@ -7,7 +7,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const HeroSection = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="relative min-h-screen">
       <div className="relative max-w-7xl mx-auto px-6 py-20 z-10">
         <ScrollAnimation animation="fade" delay={200}>
           <div className="text-center mb-16">
