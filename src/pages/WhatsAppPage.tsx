@@ -4,14 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Plus, Search, ExternalLink, Users, MessageSquare, LogIn } from "lucide-react";
+import { MessageCircle, Plus, Search, ExternalLink, Users, MessageSquare, QrCode } from "lucide-react";
 import { WhatsAppContact } from "@/types";
 import ContactsList from "@/components/whatsapp/ContactsList";
 import ContactForm from "@/components/whatsapp/ContactForm";
 import ChatsList from "@/components/whatsapp/ChatsList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -51,39 +49,9 @@ const demoContacts: WhatsAppContact[] = [
 ];
 
 const WhatsAppPage = () => {
-  const { user, isDemo } = useAuth();
   const [contacts, setContacts] = useState<WhatsAppContact[]>(demoContacts);
   const [searchTerm, setSearchTerm] = useState("");
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
-
-  // Показываем форму авторизации если пользователь не авторизован
-  if (!user || isDemo) {
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">WhatsApp интеграция</h1>
-          <p className="text-muted-foreground mb-6">
-            Для доступа к WhatsApp модулю необходимо войти в систему
-          </p>
-        </div>
-
-        <div className="max-w-md mx-auto">
-          <Card>
-            <CardHeader className="text-center">
-              <LogIn className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <CardTitle>Требуется авторизация</CardTitle>
-              <CardDescription>
-                Войдите в систему для управления контактами и чатами WhatsApp
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AuthComponent />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   // Фильтрация контактов по поисковому запросу
   const filteredContacts = contacts.filter(contact =>
@@ -166,12 +134,88 @@ const WhatsAppPage = () => {
       </div>
 
       {/* Основной контент */}
-      <Tabs defaultValue="contacts" className="space-y-4">
+      <Tabs defaultValue="web" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="web">WhatsApp Web</TabsTrigger>
           <TabsTrigger value="contacts">Контакты</TabsTrigger>
           <TabsTrigger value="chats">Чаты</TabsTrigger>
-          <TabsTrigger value="web">WhatsApp Web</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="web">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <QrCode className="h-5 w-5" />
+                WhatsApp Web
+              </CardTitle>
+              <CardDescription>
+                Войдите в WhatsApp Web с помощью QR-кода и общайтесь с клиентами
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-medium text-green-800 mb-2 flex items-center gap-2">
+                  <QrCode className="h-4 w-4" />
+                  Как войти в WhatsApp Web:
+                </h4>
+                <ol className="text-sm text-green-700 space-y-1 list-decimal list-inside">
+                  <li>Откройте WhatsApp на вашем телефоне</li>
+                  <li>Нажмите на меню (три точки) → "Связанные устройства"</li>
+                  <li>Нажмите "Привязать устройство"</li>
+                  <li>Отсканируйте QR-код ниже камерой телефона</li>
+                </ol>
+              </div>
+              
+              <div className="text-center">
+                <Button
+                  onClick={() => handleOpenWhatsApp()}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <ExternalLink className="h-5 w-5" />
+                  Открыть WhatsApp Web в новой вкладке
+                </Button>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-muted p-3 border-b flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">WhatsApp Web</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Отсканируйте QR-код для входа
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOpenWhatsApp()}
+                    className="gap-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Открыть отдельно
+                  </Button>
+                </div>
+                <div className="relative" style={{ height: '600px' }}>
+                  <iframe
+                    src="https://web.whatsapp.com"
+                    className="w-full h-full border-0"
+                    title="WhatsApp Web"
+                    allow="camera; microphone"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-medium mb-2">💡 Советы по использованию:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Используйте кнопки "Написать" рядом с контактами для быстрого перехода к чатам</li>
+                  <li>Держите телефон подключенным к интернету для работы WhatsApp Web</li>
+                  <li>Вы можете открыть WhatsApp Web в отдельной вкладке для удобства</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="contacts" className="space-y-4">
           {/* Поиск и добавление контактов */}
@@ -210,53 +254,6 @@ const WhatsAppPage = () => {
 
         <TabsContent value="chats">
           <ChatsList contacts={contacts} onOpenWhatsApp={handleOpenWhatsApp} />
-        </TabsContent>
-
-        <TabsContent value="web">
-          <Card>
-            <CardHeader>
-              <CardTitle>WhatsApp Web</CardTitle>
-              <CardDescription>
-                Откройте WhatsApp Web для прямого общения с клиентами
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center">
-                <Button
-                  onClick={() => handleOpenWhatsApp()}
-                  size="lg"
-                  className="gap-2"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                  Открыть WhatsApp Web
-                </Button>
-              </div>
-              
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-medium mb-2">💡 Совет:</h4>
-                <p className="text-sm text-muted-foreground">
-                  Для удобства работы рекомендуем открыть WhatsApp Web в отдельной вкладке 
-                  и использовать кнопки "Написать" рядом с контактами для быстрого перехода к чатам.
-                </p>
-              </div>
-
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-muted p-3 border-b">
-                  <h4 className="font-medium">WhatsApp Web (встроенный)</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Используйте WhatsApp Web прямо внутри платформы
-                  </p>
-                </div>
-                <div className="relative" style={{ height: '600px' }}>
-                  <iframe
-                    src="https://web.whatsapp.com"
-                    className="w-full h-full border-0"
-                    title="WhatsApp Web"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
