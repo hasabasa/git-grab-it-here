@@ -89,9 +89,9 @@ const Welcome = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 overflow-x-hidden">
-      {/* Hero Section with enhanced visual integration */}
-      <div className="relative overflow-hidden">
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Hero Section - seamless background */}
+      <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/5 to-cyan-600/10 animate-gradient-shift bg-[length:400%_400%]" />
         <div className="absolute inset-0">
@@ -168,14 +168,11 @@ const Welcome = () => {
             </div>
           </ScrollAnimation>
         </div>
-        
-        {/* Seamless transition to next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-slate-100/50" />
       </div>
 
-      {/* Why Choose Section with enhanced integration */}
-      <div className="py-20 bg-gradient-to-r from-slate-100/80 to-blue-100/80 section-transition">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* Why Choose Section - seamless transition */}
+      <div className="relative py-20 bg-gradient-to-r from-slate-100/80 to-blue-100/80 gradient-overlay-top">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
           <ScrollAnimation animation="slide-up">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Почему выбирают Kaspi Price</h2>
@@ -186,7 +183,7 @@ const Welcome = () => {
             </div>
           </ScrollAnimation>
 
-          <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
             {[
               {
                 icon: "🚀",
@@ -247,199 +244,198 @@ const Welcome = () => {
               </ScrollAnimation>
             ))}
           </div>
-        
-          {/* Smooth transition overlay */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-white/20 to-white/60" />
         </div>
       </div>
 
-      {/* Modules Section with enhanced effects */}
-      <div className="max-w-7xl mx-auto px-6 py-20 section-transition">
-        <ScrollAnimation animation="slide-up">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Мощные инструменты для роста</h2>
-            <p className="text-lg text-gray-600">
-              Комплексное решение для автоматизации и оптимизации вашего бизнеса
-            </p>
-          </div>
-        </ScrollAnimation>
+      {/* Modules Section - seamless integration */}
+      <div className="relative py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50 gradient-overlay-top gradient-overlay-bottom">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <ScrollAnimation animation="slide-up">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Мощные инструменты для роста</h2>
+              <p className="text-lg text-gray-600">
+                Комплексное решение для автоматизации и оптимизации вашего бизнеса
+              </p>
+            </div>
+          </ScrollAnimation>
 
-        <div ref={modulesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {modules.map((module, index) => (
-            <ScrollAnimation
-              key={module.path}
-              animation="scale"
-              delay={visibleModules.includes(index) ? index * 200 : 0}
-              className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
-            >
-              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow">
-                <CardHeader className="pb-4">
-                  <motion.div 
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center mb-4 transition-all duration-300 text-white`}
-                    whileHover={{
-                      scale: 1.15,
-                      rotate: [0, -5, 5, 0],
-                      transition: { duration: 0.3 }
-                    }}
-                  >
-                    {module.icon === "whatsapp" ? <WhatsAppIcon /> : <span className="text-4xl">{module.icon}</span>}
-                  </motion.div>
-                  <CardTitle className="text-xl mb-2">{module.title}</CardTitle>
-                  <p className="text-gray-600 text-sm leading-relaxed">{module.description}</p>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <motion.div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden border-2 border-transparent transition-all duration-300" whileHover={{
-                    borderColor: "rgba(59, 130, 246, 0.3)",
-                    background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",
-                    scale: 1.02,
-                    transition: { duration: 0.2 }
-                  }}>
-                    <motion.div className="flex items-center justify-between mb-3" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
-                      <div className="flex items-center gap-2">
-                        <motion.div className="w-2 h-2 bg-green-500 rounded-full relative" whileHover={{
-                          scale: [1, 1.4, 1],
-                          boxShadow: ["0 0 0 0 rgba(34, 197, 94, 0.7)", "0 0 0 6px rgba(34, 197, 94, 0)", "0 0 0 0 rgba(34, 197, 94, 0)"],
-                          transition: { duration: 1, repeat: 2, ease: "easeInOut" }
-                        }}>
-                          <motion.div className="absolute inset-0 bg-green-400 rounded-full" whileHover={{
-                            opacity: [0.5, 1, 0.5],
-                            transition: { duration: 0.8, repeat: 2, ease: "easeInOut" }
-                          }} />
-                        </motion.div>
-                        <motion.span className="text-xs font-bold text-gray-500 tracking-wider" whileHover={{
-                          scale: 1.1,
-                          color: "#059669",
-                          transition: { duration: 0.1 }
-                        }}>
-                          LIVE ПРИМЕР
-                        </motion.span>
-                      </div>
-                      <motion.div whileHover={{
-                        rotate: 360,
-                        scale: 1.2,
-                        transition: { duration: 0.5 }
-                      }}>
-                        <Activity className="h-3 w-3 text-blue-500" />
-                      </motion.div>
+          <div ref={modulesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+            {modules.map((module, index) => (
+              <ScrollAnimation
+                key={module.path}
+                animation="scale"
+                delay={visibleModules.includes(index) ? index * 200 : 0}
+                className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
+              >
+                <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow">
+                  <CardHeader className="pb-4">
+                    <motion.div 
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center mb-4 transition-all duration-300 text-white`}
+                      whileHover={{
+                        scale: 1.15,
+                        rotate: [0, -5, 5, 0],
+                        transition: { duration: 0.3 }
+                      }}
+                    >
+                      {module.icon === "whatsapp" ? <WhatsAppIcon /> : <span className="text-4xl">{module.icon}</span>}
                     </motion.div>
-                    
-                    <motion.div className="space-y-3" whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
-                      <motion.p className="text-sm text-gray-700 font-medium leading-relaxed opacity-80" whileHover={{
-                        opacity: 1,
-                        scale: 1.02,
-                        transition: { duration: 0.1 }
-                      }}>
-                        {module.example}
-                      </motion.p>
-                      
-                      <motion.div className="flex items-center justify-between bg-white/70 p-3 rounded-md" whileHover={{
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        scale: 1.02,
-                        transition: { duration: 0.2 }
-                      }}>
-                        <motion.div className="flex items-center gap-2" whileHover={{
-                          x: 2,
-                          scale: 1.05,
-                          transition: { duration: 0.1 }
-                        }}>
-                          <motion.div whileHover={{
-                            rotate: 15,
-                            scale: 1.3,
-                            transition: { duration: 0.2 }
-                          }}>
-                            <TrendingUp className="h-4 w-4 text-green-500" />
-                          </motion.div>
-                          <motion.span className="text-xs font-semibold text-green-600" whileHover={{
-                            scale: 1.1,
-                            color: "#047857",
-                            transition: { duration: 0.1 }
-                          }}>
-                            {module.stats}
-                          </motion.span>
-                        </motion.div>
-
-                        <motion.div className="text-right" whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }}>
-                          <motion.div className="text-xs font-bold text-blue-600" whileHover={{
-                            opacity: 1,
-                            y: -2,
-                            transition: { duration: 0.1 }
-                          }}>
-                            {module.animatedValue}
-                          </motion.div>
-                          <motion.div className="text-xs text-gray-500" whileHover={{
-                            opacity: 0.8,
-                            transition: { duration: 0.1 }
-                          }}>
-                            {module.animatedText}
-                          </motion.div>
-                        </motion.div>
-                      </motion.div>
-                    </motion.div>
-
-                    <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/20 to-transparent -skew-x-12 opacity-0" whileHover={{
-                      x: ["-100%", "200%"],
-                      opacity: [0, 0.8, 0],
-                      transition: { duration: 0.8, ease: "easeInOut" }
-                    }} />
-
-                    <motion.div className="absolute top-2 right-2" whileHover={{
-                      scale: 1.2,
-                      rotate: 10,
+                    <CardTitle className="text-xl mb-2">{module.title}</CardTitle>
+                    <p className="text-gray-600 text-sm leading-relaxed">{module.description}</p>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    <motion.div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden border-2 border-transparent transition-all duration-300" whileHover={{
+                      borderColor: "rgba(59, 130, 246, 0.3)",
+                      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",
+                      scale: 1.02,
                       transition: { duration: 0.2 }
                     }}>
-                      <motion.div className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200/50" whileHover={{
-                        background: "linear-gradient(to right, #a7f3d0, #93c5fd)",
-                        transition: { duration: 0.2 }
-                      }}>
-                        <motion.span whileHover={{
+                      <motion.div className="flex items-center justify-between mb-3" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
+                        <div className="flex items-center gap-2">
+                          <motion.div className="w-2 h-2 bg-green-500 rounded-full relative" whileHover={{
+                            scale: [1, 1.4, 1],
+                            boxShadow: ["0 0 0 0 rgba(34, 197, 94, 0.7)", "0 0 0 6px rgba(34, 197, 94, 0)", "0 0 0 0 rgba(34, 197, 94, 0)"],
+                            transition: { duration: 1, repeat: 2, ease: "easeInOut" }
+                          }}>
+                            <motion.div className="absolute inset-0 bg-green-400 rounded-full" whileHover={{
+                              opacity: [0.5, 1, 0.5],
+                              transition: { duration: 0.8, repeat: 2, ease: "easeInOut" }
+                            }} />
+                          </motion.div>
+                          <motion.span className="text-xs font-bold text-gray-500 tracking-wider" whileHover={{
+                            scale: 1.1,
+                            color: "#059669",
+                            transition: { duration: 0.1 }
+                          }}>
+                            LIVE ПРИМЕР
+                          </motion.span>
+                        </div>
+                        <motion.div whileHover={{
+                          rotate: 360,
+                          scale: 1.2,
+                          transition: { duration: 0.5 }
+                        }}>
+                          <Activity className="h-3 w-3 text-blue-500" />
+                        </motion.div>
+                      </motion.div>
+                      
+                      <motion.div className="space-y-3" whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
+                        <motion.p className="text-sm text-gray-700 font-medium leading-relaxed opacity-80" whileHover={{
                           opacity: 1,
-                          scale: 1.05,
+                          scale: 1.02,
                           transition: { duration: 0.1 }
                         }}>
-                          LIVE
-                        </motion.span>
-                      </motion.div>
-                    </motion.div>
-
-                    <motion.div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0" whileHover={{
-                      width: ["0%", "100%"],
-                      opacity: [0, 0.7, 0.7],
-                      transition: { duration: 0.8, ease: "easeInOut" }
-                    }} />
-                  </motion.div>
-
-                  <Link to={module.path}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
-                      <Button className="w-full group-hover:bg-primary/90 transition-all duration-300 relative overflow-hidden smooth-hover">
-                        <motion.span className="relative z-10" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
-                          Перейти к модулю
-                        </motion.span>
-                        <motion.div className="ml-2 relative z-10" whileHover={{
-                          x: 4,
+                          {module.example}
+                        </motion.p>
+                        
+                        <motion.div className="flex items-center justify-between bg-white/70 p-3 rounded-md" whileHover={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          scale: 1.02,
                           transition: { duration: 0.2 }
                         }}>
-                          <ArrowRight className="h-4 w-4" />
+                          <motion.div className="flex items-center gap-2" whileHover={{
+                            x: 2,
+                            scale: 1.05,
+                            transition: { duration: 0.1 }
+                          }}>
+                            <motion.div whileHover={{
+                              rotate: 15,
+                              scale: 1.3,
+                              transition: { duration: 0.2 }
+                            }}>
+                              <TrendingUp className="h-4 w-4 text-green-500" />
+                            </motion.div>
+                            <motion.span className="text-xs font-semibold text-green-600" whileHover={{
+                              scale: 1.1,
+                              color: "#047857",
+                              transition: { duration: 0.1 }
+                            }}>
+                              {module.stats}
+                            </motion.span>
+                          </motion.div>
+
+                          <motion.div className="text-right" whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }}>
+                            <motion.div className="text-xs font-bold text-blue-600" whileHover={{
+                              opacity: 1,
+                              y: -2,
+                              transition: { duration: 0.1 }
+                            }}>
+                              {module.animatedValue}
+                            </motion.div>
+                            <motion.div className="text-xs text-gray-500" whileHover={{
+                              opacity: 0.8,
+                              transition: { duration: 0.1 }
+                            }}>
+                              {module.animatedText}
+                            </motion.div>
+                          </motion.div>
                         </motion.div>
-                        
-                        <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" initial={{
-                          x: "-100%"
-                        }} whileHover={{
-                          x: "100%",
-                          transition: { duration: 0.5, ease: "easeInOut" }
-                        }} />
-                      </Button>
+                      </motion.div>
+
+                      <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/20 to-transparent -skew-x-12 opacity-0" whileHover={{
+                        x: ["-100%", "200%"],
+                        opacity: [0, 0.8, 0],
+                        transition: { duration: 0.8, ease: "easeInOut" }
+                      }} />
+
+                      <motion.div className="absolute top-2 right-2" whileHover={{
+                        scale: 1.2,
+                        rotate: 10,
+                        transition: { duration: 0.2 }
+                      }}>
+                        <motion.div className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200/50" whileHover={{
+                          background: "linear-gradient(to right, #a7f3d0, #93c5fd)",
+                          transition: { duration: 0.2 }
+                        }}>
+                          <motion.span whileHover={{
+                            opacity: 1,
+                            scale: 1.05,
+                            transition: { duration: 0.1 }
+                          }}>
+                            LIVE
+                          </motion.span>
+                        </motion.div>
+                      </motion.div>
+
+                      <motion.div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0" whileHover={{
+                        width: ["0%", "100%"],
+                        opacity: [0, 0.7, 0.7],
+                        transition: { duration: 0.8, ease: "easeInOut" }
+                      }} />
                     </motion.div>
-                  </Link>
-                </CardContent>
-              </Card>
-            </ScrollAnimation>
-          ))}
+
+                    <Link to={module.path}>
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
+                        <Button className="w-full group-hover:bg-primary/90 transition-all duration-300 relative overflow-hidden smooth-hover">
+                          <motion.span className="relative z-10" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
+                            Перейти к модулю
+                          </motion.span>
+                          <motion.div className="ml-2 relative z-10" whileHover={{
+                            x: 4,
+                            transition: { duration: 0.2 }
+                          }}>
+                            <ArrowRight className="h-4 w-4" />
+                          </motion.div>
+                          
+                          <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" initial={{
+                            x: "-100%"
+                          }} whileHover={{
+                            x: "100%",
+                            transition: { duration: 0.5, ease: "easeInOut" }
+                          }} />
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </ScrollAnimation>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Focus on Growth Section with enhanced visual effects */}
-      <div className="py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900 section-transition relative overflow-hidden">
+      {/* Focus on Growth Section - seamless dark transition */}
+      <div className="relative py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900 gradient-overlay-top">
         {/* Animated background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-float" />
@@ -490,9 +486,9 @@ const Welcome = () => {
         </div>
       </div>
 
-      {/* Pricing Section with enhanced glass effects */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20 section-transition relative">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* Pricing Section - seamless continuation */}
+      <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
           <ScrollAnimation animation="slide-up">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-white mb-4">Выберите свой план</h2>
@@ -593,9 +589,9 @@ const Welcome = () => {
         </div>
       </div>
 
-      {/* Trust Section with subtle animations */}
-      <div className="py-16 bg-white section-transition">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+      {/* Trust Section - seamless light transition */}
+      <div className="relative py-16 bg-white gradient-overlay-top">
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <ScrollAnimation animation="slide-up">
             <h3 className="text-2xl font-bold text-gray-900 mb-8">
               Доверяют более 500+ продавцов на Kaspi
@@ -618,7 +614,7 @@ const Welcome = () => {
         </div>
       </div>
 
-      {/* Footer with seamless integration */}
+      {/* Footer - seamless integration */}
       <Footer />
     </div>
   );
