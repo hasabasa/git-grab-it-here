@@ -6,17 +6,11 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const GrowthSection = () => {
   return (
-    <div className="relative py-20 bg-gradient-to-r from-blue-900/80 via-slate-900/80 to-purple-900/80 backdrop-blur-sm">
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full filter blur-3xl float-delayed" />
-      </div>
-      
+    <div className="relative py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900">
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <ScrollAnimation animation="scale">
           <div className="mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-6 smooth-hover">
+            <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-6">
               <Shield className="h-10 w-10 text-white" />
             </div>
             <h2 className="text-4xl font-bold text-white mb-6">
@@ -31,15 +25,15 @@ const GrowthSection = () => {
         
         <ScrollAnimation animation="slide-up" delay={200}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
+            <div className="bg-white bg-opacity-10 rounded-lg p-6 border border-white border-opacity-20">
               <div className="text-3xl font-bold text-yellow-400 mb-2">500+</div>
               <div className="text-white">Довольных клиентов</div>
             </div>
-            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
+            <div className="bg-white bg-opacity-10 rounded-lg p-6 border border-white border-opacity-20">
               <div className="text-3xl font-bold text-green-400 mb-2">40%</div>
               <div className="text-white">Рост продаж</div>
             </div>
-            <div className="glass-enhanced bg-white/10 backdrop-blur-sm rounded-lg p-6 smooth-hover">
+            <div className="bg-white bg-opacity-10 rounded-lg p-6 border border-white border-opacity-20">
               <div className="text-3xl font-bold text-blue-400 mb-2">24/7</div>
               <div className="text-white">Поддержка</div>
             </div>
@@ -48,7 +42,7 @@ const GrowthSection = () => {
 
         <ScrollAnimation animation="fade" delay={400}>
           <Link to="/auth">
-            <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100 text-lg py-6 px-8 smooth-hover">
+            <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100 text-lg py-6 px-8">
               Начать прямо сейчас
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
