@@ -3,14 +3,15 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Plus, Search, ExternalLink, Users, MessageSquare } from "lucide-react";
-import { WhatsAppContact, MessageTemplate } from "@/types";
+import { MessageCircle, Plus, Search, ExternalLink, Users, MessageSquare, LogIn } from "lucide-react";
+import { WhatsAppContact } from "@/types";
 import ContactsList from "@/components/whatsapp/ContactsList";
 import ContactForm from "@/components/whatsapp/ContactForm";
-import MessageTemplates from "@/components/whatsapp/MessageTemplates";
+import ChatsList from "@/components/whatsapp/ChatsList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from "@/components/integration/useAuth";
+import AuthComponent from "@/components/integration/AuthComponent";
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -49,37 +50,40 @@ const demoContacts: WhatsAppContact[] = [
   }
 ];
 
-// Демо данные для шаблонов
-const demoTemplates: MessageTemplate[] = [
-  {
-    id: "1",
-    name: "Приветствие нового клиента",
-    content: "Здравствуйте! Спасибо за интерес к нашим товарам. Чем могу помочь?",
-    category: "Приветствие",
-    isDefault: true
-  },
-  {
-    id: "2",
-    name: "Подтверждение заказа",
-    content: "Ваш заказ принят! Номер заказа: {order_number}. Доставка в течение 2-3 дней.",
-    category: "Заказы",
-    isDefault: false
-  },
-  {
-    id: "3",
-    name: "Напоминание об оплате",
-    content: "Добрый день! Напоминаем о необходимости оплаты заказа №{order_number}. Сумма: {amount} тенге.",
-    category: "Оплата",
-    isDefault: false
-  }
-];
-
 const WhatsAppPage = () => {
+  const { user, isDemo } = useAuth();
   const [contacts, setContacts] = useState<WhatsAppContact[]>(demoContacts);
-  const [templates, setTemplates] = useState<MessageTemplate[]>(demoTemplates);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContact, setSelectedContact] = useState<WhatsAppContact | null>(null);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+
+  // Показываем форму авторизации если пользователь не авторизован
+  if (!user || isDemo) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-2">WhatsApp интеграция</h1>
+          <p className="text-muted-foreground mb-6">
+            Для доступа к WhatsApp модулю необходимо войти в систему
+          </p>
+        </div>
+
+        <div className="max-w-md mx-auto">
+          <Card>
+            <CardHeader className="text-center">
+              <LogIn className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <CardTitle>Требуется авторизация</CardTitle>
+              <CardDescription>
+                Войдите в систему для управления контактами и чатами WhatsApp
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AuthComponent />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Фильтрация контактов по поисковому запросу
   const filteredContacts = contacts.filter(contact =>
@@ -88,11 +92,15 @@ const WhatsAppPage = () => {
     contact.company?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenWhatsApp = (phone: string, template?: string) => {
-    const formattedPhone = phone.replace(/[^\d]/g, '');
-    const message = template ? encodeURIComponent(template) : '';
-    const url = `https://web.whatsapp.com/send?phone=${formattedPhone}${message ? `&text=${message}` : ''}`;
-    window.open(url, '_blank');
+  const handleOpenWhatsApp = (phone?: string) => {
+    const baseUrl = 'https://web.whatsapp.com';
+    if (phone) {
+      const formattedPhone = phone.replace(/[^\d]/g, '');
+      const url = `${baseUrl}/send?phone=${formattedPhone}`;
+      window.open(url, '_blank');
+    } else {
+      window.open(baseUrl, '_blank');
+    }
   };
 
   const handleAddContact = (contactData: Omit<WhatsAppContact, 'id' | 'createdAt'>) => {
@@ -106,7 +114,6 @@ const WhatsAppPage = () => {
   };
 
   const activeContactsCount = contacts.filter(c => c.status === 'active').length;
-  const totalMessages = contacts.reduce((sum, contact) => contact.lastMessage ? sum + 1 : sum, 0);
 
   return (
     <div className="space-y-6">
@@ -142,11 +149,18 @@ const WhatsAppPage = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Шаблонов сообщений</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">WhatsApp Web</CardTitle>
+            <ExternalLink className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{templates.length}</div>
+            <Button
+              onClick={() => handleOpenWhatsApp()}
+              size="sm"
+              className="gap-2 w-full"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Открыть
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -155,7 +169,7 @@ const WhatsAppPage = () => {
       <Tabs defaultValue="contacts" className="space-y-4">
         <TabsList>
           <TabsTrigger value="contacts">Контакты</TabsTrigger>
-          <TabsTrigger value="templates">Шаблоны сообщений</TabsTrigger>
+          <TabsTrigger value="chats">Чаты</TabsTrigger>
           <TabsTrigger value="web">WhatsApp Web</TabsTrigger>
         </TabsList>
 
@@ -191,15 +205,11 @@ const WhatsAppPage = () => {
           <ContactsList
             contacts={filteredContacts}
             onOpenWhatsApp={handleOpenWhatsApp}
-            templates={templates}
           />
         </TabsContent>
 
-        <TabsContent value="templates">
-          <MessageTemplates
-            templates={templates}
-            onTemplatesChange={setTemplates}
-          />
+        <TabsContent value="chats">
+          <ChatsList contacts={contacts} onOpenWhatsApp={handleOpenWhatsApp} />
         </TabsContent>
 
         <TabsContent value="web">
@@ -213,7 +223,7 @@ const WhatsAppPage = () => {
             <CardContent className="space-y-4">
               <div className="text-center">
                 <Button
-                  onClick={() => window.open('https://web.whatsapp.com', '_blank')}
+                  onClick={() => handleOpenWhatsApp()}
                   size="lg"
                   className="gap-2"
                 >
@@ -228,6 +238,22 @@ const WhatsAppPage = () => {
                   Для удобства работы рекомендуем открыть WhatsApp Web в отдельной вкладке 
                   и использовать кнопки "Написать" рядом с контактами для быстрого перехода к чатам.
                 </p>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-muted p-3 border-b">
+                  <h4 className="font-medium">WhatsApp Web (встроенный)</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Используйте WhatsApp Web прямо внутри платформы
+                  </p>
+                </div>
+                <div className="relative" style={{ height: '600px' }}>
+                  <iframe
+                    src="https://web.whatsapp.com"
+                    className="w-full h-full border-0"
+                    title="WhatsApp Web"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
