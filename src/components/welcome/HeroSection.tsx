@@ -6,6 +6,13 @@ import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const HeroSection = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative min-h-screen">
       <div className="relative max-w-7xl mx-auto px-6 py-20 z-10">
@@ -66,12 +73,10 @@ const HeroSection = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-lg mx-auto">
                 <DemoModeButton />
-                <Link to="/auth" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full text-lg py-6 px-8">
-                    <Crown className="mr-2 h-5 w-5" />
-                    Получить полный доступ
-                  </Button>
-                </Link>
+                <Button onClick={scrollToPricing} size="lg" className="w-full sm:w-auto text-lg py-6 px-8">
+                  <Crown className="mr-2 h-5 w-5" />
+                  Получить полный доступ
+                </Button>
               </div>
             </ScrollAnimation>
           </div>

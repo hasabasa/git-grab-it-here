@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, TrendingUp, Activity } from "lucide-react";
@@ -8,6 +8,13 @@ import { useStaggeredScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const ModulesSection = () => {
   const [modulesRef, visibleModules] = useStaggeredScrollAnimation(6, 200);
+
+  const scrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const WhatsAppIcon = () => (
     <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
@@ -19,7 +26,6 @@ const ModulesSection = () => {
     {
       title: "Бот демпинга",
       description: "Динамическое ценообразование для опережения конкурентов",
-      path: "/dashboard/price-bot",
       icon: "🔥",
       color: "from-red-500 to-orange-500",
       example: "Автоматически снижает цену на 50₸ при изменении у конкурентов",
@@ -30,7 +36,6 @@ const ModulesSection = () => {
     {
       title: "Мои продажи",
       description: "Статистика и аналитика продаж",
-      path: "/dashboard/sales",
       icon: "📈",
       color: "from-green-500 to-emerald-500",
       example: "Доход за месяц: 2,450,000₸ (+12% к прошлому месяцу)",
@@ -41,7 +46,6 @@ const ModulesSection = () => {
     {
       title: "Юнит-экономика",
       description: "Расчет прибыли с учетом комиссий и доставки",
-      path: "/dashboard/unit-economics",
       icon: "🔢",
       color: "from-blue-500 to-cyan-500",
       example: "Чистая прибыль: 3,240₸ (32% маржа) с товара",
@@ -52,7 +56,6 @@ const ModulesSection = () => {
     {
       title: "CRM и напоминания",
       description: "Работа с клиентами и задачами",
-      path: "/dashboard/crm",
       icon: "✅",
       color: "from-purple-500 to-violet-500",
       example: "15 активных клиентов, 3 задачи на сегодня",
@@ -63,7 +66,6 @@ const ModulesSection = () => {
     {
       title: "WhatsApp",
       description: "Интеграция с WhatsApp для общения с клиентами",
-      path: "/dashboard/whatsapp",
       icon: "whatsapp",
       color: "from-emerald-500 to-green-500",
       example: "127 сообщений обработано автоматически",
@@ -74,7 +76,6 @@ const ModulesSection = () => {
     {
       title: "Поиск ниш",
       description: "Анализ спроса и предложения",
-      path: "/dashboard/niche-search",
       icon: "📊",
       color: "from-indigo-500 to-purple-500",
       example: "Найдено 8 перспективных ниш с низкой конкуренцией",
@@ -99,7 +100,7 @@ const ModulesSection = () => {
         <div ref={modulesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
           {modules.map((module, index) => (
             <ScrollAnimation
-              key={module.path}
+              key={module.title}
               animation="scale"
               delay={visibleModules.includes(index) ? index * 200 : 0}
               className={`group opacity-100 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
@@ -231,26 +232,24 @@ const ModulesSection = () => {
                     }} />
                   </motion.div>
 
-                  <Link to={module.path}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
-                      <Button className="w-full group-hover:bg-primary/90 transition-all duration-300 relative overflow-hidden smooth-hover">
-                        <motion.span className="relative z-10" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
-                          Перейти к модулю
-                        </motion.span>
-                        <motion.div className="ml-2 relative z-10" whileHover={{
-                          x: 4,
-                          transition: { duration: 0.2 }
-                        }}>
-                          <ArrowRight className="h-4 w-4" />
-                        </motion.div>
-                        
-                        <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 translate-x-[-100%]" whileHover={{
-                          translateX: "100%",
-                          transition: { duration: 0.5, ease: "easeInOut" }
-                        }} />
-                      </Button>
-                    </motion.div>
-                  </Link>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
+                    <Button onClick={scrollToPricing} className="w-full group-hover:bg-primary/90 transition-all duration-300 relative overflow-hidden smooth-hover">
+                      <motion.span className="relative z-10" whileHover={{ x: 2 }} transition={{ duration: 0.2 }}>
+                        Перейти к модулю
+                      </motion.span>
+                      <motion.div className="ml-2 relative z-10" whileHover={{
+                        x: 4,
+                        transition: { duration: 0.2 }
+                      }}>
+                        <ArrowRight className="h-4 w-4" />
+                      </motion.div>
+                      
+                      <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 translate-x-[-100%]" whileHover={{
+                        translateX: "100%",
+                        transition: { duration: 0.5, ease: "easeInOut" }
+                      }} />
+                    </Button>
+                  </motion.div>
                 </CardContent>
               </Card>
             </ScrollAnimation>
