@@ -46,7 +46,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <div className="relative py-20 bg-gradient-to-r from-slate-100/80 to-blue-100/80 gradient-overlay-top">
+    <div className="relative py-20 bg-gradient-to-r from-slate-100/80 to-blue-100/80 gradient-overlay-top gradient-overlay-bottom">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-16">
