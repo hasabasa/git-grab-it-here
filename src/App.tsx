@@ -13,6 +13,7 @@ import CrmPage from "./pages/CrmPage";
 import NicheSearchPage from "./pages/NicheSearchPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationPage from "./pages/IntegrationPage";
+import WhatsAppPage from "./pages/WhatsAppPage";
 import NotFound from "./pages/NotFound";
 import { MotionConfig } from "framer-motion";
 
@@ -41,6 +42,7 @@ const App = () => {
                 <Route path="unit-economics" element={<UnitEconomicsPage />} />
                 <Route path="crm" element={<CrmPage />} />
                 <Route path="niche-search" element={<NicheSearchPage />} />
+                <Route path="whatsapp" element={<WhatsAppPage />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="integrations" element={<IntegrationPage />} />
               </Route>

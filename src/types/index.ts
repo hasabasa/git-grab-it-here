@@ -97,3 +97,24 @@ export interface DeliveryRate {
   city: string;
   rate: number;
 }
+
+// Новые интерфейсы для модуля WhatsApp
+export interface WhatsAppContact {
+  id: string;
+  name: string;
+  phone: string;
+  company?: string;
+  tags: string[];
+  lastMessage?: string;
+  lastMessageDate?: string;
+  status: "active" | "inactive";
+  createdAt: string;
+}
+
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  content: string;
+  category: string;
+  isDefault: boolean;
+}

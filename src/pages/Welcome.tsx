@@ -32,6 +32,12 @@ const Welcome = () => {
       icon: "✅"
     },
     {
+      title: "WhatsApp",
+      description: "Интеграция с WhatsApp для общения с клиентами",
+      path: "/dashboard/whatsapp",
+      icon: "💬"
+    },
+    {
       title: "Поиск ниш",
       description: "Анализ спроса и предложения",
       path: "/dashboard/niche-search",
