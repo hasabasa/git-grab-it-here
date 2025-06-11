@@ -4,7 +4,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const TrustSection = () => {
   return (
-    <div className="relative py-16 bg-transparent">
+    <div className="relative py-16 bg-gray-50">
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <ScrollAnimation animation="slide-up">
           <h3 className="text-2xl font-bold text-gray-900 mb-8">
