@@ -30,7 +30,7 @@
     z-index: 1;
   }
 
-  /* Smooth gradient overlays */
+  /* Smooth gradient overlays for seamless transitions */
   .gradient-overlay-top {
     position: relative;
   }
@@ -41,11 +41,12 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 150px;
+    height: 120px;
     background: linear-gradient(180deg, 
-      rgba(248, 250, 252, 1) 0%,
-      rgba(248, 250, 252, 0.8) 30%,
-      rgba(248, 250, 252, 0.4) 60%,
+      rgba(248, 250, 252, 0.95) 0%,
+      rgba(248, 250, 252, 0.7) 25%,
+      rgba(248, 250, 252, 0.4) 50%,
+      rgba(248, 250, 252, 0.1) 75%,
       transparent 100%
     );
     pointer-events: none;
@@ -62,33 +63,75 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 150px;
+    height: 120px;
     background: linear-gradient(0deg, 
-      rgba(248, 250, 252, 1) 0%,
-      rgba(248, 250, 252, 0.8) 30%,
-      rgba(248, 250, 252, 0.4) 60%,
+      rgba(248, 250, 252, 0.95) 0%,
+      rgba(248, 250, 252, 0.7) 25%,
+      rgba(248, 250, 252, 0.4) 50%,
+      rgba(248, 250, 252, 0.1) 75%,
       transparent 100%
     );
     pointer-events: none;
     z-index: 2;
   }
 
-  /* Enhanced blur transitions */
+  /* Enhanced blur transitions for smoother edges */
   .blur-edge-top {
     position: relative;
-    mask: linear-gradient(to bottom, transparent 0%, black 20%, black 100%);
-    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 20%, black 100%);
+    mask: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
   }
 
   .blur-edge-bottom {
     position: relative;
-    mask: linear-gradient(to top, transparent 0%, black 20%, black 100%);
-    -webkit-mask: linear-gradient(to top, transparent 0%, black 20%, black 100%);
+    mask: linear-gradient(to top, transparent 0%, black 15%, black 100%);
+    -webkit-mask: linear-gradient(to top, transparent 0%, black 15%, black 100%);
   }
 
   .blur-edge-both {
     position: relative;
-    mask: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    mask: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  /* Adaptive gradient overlays for different background colors */
+  .gradient-overlay-dark::before {
+    background: linear-gradient(180deg, 
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(15, 23, 42, 0.7) 25%,
+      rgba(15, 23, 42, 0.4) 50%,
+      rgba(15, 23, 42, 0.1) 75%,
+      transparent 100%
+    ) !important;
+  }
+
+  .gradient-overlay-dark::after {
+    background: linear-gradient(0deg, 
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(15, 23, 42, 0.7) 25%,
+      rgba(15, 23, 42, 0.4) 50%,
+      rgba(15, 23, 42, 0.1) 75%,
+      transparent 100%
+    ) !important;
+  }
+
+  .gradient-overlay-light::before {
+    background: linear-gradient(180deg, 
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.7) 25%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.1) 75%,
+      transparent 100%
+    ) !important;
+  }
+
+  .gradient-overlay-light::after {
+    background: linear-gradient(0deg, 
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.7) 25%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.1) 75%,
+      transparent 100%
+    ) !important;
   }
 }
