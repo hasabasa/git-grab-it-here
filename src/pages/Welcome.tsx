@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, Search, CheckCircle, Crown, Play } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
+import DemoModeButton from "@/components/auth/DemoModeButton";
 
 const Welcome = () => {
   const modules = [
@@ -130,7 +130,9 @@ const Welcome = () => {
       <div className="max-w-7xl mx-auto px-6 pb-20">
         <motion.div 
           className="text-center mb-12"
-          {...fadeInUp}
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Мощные инструменты для роста</h2>
           <p className="text-lg text-gray-600">
@@ -147,7 +149,9 @@ const Welcome = () => {
           {modules.map((module, index) => (
             <motion.div
               key={module.path}
-              variants={fadeInUp}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
               className="group"
             >
@@ -191,7 +195,9 @@ const Welcome = () => {
         <div className="max-w-6xl mx-auto px-6">
           <motion.div 
             className="text-center mb-12"
-            {...fadeInUp}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl font-bold text-white mb-4">Выберите свой план</h2>
             <p className="text-xl text-gray-300">
@@ -206,7 +212,11 @@ const Welcome = () => {
             animate="animate"
           >
             {/* Demo Plan */}
-            <motion.div variants={fadeInUp}>
+            <motion.div 
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
               <Card className="relative overflow-hidden h-full bg-white/95 backdrop-blur-sm border-2 border-gray-200">
                 <CardHeader className="text-center pb-8">
                   <div className="mb-4">
@@ -237,18 +247,17 @@ const Welcome = () => {
                     ))}
                   </div>
 
-                  <Link to="/dashboard">
-                    <Button variant="outline" size="lg" className="w-full text-lg py-6">
-                      <Play className="mr-2 h-5 w-5" />
-                      Попробовать демо
-                    </Button>
-                  </Link>
+                  <DemoModeButton />
                 </CardContent>
               </Card>
             </motion.div>
 
             {/* Pro Plan */}
-            <motion.div variants={fadeInUp}>
+            <motion.div 
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <Card className="relative overflow-hidden h-full bg-gradient-to-br from-blue-600 to-purple-600 text-white border-0 shadow-2xl">
                 <div className="absolute top-4 right-4">
                   <Badge className="bg-yellow-400 text-yellow-900 font-semibold">
@@ -299,7 +308,9 @@ const Welcome = () => {
 
           <motion.div 
             className="text-center mt-12"
-            {...fadeInUp}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
             <p className="text-gray-300 mb-4">
               💳 Принимаем все виды оплат • 🔒 Безопасные платежи • 📞 Поддержка 24/7
@@ -317,7 +328,11 @@ const Welcome = () => {
       {/* Trust Section */}
       <div className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div {...fadeInUp}>
+          <motion.div 
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <h3 className="text-2xl font-bold text-gray-900 mb-8">
               Доверяют более 500+ продавцов на Kaspi
             </h3>

@@ -22,8 +22,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // If user is not authenticated and not in demo mode, redirect to auth
-  if (!user || isDemo) {
+  // Allow access if user is authenticated OR in demo mode
+  if (!user && !isDemo) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
