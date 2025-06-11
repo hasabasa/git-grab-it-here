@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle, Crown, Zap } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
+
 const PricingSection = () => {
-  return <div id="pricing-section" className="relative py-12 sm:py-16 lg:py-20">
+  return (
+    <div id="pricing-section" className="relative py-12 sm:py-16 lg:py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
@@ -36,10 +39,18 @@ const PricingSection = () => {
 
               <CardContent className="px-6 sm:px-8">
                 <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                  {["Просмотр всех модулей", "Тестовые данные", "Изучение интерфейса", "Понимание возможностей", "Без ограничений по времени"].map((feature, i) => <div key={i} className="flex items-center">
+                  {[
+                    "Просмотр всех модулей",
+                    "Тестовые данные", 
+                    "Изучение интерфейса",
+                    "Понимание возможностей",
+                    "Без ограничений по времени"
+                  ].map((feature, i) => (
+                    <div key={i} className="flex items-center">
                       <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-3" />
                       <span className="text-gray-700 text-sm sm:text-base">{feature}</span>
-                    </div>)}
+                    </div>
+                  ))}
                 </div>
 
                 <DemoModeButton />
@@ -71,10 +82,19 @@ const PricingSection = () => {
 
               <CardContent className="px-6 sm:px-8">
                 <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                  {["Полный доступ ко всем модулям", "Неограниченное количество товаров", "Сохранение всех данных", "Приоритетная поддержка 24/7", "API для интеграций", "Персональный менеджер"].map((feature, i) => <div key={i} className="flex items-center">
+                  {[
+                    "Полный доступ ко всем модулям",
+                    "Неограниченное количество товаров", 
+                    "Сохранение всех данных",
+                    "Приоритетная поддержка 24/7",
+                    "API для интеграций",
+                    "Персональный менеджер"
+                  ].map((feature, i) => (
+                    <div key={i} className="flex items-center">
                       <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 mr-3" />
                       <span className="text-white text-sm sm:text-base">{feature}</span>
-                    </div>)}
+                    </div>
+                  ))}
                 </div>
 
                 <Link to="/dashboard/subscription">
@@ -96,6 +116,8 @@ const PricingSection = () => {
           </div>
         </ScrollAnimation>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PricingSection;
