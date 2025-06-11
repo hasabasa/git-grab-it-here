@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, Search, CheckCircle, Crown, Play } from "lucide-react";
+import { AlertCircle, ArrowRight, TrendingUp, Users, Calculator, MessageSquare, Search, CheckCircle, Crown, Play, Zap, Activity, BarChart3 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
 import DemoModeButton from "@/components/auth/DemoModeButton";
@@ -164,116 +164,407 @@ const Welcome = () => {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -8, transition: { duration: 0.2 } }}
+              whileHover={{ 
+                y: -12, 
+                scale: 1.02,
+                transition: { duration: 0.2 } 
+              }}
               className="group"
             >
               <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border-0 bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <motion.div 
+                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center text-2xl mb-4 transition-all duration-300`}
+                    whileHover={{ 
+                      scale: 1.15,
+                      rotate: [0, -5, 5, 0],
+                      transition: { duration: 0.3 }
+                    }}
+                    animate={{
+                      boxShadow: [
+                        "0 0 0 0 rgba(59, 130, 246, 0)",
+                        "0 0 0 8px rgba(59, 130, 246, 0.1)",
+                        "0 0 0 0 rgba(59, 130, 246, 0)"
+                      ]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
                     {module.icon}
-                  </div>
+                  </motion.div>
                   <CardTitle className="text-xl mb-2">{module.title}</CardTitle>
                   <p className="text-gray-600 text-sm leading-relaxed">{module.description}</p>
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden">
-                    <div className="flex items-center gap-2 mb-2">
-                      <motion.div 
-                        className="w-2 h-2 bg-green-500 rounded-full"
+                  <motion.div 
+                    className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden border-2 border-transparent transition-all duration-300"
+                    whileHover={{
+                      borderColor: "rgba(59, 130, 246, 0.3)",
+                      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",
+                      scale: 1.02,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
+                    {/* Header with LIVE indicator */}
+                    <motion.div 
+                      className="flex items-center justify-between mb-3"
+                      whileHover={{ x: 2 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <motion.div 
+                          className="w-2 h-2 bg-green-500 rounded-full relative"
+                          animate={{ 
+                            scale: [1, 1.4, 1],
+                            boxShadow: [
+                              "0 0 0 0 rgba(34, 197, 94, 0.7)",
+                              "0 0 0 6px rgba(34, 197, 94, 0)",
+                              "0 0 0 0 rgba(34, 197, 94, 0)"
+                            ]
+                          }}
+                          transition={{ 
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          whileHover={{
+                            scale: 1.6,
+                            transition: { duration: 0.1 }
+                          }}
+                        >
+                          <motion.div
+                            className="absolute inset-0 bg-green-400 rounded-full"
+                            animate={{
+                              opacity: [0.5, 1, 0.5]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        </motion.div>
+                        <motion.span 
+                          className="text-xs font-bold text-gray-500 tracking-wider"
+                          animate={{
+                            color: ["#6B7280", "#059669", "#6B7280"]
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          whileHover={{
+                            scale: 1.1,
+                            color: "#059669",
+                            transition: { duration: 0.1 }
+                          }}
+                        >
+                          LIVE ПРИМЕР
+                        </motion.span>
+                      </div>
+
+                      {/* Activity indicator */}
+                      <motion.div
                         animate={{ 
-                          scale: [1, 1.2, 1],
-                          opacity: [1, 0.7, 1]
+                          rotate: 360,
                         }}
                         transition={{ 
-                          duration: 2,
+                          duration: 8,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
+                        whileHover={{
+                          rotate: 0,
+                          scale: 1.2,
+                          transition: { duration: 0.3 }
+                        }}
+                      >
+                        <Activity className="h-3 w-3 text-blue-500" />
+                      </motion.div>
+                    </motion.div>
+                    
+                    {/* Main content */}
+                    <motion.div
+                      className="space-y-3"
+                      whileHover={{ y: -2 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <motion.p 
+                        className="text-sm text-gray-700 font-medium leading-relaxed"
+                        animate={{
+                          opacity: [0.8, 1, 0.8]
+                        }}
+                        transition={{
+                          duration: 3,
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
-                      />
-                      <span className="text-xs font-medium text-gray-500">LIVE ПРИМЕР</span>
-                    </div>
-                    
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ opacity: 0.8 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
-                    >
-                      <p className="text-sm text-gray-700 font-medium">{module.example}</p>
-                      
-                      <motion.div 
-                        className="flex items-center gap-2"
-                        initial={{ x: -10, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ 
-                          duration: 1.5, 
-                          repeat: Infinity, 
-                          repeatType: "reverse",
-                          delay: 0.5
+                        whileHover={{
+                          opacity: 1,
+                          scale: 1.02,
+                          transition: { duration: 0.1 }
                         }}
                       >
-                        <motion.div
-                          animate={{ rotate: [0, 5, -5, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <TrendingUp className="h-4 w-4 text-green-500" />
-                        </motion.div>
-                        <motion.span 
-                          className="text-xs font-semibold text-green-600"
-                          animate={{ 
-                            scale: [1, 1.05, 1],
-                            color: ["#059669", "#10b981", "#059669"]
+                        {module.example}
+                      </motion.p>
+                      
+                      {/* Stats with enhanced animation */}
+                      <motion.div 
+                        className="flex items-center justify-between bg-white/70 p-3 rounded-md"
+                        whileHover={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          scale: 1.02,
+                          transition: { duration: 0.2 }
+                        }}
+                      >
+                        <motion.div 
+                          className="flex items-center gap-2"
+                          animate={{ x: [0, 2, 0] }}
+                          transition={{ 
+                            duration: 2.5, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
                           }}
-                          transition={{ duration: 2, repeat: Infinity }}
+                          whileHover={{
+                            x: 0,
+                            scale: 1.05,
+                            transition: { duration: 0.1 }
+                          }}
                         >
-                          {module.stats}
-                        </motion.span>
+                          <motion.div
+                            animate={{ 
+                              rotate: [0, 10, -10, 0],
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{ 
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            whileHover={{
+                              rotate: 15,
+                              scale: 1.3,
+                              transition: { duration: 0.2 }
+                            }}
+                          >
+                            <TrendingUp className="h-4 w-4 text-green-500" />
+                          </motion.div>
+                          <motion.span 
+                            className="text-xs font-semibold text-green-600"
+                            animate={{ 
+                              scale: [1, 1.05, 1],
+                              color: ["#059669", "#10b981", "#059669"]
+                            }}
+                            transition={{ 
+                              duration: 2.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            whileHover={{
+                              scale: 1.1,
+                              color: "#047857",
+                              transition: { duration: 0.1 }
+                            }}
+                          >
+                            {module.stats}
+                          </motion.span>
+                        </motion.div>
+
+                        {/* Animated value display */}
+                        <motion.div
+                          className="text-right"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <motion.div
+                            className="text-xs font-bold text-blue-600"
+                            animate={{
+                              opacity: [0.7, 1, 0.7],
+                              y: [0, -1, 0]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            whileHover={{
+                              opacity: 1,
+                              y: -2,
+                              transition: { duration: 0.1 }
+                            }}
+                          >
+                            {module.animatedValue}
+                          </motion.div>
+                          <motion.div
+                            className="text-xs text-gray-500"
+                            animate={{
+                              opacity: [0.5, 0.8, 0.5]
+                            }}
+                            transition={{
+                              duration: 2.5,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                              delay: 0.5
+                            }}
+                          >
+                            {module.animatedText}
+                          </motion.div>
+                        </motion.div>
                       </motion.div>
                     </motion.div>
 
-                    {/* Animated background effect */}
+                    {/* Animated background effects */}
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                      initial={{ x: "-100%" }}
-                      animate={{ x: "200%" }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 opacity-0"
+                      animate={{
+                        x: ["-100%", "200%"],
+                        opacity: [0, 0.6, 0]
+                      }}
                       transition={{ 
-                        duration: 3, 
+                        duration: 4, 
                         repeat: Infinity, 
-                        repeatDelay: 2,
+                        repeatDelay: 3,
                         ease: "easeInOut"
                       }}
                     />
 
-                    {/* Live data animation */}
+                    {/* Hover shimmer effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/20 to-transparent -skew-x-12 opacity-0"
+                      variants={{
+                        hover: {
+                          x: ["-100%", "200%"],
+                          opacity: [0, 0.8, 0],
+                          transition: { duration: 0.8, ease: "easeInOut" }
+                        }
+                      }}
+                      whileHover="hover"
+                    />
+
+                    {/* Corner accent */}
                     <motion.div
                       className="absolute top-2 right-2"
                       animate={{ 
                         scale: [1, 1.1, 1],
-                        rotate: [0, 2, -2, 0]
+                        rotate: [0, 5, -5, 0]
                       }}
                       transition={{ 
-                        duration: 3, 
+                        duration: 4, 
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
+                      whileHover={{
+                        scale: 1.2,
+                        rotate: 10,
+                        transition: { duration: 0.2 }
+                      }}
                     >
-                      <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                      <motion.div 
+                        className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200/50"
+                        animate={{
+                          background: [
+                            "linear-gradient(to right, #dcfce7, #dbeafe)",
+                            "linear-gradient(to right, #bbf7d0, #bfdbfe)",
+                            "linear-gradient(to right, #dcfce7, #dbeafe)"
+                          ]
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                        whileHover={{
+                          background: "linear-gradient(to right, #a7f3d0, #93c5fd)",
+                          transition: { duration: 0.2 }
+                        }}
+                      >
                         <motion.span
-                          animate={{ opacity: [1, 0.5, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
+                          animate={{ 
+                            opacity: [1, 0.6, 1],
+                            scale: [1, 0.95, 1]
+                          }}
+                          transition={{ 
+                            duration: 1.5, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          whileHover={{
+                            opacity: 1,
+                            scale: 1.05,
+                            transition: { duration: 0.1 }
+                          }}
                         >
                           LIVE
                         </motion.span>
-                      </div>
+                      </motion.div>
                     </motion.div>
-                  </div>
+
+                    {/* Progress bar effect */}
+                    <motion.div
+                      className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"
+                      animate={{
+                        width: ["0%", "100%", "0%"]
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        repeatDelay: 2
+                      }}
+                      whileHover={{
+                        opacity: 0.7,
+                        height: 2,
+                        transition: { duration: 0.2 }
+                      }}
+                    />
+                  </motion.div>
 
                   <Link to={module.path}>
-                    <Button className="w-full group-hover:bg-primary/90 transition-colors">
-                      Перейти к модулю
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ duration: 0.1 }}
+                    >
+                      <Button className="w-full group-hover:bg-primary/90 transition-all duration-300 relative overflow-hidden">
+                        <motion.span
+                          className="relative z-10"
+                          whileHover={{ x: 2 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          Перейти к модулю
+                        </motion.span>
+                        <motion.div
+                          className="ml-2 relative z-10"
+                          animate={{ x: [0, 2, 0] }}
+                          transition={{ 
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          whileHover={{
+                            x: 4,
+                            transition: { duration: 0.2 }
+                          }}
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                        </motion.div>
+                        
+                        {/* Button hover effect */}
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"
+                          initial={{ x: "-100%" }}
+                          whileHover={{
+                            x: "100%",
+                            transition: { duration: 0.5, ease: "easeInOut" }
+                          }}
+                        />
+                      </Button>
+                    </motion.div>
                   </Link>
                 </CardContent>
               </Card>
