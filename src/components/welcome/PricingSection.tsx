@@ -6,7 +6,7 @@ import { ArrowRight, CheckCircle, Crown, Zap } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
 const PricingSection = () => {
-  return <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20">
+  return <div className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
