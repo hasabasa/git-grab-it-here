@@ -16,7 +16,9 @@ const Welcome = () => {
       icon: "🔥",
       color: "from-red-500 to-orange-500",
       example: "Автоматически снижает цену на 50₸ при изменении у конкурентов",
-      stats: "+15% к продажам"
+      stats: "+15% к продажам",
+      animatedValue: "50₸",
+      animatedText: "цена снижена"
     },
     {
       title: "Мои продажи",
@@ -25,7 +27,9 @@ const Welcome = () => {
       icon: "📈",
       color: "from-green-500 to-emerald-500",
       example: "Доход за месяц: 2,450,000₸ (+12% к прошлому месяцу)",
-      stats: "Рост 23%"
+      stats: "Рост 23%",
+      animatedValue: "2,450,000₸",
+      animatedText: "+12% рост"
     },
     {
       title: "Юнит-экономика",
@@ -34,7 +38,9 @@ const Welcome = () => {
       icon: "🔢",
       color: "from-blue-500 to-cyan-500",
       example: "Чистая прибыль: 3,240₸ (32% маржа) с товара",
-      stats: "32% маржа"
+      stats: "32% маржа",
+      animatedValue: "3,240₸",
+      animatedText: "32% маржа"
     },
     {
       title: "CRM и напоминания",
@@ -43,7 +49,9 @@ const Welcome = () => {
       icon: "✅",
       color: "from-purple-500 to-violet-500",
       example: "15 активных клиентов, 3 задачи на сегодня",
-      stats: "94% выполнено"
+      stats: "94% выполнено",
+      animatedValue: "15",
+      animatedText: "активных клиентов"
     },
     {
       title: "WhatsApp",
@@ -52,7 +60,9 @@ const Welcome = () => {
       icon: "💬",
       color: "from-emerald-500 to-green-500",
       example: "127 сообщений обработано автоматически",
-      stats: "98% отвечено"
+      stats: "98% отвечено",
+      animatedValue: "127",
+      animatedText: "сообщений обработано"
     },
     {
       title: "Поиск ниш",
@@ -61,7 +71,9 @@ const Welcome = () => {
       icon: "📊",
       color: "from-indigo-500 to-purple-500",
       example: "Найдено 8 перспективных ниш с низкой конкуренцией",
-      stats: "8 новых ниш"
+      stats: "8 новых ниш",
+      animatedValue: "8",
+      animatedText: "новых ниш найдено"
     }
   ];
 
@@ -165,16 +177,96 @@ const Welcome = () => {
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4">
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <motion.div 
+                        className="w-2 h-2 bg-green-500 rounded-full"
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [1, 0.7, 1]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
                       <span className="text-xs font-medium text-gray-500">LIVE ПРИМЕР</span>
                     </div>
-                    <p className="text-sm text-gray-700 font-medium">{module.example}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                      <span className="text-xs font-semibold text-green-600">{module.stats}</span>
-                    </div>
+                    
+                    <motion.div
+                      className="space-y-2"
+                      initial={{ opacity: 0.8 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
+                    >
+                      <p className="text-sm text-gray-700 font-medium">{module.example}</p>
+                      
+                      <motion.div 
+                        className="flex items-center gap-2"
+                        initial={{ x: -10, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity, 
+                          repeatType: "reverse",
+                          delay: 0.5
+                        }}
+                      >
+                        <motion.div
+                          animate={{ rotate: [0, 5, -5, 0] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <TrendingUp className="h-4 w-4 text-green-500" />
+                        </motion.div>
+                        <motion.span 
+                          className="text-xs font-semibold text-green-600"
+                          animate={{ 
+                            scale: [1, 1.05, 1],
+                            color: ["#059669", "#10b981", "#059669"]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          {module.stats}
+                        </motion.span>
+                      </motion.div>
+                    </motion.div>
+
+                    {/* Animated background effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: "200%" }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity, 
+                        repeatDelay: 2,
+                        ease: "easeInOut"
+                      }}
+                    />
+
+                    {/* Live data animation */}
+                    <motion.div
+                      className="absolute top-2 right-2"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 2, -2, 0]
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                        <motion.span
+                          animate={{ opacity: [1, 0.5, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          LIVE
+                        </motion.span>
+                      </div>
+                    </motion.div>
                   </div>
 
                   <Link to={module.path}>
