@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,7 +86,7 @@ const ModulesSection = () => {
   ];
 
   return (
-    <div className="relative py-20 bg-transparent">
+    <div className="relative py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
@@ -104,7 +105,7 @@ const ModulesSection = () => {
               delay={visibleModules.includes(index) ? index * 200 : 0}
               className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
             >
-              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow bg-white/90 backdrop-blur-sm shadow-xl">
+              <Card className="overflow-hidden smooth-hover h-full border bg-white shadow-xl">
                 <CardHeader className="pb-4">
                   <motion.div 
                     className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center mb-4 transition-all duration-300 text-white`}
@@ -122,7 +123,7 @@ const ModulesSection = () => {
                 
                 <CardContent className="pt-0">
                   
-                  <motion.div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden border-2 border-transparent transition-all duration-300" whileHover={{
+                  <motion.div className="bg-gray-50 p-4 rounded-lg mb-4 relative overflow-hidden border border-gray-200 transition-all duration-300" whileHover={{
                     borderColor: "rgba(59, 130, 246, 0.3)",
                     background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",
                     scale: 1.02,
@@ -158,16 +159,15 @@ const ModulesSection = () => {
                     </motion.div>
                     
                     <motion.div className="space-y-3" whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
-                      <motion.p className="text-sm text-gray-700 font-medium leading-relaxed opacity-80" whileHover={{
-                        opacity: 1,
+                      <motion.p className="text-sm text-gray-700 font-medium leading-relaxed" whileHover={{
                         scale: 1.02,
                         transition: { duration: 0.1 }
                       }}>
                         {module.example}
                       </motion.p>
                       
-                      <motion.div className="flex items-center justify-between bg-white/70 p-3 rounded-md" whileHover={{
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      <motion.div className="flex items-center justify-between bg-white p-3 rounded-md border border-gray-100" whileHover={{
+                        backgroundColor: "#fafafa",
                         scale: 1.02,
                         transition: { duration: 0.2 }
                       }}>
@@ -194,14 +194,12 @@ const ModulesSection = () => {
 
                         <motion.div className="text-right" whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }}>
                           <motion.div className="text-xs font-bold text-blue-600" whileHover={{
-                            opacity: 1,
                             y: -2,
                             transition: { duration: 0.1 }
                           }}>
                             {module.animatedValue}
                           </motion.div>
                           <motion.div className="text-xs text-gray-500" whileHover={{
-                            opacity: 0.8,
                             transition: { duration: 0.1 }
                           }}>
                             {module.animatedText}
@@ -210,9 +208,9 @@ const ModulesSection = () => {
                       </motion.div>
                     </motion.div>
 
-                    <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/20 to-transparent -skew-x-12 opacity-0" whileHover={{
+                    <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200 to-transparent -skew-x-12 opacity-0" whileHover={{
                       x: ["-100%", "200%"],
-                      opacity: [0, 0.8, 0],
+                      opacity: [0, 0.3, 0],
                       transition: { duration: 0.8, ease: "easeInOut" }
                     }} />
 
@@ -221,12 +219,11 @@ const ModulesSection = () => {
                       rotate: 10,
                       transition: { duration: 0.2 }
                     }}>
-                      <motion.div className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200/50" whileHover={{
-                        background: "linear-gradient(to right, #a7f3d0, #93c5fd)",
+                      <motion.div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200" whileHover={{
+                        background: "#dcfce7",
                         transition: { duration: 0.2 }
                       }}>
                         <motion.span whileHover={{
-                          opacity: 1,
                           scale: 1.05,
                           transition: { duration: 0.1 }
                         }}>
@@ -237,7 +234,7 @@ const ModulesSection = () => {
 
                     <motion.div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0" whileHover={{
                       width: ["0%", "100%"],
-                      opacity: [0, 0.7, 0.7],
+                      opacity: [0, 1, 1],
                       transition: { duration: 0.8, ease: "easeInOut" }
                     }} />
                   </motion.div>
