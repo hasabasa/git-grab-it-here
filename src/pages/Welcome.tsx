@@ -174,10 +174,10 @@ const Welcome = () => {
                 🎯 Хотите подключиться и попробовать бесплатно?<br />
                 <span className="text-blue-600">Демо-режим доступен без регистрации — начните прямо сейчас!</span>
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-lg mx-auto">
                 <DemoModeButton />
-                <Link to="/auth">
-                  <Button size="lg" className="text-lg py-6 px-8">
+                <Link to="/auth" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full text-lg py-6 px-8">
                     <Crown className="mr-2 h-5 w-5" />
                     Получить полный доступ
                   </Button>
