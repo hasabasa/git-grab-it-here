@@ -11,16 +11,18 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, isDemo } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("ProtectedRoute: user:", !!user, "loading:", loading, "isDemo:", isDemo, "localStorage demo:", localStorage.getItem('kaspi-demo-mode'));
-  }, [user, loading, isDemo]);
-
-  // Check localStorage directly for demo mode as backup
+  // Check localStorage directly as backup
   const isDemoFromStorage = localStorage.getItem('kaspi-demo-mode') === 'true';
+  const isUserAuthenticated = !!user;
+  const isDemoActive = isDemo || isDemoFromStorage;
 
-  // If still loading and not in demo mode, show loading screen
-  if (loading && !isDemo && !isDemoFromStorage) {
-    console.log("ProtectedRoute: Still loading...");
+  useEffect(() => {
+    console.log("ProtectedRoute: State check - user:", isUserAuthenticated, "loading:", loading, "isDemo:", isDemo, "localStorage:", isDemoFromStorage);
+  }, [user, loading, isDemo, isUserAuthenticated, isDemoFromStorage]);
+
+  // Show loading only if we're actually loading auth and not in demo mode
+  if (loading && !isDemoActive) {
+    console.log("ProtectedRoute: Loading auth state...");
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -31,13 +33,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Allow access if user is authenticated OR in demo mode (from state or localStorage)
-  if (!user && !isDemo && !isDemoFromStorage) {
-    console.log("ProtectedRoute: Redirecting to auth - no user and not demo");
+  // Allow access if user is authenticated OR in demo mode
+  if (!isUserAuthenticated && !isDemoActive) {
+    console.log("ProtectedRoute: Access denied - redirecting to auth");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  console.log("ProtectedRoute: Access granted - user:", !!user, "isDemo:", isDemo, "isDemoFromStorage:", isDemoFromStorage);
+  console.log("ProtectedRoute: Access granted - authenticated:", isUserAuthenticated, "demo:", isDemoActive);
   return <>{children}</>;
 };
 
