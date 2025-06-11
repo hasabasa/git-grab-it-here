@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,7 +85,7 @@ const ModulesSection = () => {
   ];
 
   return (
-    <div className="relative py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50 gradient-overlay-top gradient-overlay-bottom">
+    <div className="relative py-20 bg-transparent">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
@@ -105,7 +104,7 @@ const ModulesSection = () => {
               delay={visibleModules.includes(index) ? index * 200 : 0}
               className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
             >
-              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow">
+              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow bg-white/60 backdrop-blur-sm shadow-lg">
                 <CardHeader className="pb-4">
                   <motion.div 
                     className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center mb-4 transition-all duration-300 text-white`}
@@ -117,11 +116,12 @@ const ModulesSection = () => {
                   >
                     {module.icon === "whatsapp" ? <WhatsAppIcon /> : <span className="text-4xl">{module.icon}</span>}
                   </motion.div>
-                  <CardTitle className="text-xl mb-2">{module.title}</CardTitle>
-                  <p className="text-gray-600 text-sm leading-relaxed">{module.description}</p>
+                  <CardTitle className="text-xl mb-2 text-gray-900">{module.title}</CardTitle>
+                  <p className="text-gray-700 text-sm leading-relaxed">{module.description}</p>
                 </CardHeader>
                 
                 <CardContent className="pt-0">
+                  
                   <motion.div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg mb-4 relative overflow-hidden border-2 border-transparent transition-all duration-300" whileHover={{
                     borderColor: "rgba(59, 130, 246, 0.3)",
                     background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05))",

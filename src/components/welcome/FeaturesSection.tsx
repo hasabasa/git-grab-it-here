@@ -66,16 +66,16 @@ const FeaturesSection = () => {
               delay={visibleFeatures.includes(index) ? index * 150 : 0}
               className={`opacity-0 ${visibleFeatures.includes(index) ? 'animate-slide-in-up' : ''}`}
             >
-              <Card className="h-full glass-enhanced border-0 smooth-hover ambient-glow group bg-white/30 backdrop-blur-sm">
+              <Card className="h-full glass-enhanced border-0 smooth-hover ambient-glow group bg-white/60 backdrop-blur-sm shadow-lg">
                 <CardHeader className="text-center pb-6">
                   <div className="flex justify-center mb-6">
                     <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
                       <span className="text-3xl">{feature.icon}</span>
                     </div>
                   </div>
-                  <CardTitle className="text-xl mb-3 text-center">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl mb-3 text-center text-gray-900">{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-gray-600 leading-relaxed text-center px-6 pb-8">
+                <CardContent className="text-gray-700 leading-relaxed text-center px-6 pb-8">
                   {feature.description}
                 </CardContent>
               </Card>
