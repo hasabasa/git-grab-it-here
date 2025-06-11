@@ -104,7 +104,7 @@ const ModulesSection = () => {
               delay={visibleModules.includes(index) ? index * 200 : 0}
               className={`group opacity-0 ${visibleModules.includes(index) ? 'animate-fade-in-scale' : ''}`}
             >
-              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow bg-white/60 backdrop-blur-sm shadow-lg">
+              <Card className="overflow-hidden smooth-hover glass-enhanced h-full border-0 ambient-glow bg-white/90 backdrop-blur-sm shadow-xl">
                 <CardHeader className="pb-4">
                   <motion.div 
                     className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center mb-4 transition-all duration-300 text-white`}
