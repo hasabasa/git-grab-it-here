@@ -34,12 +34,12 @@ export const useAuth = () => {
           setSession(session);
           setUser(session.user);
           setIsDemo(false);
+          localStorage.removeItem('kaspi-demo-mode');
         } else {
           setSession(null);
           setUser(null);
-          // Don't reset isDemo here if we're in demo mode
-          const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
-          if (currentDemoMode !== 'true') {
+          // Only reset isDemo if we're not in demo mode
+          if (localStorage.getItem('kaspi-demo-mode') !== 'true') {
             setIsDemo(false);
           }
         }
@@ -57,20 +57,19 @@ export const useAuth = () => {
           setSession(data.session);
           setUser(data.session.user);
           setIsDemo(false);
+          localStorage.removeItem('kaspi-demo-mode');
         } else {
           setSession(null);
           setUser(null);
-          // Don't reset isDemo here if we're in demo mode
-          const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
-          if (currentDemoMode !== 'true') {
+          // Only reset isDemo if we're not in demo mode
+          if (localStorage.getItem('kaspi-demo-mode') !== 'true') {
             setIsDemo(false);
           }
         }
       } catch (error) {
         console.error('Error checking session:', error);
         setUser(null);
-        const currentDemoMode = localStorage.getItem('kaspi-demo-mode');
-        if (currentDemoMode !== 'true') {
+        if (localStorage.getItem('kaspi-demo-mode') !== 'true') {
           setIsDemo(false);
         }
       } finally {
@@ -98,9 +97,9 @@ export const useAuth = () => {
   const signOut = async () => {
     console.log("Signing out and clearing demo mode");
     localStorage.removeItem('kaspi-demo-mode');
+    setIsDemo(false);
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    setIsDemo(false);
   };
 
   const enterDemoMode = () => {
