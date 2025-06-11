@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -174,7 +175,7 @@ const Welcome = () => {
               <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border-0 bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <motion.div 
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center text-2xl mb-4 transition-all duration-300`}
+                    className={`w-20 h-20 rounded-2xl bg-gradient-to-r ${module.color} flex items-center justify-center text-4xl mb-4 transition-all duration-300`}
                     whileHover={{ 
                       scale: 1.15,
                       rotate: [0, -5, 5, 0],
