@@ -6,7 +6,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const GrowthSection = () => {
   return (
-    <div className="relative py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900 gradient-overlay-top gradient-overlay-bottom gradient-overlay-dark">
+    <div className="relative py-20 bg-gradient-to-r from-blue-900 via-slate-900 to-purple-900 section-blend-top section-blend-bottom blur-edge-both">
       {/* Animated background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-float" />

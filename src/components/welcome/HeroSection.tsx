@@ -7,7 +7,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const HeroSection = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 gradient-overlay-bottom gradient-overlay-light">
+    <div className="relative min-h-screen bg-seamless">
       {/* Animated background gradients */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/5 to-cyan-600/10 animate-gradient-shift bg-[length:400%_400%]" />
       <div className="absolute inset-0">

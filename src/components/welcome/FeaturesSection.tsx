@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ScrollAnimation from "@/components/ui/scroll-animation";
 import { useStaggeredScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -45,7 +46,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <div className="relative py-20 bg-gradient-to-r from-slate-100/80 to-blue-100/80 gradient-overlay-top gradient-overlay-bottom gradient-overlay-light">
+    <div className="relative py-20 bg-seamless section-blend-top section-blend-bottom">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-16">
