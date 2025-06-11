@@ -11,7 +11,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, isDemo } = useAuth();
   const location = useLocation();
 
+  useEffect(() => {
+    console.log("ProtectedRoute: user:", !!user, "loading:", loading, "isDemo:", isDemo);
+  }, [user, loading, isDemo]);
+
   if (loading) {
+    console.log("ProtectedRoute: Still loading...");
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -24,9 +29,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Allow access if user is authenticated OR in demo mode
   if (!user && !isDemo) {
+    console.log("ProtectedRoute: Redirecting to auth - no user and not demo");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  console.log("ProtectedRoute: Access granted");
   return <>{children}</>;
 };
 
