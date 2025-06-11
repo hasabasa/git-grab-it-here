@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Welcome from "./pages/Welcome";
+import AuthPage from "./pages/AuthPage";
 import PriceBotPage from "./pages/PriceBotPage";
 import SalesPage from "./pages/SalesPage";
 import UnitEconomicsPage from "./pages/UnitEconomicsPage";
@@ -15,6 +16,7 @@ import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationPage from "./pages/IntegrationPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { MotionConfig } from "framer-motion";
 
 const queryClient = new QueryClient({
@@ -34,8 +36,13 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Welcome />} />
+              <Route path="/auth" element={<AuthPage />} />
               
-              <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }>
                 <Route index element={<Navigate to="price-bot" replace />} />
                 <Route path="price-bot" element={<PriceBotPage />} />
                 <Route path="sales" element={<SalesPage />} />

@@ -32,13 +32,6 @@ export const useWhatsAppConnection = () => {
   const createSession = async () => {
     try {
       setLoading(true)
-      
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        toast.error('Необходимо войти в систему')
-        return
-      }
 
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: { action: 'create_session' },
@@ -88,13 +81,6 @@ export const useWhatsAppConnection = () => {
     }
 
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        toast.error('Необходимо войти в систему')
-        return
-      }
-
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: {
           action: 'send_message',
@@ -137,13 +123,6 @@ export const useWhatsAppConnection = () => {
     if (!session?.id) return
 
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        console.error('User not authenticated')
-        return
-      }
-
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: { 
           action: 'get_messages', 

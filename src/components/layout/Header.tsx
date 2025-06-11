@@ -12,7 +12,7 @@ interface HeaderProps {
 const Header = ({
   toggleSidebar
 }: HeaderProps) => {
-  const { user, signOut, isDemo } = useAuth();
+  const { user, signOut, loading } = useAuth();
 
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
@@ -27,33 +27,27 @@ const Header = ({
           Помощь
         </Button>
         
-        {isDemo ? (
+        {loading ? (
+          <div className="w-20 h-9 bg-muted animate-pulse rounded"></div>
+        ) : user ? (
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" asChild>
-              <Link to="/">
-                <User className="mr-2 h-4 w-4" />
-                Демо режим
-              </Link>
-            </Button>
-            
-            <Button size="sm" variant="default" asChild>
-              <Link to="/">
-                <LogIn className="mr-2 h-4 w-4" />
-                Вход
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button size="sm">
-              Настройки
-            </Button>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              {user.email}
+            </div>
             
             <Button size="sm" variant="outline" onClick={signOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Выход
             </Button>
           </div>
+        ) : (
+          <Button size="sm" variant="default" asChild>
+            <Link to="/auth">
+              <LogIn className="mr-2 h-4 w-4" />
+              Вход
+            </Link>
+          </Button>
         )}
       </div>
     </header>

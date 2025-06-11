@@ -4,32 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
 export const useAuth = () => {
-  // Создаем демо-пользователя по умолчанию с необходимыми полями User типа
-  const demoUser = {
-    id: 'demo-user',
-    email: 'demo@kaspi-price.kz',
-    user_metadata: {
-      name: 'Демо пользователь'
-    },
-    app_metadata: {
-      role: 'demo'
-    },
-    aud: 'authenticated', // Добавляем обязательное поле aud
-    created_at: new Date().toISOString(), // Добавляем дату создания
-    updated_at: new Date().toISOString(), // Добавляем дату обновления
-    phone: null, // Добавляем опциональные поля
-    confirmation_sent_at: null,
-    confirmed_at: null,
-    last_sign_in_at: null,
-    role: null,
-    factors: null,
-    identities: []
-  } as User; // Используем assertion типа для преобразования
-
-  const [user, setUser] = useState<User | null>(demoUser); // По умолчанию используем демо-пользователя
+  const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(false); // Убираем начальную загрузку
-  const [isDemo, setIsDemo] = useState(true); // Флаг демо-режима
+  const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     // Set up auth listener first
@@ -37,16 +15,14 @@ export const useAuth = () => {
       (event, session) => {
         console.log("Auth state changed:", event);
         
-        // Если пользователь авторизован, используем данные из сессии
         if (session?.user) {
           setSession(session);
           setUser(session.user);
           setIsDemo(false);
         } else {
-          // В противном случае используем демо-пользователя
           setSession(null);
-          setUser(demoUser);
-          setIsDemo(true);
+          setUser(null);
+          setIsDemo(false);
         }
         
         setLoading(false);
@@ -63,16 +39,14 @@ export const useAuth = () => {
           setUser(data.session.user);
           setIsDemo(false);
         } else {
-          // Если сессии нет, используем демо-пользователя
           setSession(null);
-          setUser(demoUser);
-          setIsDemo(true);
+          setUser(null);
+          setIsDemo(false);
         }
       } catch (error) {
         console.error('Error checking session:', error);
-        // В случае ошибки также используем демо-пользователя
-        setUser(demoUser);
-        setIsDemo(true);
+        setUser(null);
+        setIsDemo(false);
       } finally {
         setLoading(false);
       }
@@ -98,10 +72,6 @@ export const useAuth = () => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    
-    // Возвращаемся к демо-пользователю после выхода
-    setUser(demoUser);
-    setIsDemo(true);
   };
 
   return { 
@@ -111,7 +81,7 @@ export const useAuth = () => {
     signIn, 
     signOut,
     loading,
-    isDemo, // Экспортируем флаг демо-режима
+    isDemo,
     isSupabaseConfigured: true 
   };
 };
