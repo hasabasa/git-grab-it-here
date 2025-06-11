@@ -180,18 +180,6 @@ const Welcome = () => {
                       rotate: [0, -5, 5, 0],
                       transition: { duration: 0.3 }
                     }}
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0 rgba(59, 130, 246, 0)",
-                        "0 0 0 8px rgba(59, 130, 246, 0.1)",
-                        "0 0 0 0 rgba(59, 130, 246, 0)"
-                      ]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
                   >
                     {module.icon}
                   </motion.div>
@@ -218,46 +206,34 @@ const Welcome = () => {
                       <div className="flex items-center gap-2">
                         <motion.div 
                           className="w-2 h-2 bg-green-500 rounded-full relative"
-                          animate={{ 
+                          whileHover={{
                             scale: [1, 1.4, 1],
                             boxShadow: [
                               "0 0 0 0 rgba(34, 197, 94, 0.7)",
                               "0 0 0 6px rgba(34, 197, 94, 0)",
                               "0 0 0 0 rgba(34, 197, 94, 0)"
-                            ]
-                          }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                          whileHover={{
-                            scale: 1.6,
-                            transition: { duration: 0.1 }
+                            ],
+                            transition: { 
+                              duration: 1,
+                              repeat: 2,
+                              ease: "easeInOut"
+                            }
                           }}
                         >
                           <motion.div
                             className="absolute inset-0 bg-green-400 rounded-full"
-                            animate={{
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Infinity,
-                              ease: "easeInOut"
+                            whileHover={{
+                              opacity: [0.5, 1, 0.5],
+                              transition: {
+                                duration: 0.8,
+                                repeat: 2,
+                                ease: "easeInOut"
+                              }
                             }}
                           />
                         </motion.div>
                         <motion.span 
                           className="text-xs font-bold text-gray-500 tracking-wider"
-                          animate={{
-                            color: ["#6B7280", "#059669", "#6B7280"]
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
                           whileHover={{
                             scale: 1.1,
                             color: "#059669",
@@ -270,18 +246,10 @@ const Welcome = () => {
 
                       {/* Activity indicator */}
                       <motion.div
-                        animate={{ 
-                          rotate: 360,
-                        }}
-                        transition={{ 
-                          duration: 8,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
                         whileHover={{
-                          rotate: 0,
+                          rotate: 360,
                           scale: 1.2,
-                          transition: { duration: 0.3 }
+                          transition: { duration: 0.5 }
                         }}
                       >
                         <Activity className="h-3 w-3 text-blue-500" />
@@ -295,15 +263,7 @@ const Welcome = () => {
                       transition={{ duration: 0.2 }}
                     >
                       <motion.p 
-                        className="text-sm text-gray-700 font-medium leading-relaxed"
-                        animate={{
-                          opacity: [0.8, 1, 0.8]
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
+                        className="text-sm text-gray-700 font-medium leading-relaxed opacity-80"
                         whileHover={{
                           opacity: 1,
                           scale: 1.02,
@@ -324,28 +284,13 @@ const Welcome = () => {
                       >
                         <motion.div 
                           className="flex items-center gap-2"
-                          animate={{ x: [0, 2, 0] }}
-                          transition={{ 
-                            duration: 2.5, 
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
                           whileHover={{
-                            x: 0,
+                            x: 2,
                             scale: 1.05,
                             transition: { duration: 0.1 }
                           }}
                         >
                           <motion.div
-                            animate={{ 
-                              rotate: [0, 10, -10, 0],
-                              scale: [1, 1.1, 1]
-                            }}
-                            transition={{ 
-                              duration: 3,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
                             whileHover={{
                               rotate: 15,
                               scale: 1.3,
@@ -356,15 +301,6 @@ const Welcome = () => {
                           </motion.div>
                           <motion.span 
                             className="text-xs font-semibold text-green-600"
-                            animate={{ 
-                              scale: [1, 1.05, 1],
-                              color: ["#059669", "#10b981", "#059669"]
-                            }}
-                            transition={{ 
-                              duration: 2.5,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
                             whileHover={{
                               scale: 1.1,
                               color: "#047857",
@@ -383,15 +319,6 @@ const Welcome = () => {
                         >
                           <motion.div
                             className="text-xs font-bold text-blue-600"
-                            animate={{
-                              opacity: [0.7, 1, 0.7],
-                              y: [0, -1, 0]
-                            }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
                             whileHover={{
                               opacity: 1,
                               y: -2,
@@ -402,14 +329,9 @@ const Welcome = () => {
                           </motion.div>
                           <motion.div
                             className="text-xs text-gray-500"
-                            animate={{
-                              opacity: [0.5, 0.8, 0.5]
-                            }}
-                            transition={{
-                              duration: 2.5,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                              delay: 0.5
+                            whileHover={{
+                              opacity: 0.8,
+                              transition: { duration: 0.1 }
                             }}
                           >
                             {module.animatedText}
@@ -420,44 +342,17 @@ const Welcome = () => {
 
                     {/* Animated background effects */}
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 opacity-0"
-                      animate={{
-                        x: ["-100%", "200%"],
-                        opacity: [0, 0.6, 0]
-                      }}
-                      transition={{ 
-                        duration: 4, 
-                        repeat: Infinity, 
-                        repeatDelay: 3,
-                        ease: "easeInOut"
-                      }}
-                    />
-
-                    {/* Hover shimmer effect */}
-                    <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/20 to-transparent -skew-x-12 opacity-0"
-                      variants={{
-                        hover: {
-                          x: ["-100%", "200%"],
-                          opacity: [0, 0.8, 0],
-                          transition: { duration: 0.8, ease: "easeInOut" }
-                        }
+                      whileHover={{
+                        x: ["-100%", "200%"],
+                        opacity: [0, 0.8, 0],
+                        transition: { duration: 0.8, ease: "easeInOut" }
                       }}
-                      whileHover="hover"
                     />
 
                     {/* Corner accent */}
                     <motion.div
                       className="absolute top-2 right-2"
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0]
-                      }}
-                      transition={{ 
-                        duration: 4, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
                       whileHover={{
                         scale: 1.2,
                         rotate: 10,
@@ -466,33 +361,12 @@ const Welcome = () => {
                     >
                       <motion.div 
                         className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full font-bold border border-green-200/50"
-                        animate={{
-                          background: [
-                            "linear-gradient(to right, #dcfce7, #dbeafe)",
-                            "linear-gradient(to right, #bbf7d0, #bfdbfe)",
-                            "linear-gradient(to right, #dcfce7, #dbeafe)"
-                          ]
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
                         whileHover={{
                           background: "linear-gradient(to right, #a7f3d0, #93c5fd)",
                           transition: { duration: 0.2 }
                         }}
                       >
                         <motion.span
-                          animate={{ 
-                            opacity: [1, 0.6, 1],
-                            scale: [1, 0.95, 1]
-                          }}
-                          transition={{ 
-                            duration: 1.5, 
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
                           whileHover={{
                             opacity: 1,
                             scale: 1.05,
@@ -504,22 +378,13 @@ const Welcome = () => {
                       </motion.div>
                     </motion.div>
 
-                    {/* Progress bar effect */}
+                    {/* Progress bar effect - only on hover */}
                     <motion.div
-                      className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"
-                      animate={{
-                        width: ["0%", "100%", "0%"]
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        repeatDelay: 2
-                      }}
+                      className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0"
                       whileHover={{
-                        opacity: 0.7,
-                        height: 2,
-                        transition: { duration: 0.2 }
+                        width: ["0%", "100%"],
+                        opacity: [0, 0.7, 0.7],
+                        transition: { duration: 0.8, ease: "easeInOut" }
                       }}
                     />
                   </motion.div>
@@ -540,12 +405,6 @@ const Welcome = () => {
                         </motion.span>
                         <motion.div
                           className="ml-2 relative z-10"
-                          animate={{ x: [0, 2, 0] }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
                           whileHover={{
                             x: 4,
                             transition: { duration: 0.2 }
