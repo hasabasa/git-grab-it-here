@@ -1,0 +1,94 @@
+
+@layer utilities {
+  /* Seamless section transitions */
+  .seamless-section {
+    position: relative;
+    background: inherit;
+  }
+
+  .seamless-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .seamless-section::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.1));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Smooth gradient overlays */
+  .gradient-overlay-top {
+    position: relative;
+  }
+
+  .gradient-overlay-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, 
+      rgba(248, 250, 252, 1) 0%,
+      rgba(248, 250, 252, 0.8) 30%,
+      rgba(248, 250, 252, 0.4) 60%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .gradient-overlay-bottom {
+    position: relative;
+  }
+
+  .gradient-overlay-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(0deg, 
+      rgba(248, 250, 252, 1) 0%,
+      rgba(248, 250, 252, 0.8) 30%,
+      rgba(248, 250, 252, 0.4) 60%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Enhanced blur transitions */
+  .blur-edge-top {
+    position: relative;
+    mask: linear-gradient(to bottom, transparent 0%, black 20%, black 100%);
+    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 20%, black 100%);
+  }
+
+  .blur-edge-bottom {
+    position: relative;
+    mask: linear-gradient(to top, transparent 0%, black 20%, black 100%);
+    -webkit-mask: linear-gradient(to top, transparent 0%, black 20%, black 100%);
+  }
+
+  .blur-edge-both {
+    position: relative;
+    mask: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  }
+}
