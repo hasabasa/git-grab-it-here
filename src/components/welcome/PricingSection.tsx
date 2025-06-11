@@ -53,7 +53,9 @@ const PricingSection = () => {
                   ))}
                 </div>
 
-                <DemoModeButton />
+                <div className="relative z-20">
+                  <DemoModeButton />
+                </div>
               </CardContent>
             </Card>
           </ScrollAnimation>
