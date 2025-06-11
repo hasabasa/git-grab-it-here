@@ -12,10 +12,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log("ProtectedRoute: user:", !!user, "loading:", loading, "isDemo:", isDemo);
+    console.log("ProtectedRoute: user:", !!user, "loading:", loading, "isDemo:", isDemo, "localStorage demo:", localStorage.getItem('kaspi-demo-mode'));
   }, [user, loading, isDemo]);
 
-  if (loading) {
+  // Check localStorage directly for demo mode as backup
+  const isDemoFromStorage = localStorage.getItem('kaspi-demo-mode') === 'true';
+
+  // If still loading and not in demo mode, show loading screen
+  if (loading && !isDemo && !isDemoFromStorage) {
     console.log("ProtectedRoute: Still loading...");
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -27,13 +31,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Allow access if user is authenticated OR in demo mode
-  if (!user && !isDemo) {
+  // Allow access if user is authenticated OR in demo mode (from state or localStorage)
+  if (!user && !isDemo && !isDemoFromStorage) {
     console.log("ProtectedRoute: Redirecting to auth - no user and not demo");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  console.log("ProtectedRoute: Access granted");
+  console.log("ProtectedRoute: Access granted - user:", !!user, "isDemo:", isDemo, "isDemoFromStorage:", isDemoFromStorage);
   return <>{children}</>;
 };
 
