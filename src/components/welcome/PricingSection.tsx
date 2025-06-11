@@ -8,7 +8,7 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const PricingSection = () => {
   return (
-    <div className="relative py-20 bg-white">
+    <div className="relative py-20">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-12">
