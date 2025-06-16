@@ -1,8 +1,11 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Crown, Brain, Target } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
+import AnimatedFeatureCard from "@/components/welcome/AnimatedFeatureCard";
+
 const HeroSection = () => {
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing-section');
@@ -12,7 +15,9 @@ const HeroSection = () => {
       });
     }
   };
-  return <div className="relative min-h-screen flex items-center">
+
+  return (
+    <div className="relative min-h-screen flex items-center">
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10">
         <ScrollAnimation animation="fade" delay={200}>
           <div className="text-center mb-8 sm:mb-12">
@@ -36,29 +41,21 @@ const HeroSection = () => {
             
             <ScrollAnimation animation="slide-up" delay={1000}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-lg border border-gray-200">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                      <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-xs sm:text-sm">На основе данных</h3>
-                  </div>
-                  <p className="text-gray-600 text-xs">
-                    Принимайте решения на основе данных, а не интуиции.
-                  </p>
-                </div>
+                <AnimatedFeatureCard
+                  icon={Brain}
+                  title="На основе данных"
+                  description="Глубокая аналитика продаж и конкурентов помогает принимать обоснованные решения для роста бизнеса на маркетплейсе"
+                  gradient="from-blue-500 to-cyan-500"
+                  delay={1200}
+                />
                 
-                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-lg border border-gray-200">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                      <Target className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-xs sm:text-sm">Всё в одном</h3>
-                  </div>
-                  <p className="text-gray-600 text-xs">
-                    Аналитика, автоценообразование, юнит-экономика, CRM.
-                  </p>
-                </div>
+                <AnimatedFeatureCard
+                  icon={Target}
+                  title="Всё в одном"
+                  description="Полный комплекс инструментов включает аналитику продаж автоценообразование юнит экономику и CRM систему управления клиентами"
+                  gradient="from-green-500 to-emerald-500"
+                  delay={1400}
+                />
               </div>
             </ScrollAnimation>
 
@@ -78,6 +75,8 @@ const HeroSection = () => {
           </div>
         </ScrollAnimation>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default HeroSection;
