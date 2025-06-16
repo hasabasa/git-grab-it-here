@@ -11,9 +11,9 @@ import ContactForm from "@/components/whatsapp/ContactForm";
 import ChatsList from "@/components/whatsapp/ChatsList";
 import QRCodeAuth from "@/components/whatsapp/QRCodeAuth";
 import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
+import WhatsAppComingSoonModal from "@/components/whatsapp/WhatsAppComingSoonModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
-import { toast } from 'sonner';
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -63,6 +63,8 @@ const WhatsAppPage = () => {
     messages,
     loading,
     qrCode,
+    showComingSoonModal,
+    setShowComingSoonModal,
     createSession,
     sendMessage,
   } = useWhatsAppConnection();
@@ -94,16 +96,20 @@ const WhatsAppPage = () => {
   const activeContactsCount = contacts.filter(c => c.status === 'active').length;
 
   const handleOpenWhatsAppWeb = () => {
-    toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
-      duration: 5000
-    });
+    setShowComingSoonModal(true);
     setTimeout(() => {
       window.open('https://web.whatsapp.com', '_blank');
-    }, 1000);
+    }, 3000);
   };
 
   return (
     <div className="space-y-6">
+      {/* Модальное окно */}
+      <WhatsAppComingSoonModal 
+        isOpen={showComingSoonModal}
+        onClose={() => setShowComingSoonModal(false)}
+      />
+
       {/* Заголовок и статистика */}
       <div>
         <h1 className="text-3xl font-bold mb-2">WhatsApp интеграция</h1>
@@ -314,14 +320,12 @@ const WhatsAppPage = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
-                            duration: 5000
-                          });
+                          setShowComingSoonModal(true);
                           setTimeout(() => {
                             const formattedPhone = contact.phone.replace(/[^\d]/g, '');
                             const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
                             window.open(url, '_blank');
-                          }, 1000);
+                          }, 3000);
                         }}
                         className="gap-1"
                       >
@@ -338,14 +342,12 @@ const WhatsAppPage = () => {
 
         <TabsContent value="history">
           <ChatsList contacts={contacts} onOpenWhatsApp={(phone) => {
-            toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
-              duration: 5000
-            });
+            setShowComingSoonModal(true);
             setTimeout(() => {
               const formattedPhone = phone.replace(/[^\d]/g, '');
               const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
               window.open(url, '_blank');
-            }, 1000);
+            }, 3000);
           }} />
         </TabsContent>
       </Tabs>

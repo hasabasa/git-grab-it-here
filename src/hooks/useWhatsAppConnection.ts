@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from 'sonner'
 
 interface WhatsAppSession {
   id: string
@@ -28,15 +27,14 @@ export const useWhatsAppConnection = () => {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([])
   const [loading, setLoading] = useState(false)
   const [qrCode, setQrCode] = useState<string | null>(null)
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false)
 
   const createSession = async () => {
     try {
       setLoading(true)
 
-      // Показываем уведомление
-      toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
-        duration: 5000
-      })
+      // Показываем красивое модальное окно
+      setShowComingSoonModal(true)
 
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: { action: 'create_session' },
@@ -62,18 +60,15 @@ export const useWhatsAppConnection = () => {
       })
       
       setQrCode(data.qr_code)
-      toast.success('Сессия WhatsApp создана')
       
       // Симулируем подключение через 10 секунд
       setTimeout(() => {
         setSession(prev => prev ? { ...prev, is_connected: true } : null)
         setQrCode(null)
-        toast.success('WhatsApp подключен!')
       }, 10000)
       
     } catch (error: any) {
       console.error('Create session error:', error)
-      toast.error(`Ошибка создания сессии: ${error.message || 'Неизвестная ошибка'}`)
     } finally {
       setLoading(false)
     }
@@ -81,7 +76,7 @@ export const useWhatsAppConnection = () => {
 
   const sendMessage = async (phone: string, message: string) => {
     if (!session?.id) {
-      toast.error('Нет активной сессии WhatsApp')
+      setShowComingSoonModal(true)
       return
     }
 
@@ -116,11 +111,9 @@ export const useWhatsAppConnection = () => {
       }
 
       setMessages(prev => [...prev, newMessage])
-      toast.success('Сообщение отправлено')
 
     } catch (error: any) {
       console.error('Send message error:', error)
-      toast.error(`Ошибка отправки: ${error.message || 'Неизвестная ошибка'}`)
     }
   }
 
@@ -161,6 +154,8 @@ export const useWhatsAppConnection = () => {
     messages,
     loading,
     qrCode,
+    showComingSoonModal,
+    setShowComingSoonModal,
     createSession,
     sendMessage,
     loadMessages
