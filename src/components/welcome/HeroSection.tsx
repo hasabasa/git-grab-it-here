@@ -1,20 +1,18 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Crown, Brain, Target } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
-
 const HeroSection = () => {
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing-section');
     if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
+      pricingSection.scrollIntoView({
+        behavior: 'smooth'
+      });
     }
   };
-
-  return (
-    <div className="relative min-h-screen flex items-center">
+  return <div className="relative min-h-screen flex items-center">
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10">
         <ScrollAnimation animation="fade" delay={200}>
           <div className="text-center mb-8 sm:mb-12">
@@ -26,9 +24,7 @@ const HeroSection = () => {
             </ScrollAnimation>
             
             <ScrollAnimation animation="slide-up" delay={600}>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 sm:mb-6">
-                Kaspi Price
-              </h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 sm:mb-6">Bot Mark</h1>
             </ScrollAnimation>
             
             <ScrollAnimation animation="fade" delay={800}>
@@ -82,8 +78,6 @@ const HeroSection = () => {
           </div>
         </ScrollAnimation>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default HeroSection;
