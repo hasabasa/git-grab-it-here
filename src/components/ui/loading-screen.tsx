@@ -16,6 +16,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   return (
     <div className={cn(
       "fixed inset-0 bg-gray-50 flex flex-col items-center justify-center z-50",
+      "animate-fade-in",
       className
     )}>
       <LoadingAnimation />

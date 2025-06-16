@@ -12,8 +12,23 @@ if (!rootElement) {
   document.body.appendChild(rootDiv);
 }
 
+// Функция для удаления initial loader
+const removeInitialLoader = () => {
+  const initialLoader = document.getElementById('initial-loader');
+  if (initialLoader) {
+    initialLoader.classList.add('fade-out');
+    setTimeout(() => {
+      initialLoader.remove();
+    }, 500);
+  }
+};
+
+// Рендерим React приложение
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
   </StrictMode>
 );
+
+// Удаляем initial loader после монтирования React
+setTimeout(removeInitialLoader, 100);
