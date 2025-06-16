@@ -33,6 +33,11 @@ export const useWhatsAppConnection = () => {
     try {
       setLoading(true)
 
+      // Показываем уведомление
+      toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
+        duration: 5000
+      })
+
       const { data, error } = await supabase.functions.invoke('whatsapp-bot', {
         body: { action: 'create_session' },
         headers: {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import QRCodeAuth from "@/components/whatsapp/QRCodeAuth";
 import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
+import { toast } from 'sonner';
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -93,6 +93,15 @@ const WhatsAppPage = () => {
 
   const activeContactsCount = contacts.filter(c => c.status === 'active').length;
 
+  const handleOpenWhatsAppWeb = () => {
+    toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
+      duration: 5000
+    });
+    setTimeout(() => {
+      window.open('https://web.whatsapp.com', '_blank');
+    }, 1000);
+  };
+
   return (
     <div className="space-y-6">
       {/* Заголовок и статистика */}
@@ -132,9 +141,7 @@ const WhatsAppPage = () => {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => {
-                window.open('https://web.whatsapp.com', '_blank');
-              }}
+              onClick={handleOpenWhatsAppWeb}
               size="sm"
               className="gap-2 w-full"
             >
@@ -307,9 +314,14 @@ const WhatsAppPage = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          const formattedPhone = contact.phone.replace(/[^\d]/g, '');
-                          const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
-                          window.open(url, '_blank');
+                          toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
+                            duration: 5000
+                          });
+                          setTimeout(() => {
+                            const formattedPhone = contact.phone.replace(/[^\d]/g, '');
+                            const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
+                            window.open(url, '_blank');
+                          }, 1000);
                         }}
                         className="gap-1"
                       >
@@ -326,9 +338,14 @@ const WhatsAppPage = () => {
 
         <TabsContent value="history">
           <ChatsList contacts={contacts} onOpenWhatsApp={(phone) => {
-            const formattedPhone = phone.replace(/[^\d]/g, '');
-            const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
-            window.open(url, '_blank');
+            toast.info('Еще чуть чуть... и будет интеграция с WhatsApp а пока наслаждайтесь приятными ценами и функциями нашей платформы', {
+              duration: 5000
+            });
+            setTimeout(() => {
+              const formattedPhone = phone.replace(/[^\d]/g, '');
+              const url = `https://web.whatsapp.com/send?phone=${formattedPhone}`;
+              window.open(url, '_blank');
+            }, 1000);
           }} />
         </TabsContent>
       </Tabs>

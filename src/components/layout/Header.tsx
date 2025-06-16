@@ -27,7 +27,7 @@ const Header = ({
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
       <div className="text-xl font-semibold text-gray-800">
-        Kaspi Price
+        Mark Bot
       </div>
       
       <div className="flex items-center gap-4">
