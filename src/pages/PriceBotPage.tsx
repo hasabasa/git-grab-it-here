@@ -273,7 +273,6 @@ const PriceBotPage = () => {
           .update({
             bot_active: settings.isActive,
             min_profit: settings.minProfit,
-            max_profit: settings.maxProfit,
             updated_at: new Date().toISOString()
           })
           .eq('id', settings.productId);
@@ -446,7 +445,7 @@ const PriceBotPage = () => {
 
         {activeProduct && (
           <Card className="lg:col-span-2">
-            <Tabs defaultValue="competitors">
+            <Tabs defaultValue="settings">
               <CardHeader>
                 <div className="flex justify-between items-center mb-2">
                   <CardTitle>
@@ -456,17 +455,11 @@ const PriceBotPage = () => {
                     {(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'Активен' : 'На паузе'}
                   </Badge>
                 </div>
-                <TabsList className="grid grid-cols-2 w-[400px]">
-                  <TabsTrigger value="competitors">Конкуренты</TabsTrigger>
+                <TabsList className="grid grid-cols-1 w-[200px]">
                   <TabsTrigger value="settings">Настройки бота</TabsTrigger>
                 </TabsList>
               </CardHeader>
               <CardContent>
-                <TabsContent value="competitors">
-                  <CompetitorsList 
-                    productId={activeProduct} 
-                  />
-                </TabsContent>
                 <TabsContent value="settings">
                   <PriceBotSettings 
                     productId={activeProduct} 

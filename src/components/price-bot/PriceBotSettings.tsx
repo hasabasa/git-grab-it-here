@@ -5,8 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockProducts } from "@/data/mockData";
 
 interface PriceBotSettingsProps {
@@ -19,9 +17,6 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
   
   const [strategy, setStrategy] = useState("become-first");
   const [minProfit, setMinProfit] = useState(2000);
-  const [maxProfit, setMaxProfit] = useState(10000);
-  const [step, setStep] = useState(1);
-  const [updateFrequency, setUpdateFrequency] = useState("immediate");
   const [isActive, setIsActive] = useState(product?.botActive || false);
 
   const handleSave = () => {
@@ -29,9 +24,6 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
       productId,
       strategy,
       minProfit,
-      maxProfit,
-      step,
-      updateFrequency,
       isActive,
     });
   };
@@ -55,58 +47,20 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Настройки прибыли</h3>
         
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="min-profit">Минимальная прибыль (₸)</Label>
-            <Input 
-              id="min-profit" 
-              type="number" 
-              value={minProfit} 
-              onChange={(e) => setMinProfit(parseInt(e.target.value))} 
-            />
-            <p className="text-sm text-gray-500">Бот не опустит цену ниже этого значения прибыли</p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="max-profit">Максимальная прибыль (₸)</Label>
-            <Input 
-              id="max-profit" 
-              type="number" 
-              value={maxProfit} 
-              onChange={(e) => setMaxProfit(parseInt(e.target.value))} 
-            />
-            <p className="text-sm text-gray-500">Бот не поднимет цену выше этого значения прибыли</p>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="min-profit">Минимальная прибыль (₸)</Label>
+          <Input 
+            id="min-profit" 
+            type="number" 
+            value={minProfit} 
+            onChange={(e) => setMinProfit(parseInt(e.target.value))} 
+          />
+          <p className="text-sm text-gray-500">Бот не опустит цену ниже этого значения прибыли</p>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Дополнительные настройки</h3>
-        
-        <div className="space-y-2">
-          <Label htmlFor="step">Шаг изменения цены (₸)</Label>
-          <Input 
-            id="step" 
-            type="number" 
-            value={step} 
-            onChange={(e) => setStep(parseInt(e.target.value))} 
-            min={1}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="frequency">Частота обновления</Label>
-          <Select value={updateFrequency} onValueChange={setUpdateFrequency}>
-            <SelectTrigger id="frequency">
-              <SelectValue placeholder="Выберите частоту обновления" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="immediate">Немедленная реакция</SelectItem>
-              <SelectItem value="hourly">Каждый час</SelectItem>
-              <SelectItem value="daily">Раз в день</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <h3 className="text-lg font-medium">Активация бота</h3>
         
         <div className="flex items-center space-x-2">
           <Switch 
