@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, MessageCircle } from 'lucide-react';
 
 interface WhatsAppComingSoonModalProps {
   isOpen: boolean;
@@ -49,10 +49,11 @@ const WhatsAppComingSoonModal = ({ isOpen, onClose }: WhatsAppComingSoonModalPro
 
         {/* Content */}
         <div className="text-center space-y-6">
-          {/* Emoji stack */}
-          <div className="text-6xl space-y-2">
-            <div className="animate-bounce">💬</div>
-            <div className="text-4xl animate-pulse">📱</div>
+          {/* WhatsApp icon */}
+          <div className="flex justify-center">
+            <div className="p-6 bg-green-100 rounded-full animate-bounce">
+              <MessageCircle className="h-12 w-12 text-green-600" />
+            </div>
           </div>
 
           {/* Title */}
