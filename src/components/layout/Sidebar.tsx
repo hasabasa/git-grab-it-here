@@ -4,6 +4,14 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, BarChart2, Search, Calendar, ClipboardList, Crown, Link2, MessageCircle, ShoppingCart } from "lucide-react";
 import Calculator from "@/components/icons/Calculator";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,6 +20,7 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   const menuItems = [
     {
@@ -61,6 +70,45 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
     }
   ];
 
+  const SidebarContent = () => (
+    <div className="px-2 py-4">
+      <nav className="space-y-2">
+        {menuItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            onClick={() => isMobile && setIsOpen(false)}
+            className={cn(
+              "flex items-center rounded-lg px-3 py-3 transition-colors text-base",
+              location.pathname === item.path
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-gray-100",
+              !isOpen && !isMobile && "justify-center"
+            )}
+          >
+            <item.icon className={cn("h-5 w-5", (!isOpen && !isMobile) ? "mr-0" : "mr-3")} />
+            {(isOpen || isMobile) && <span>{item.title}</span>}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <DrawerContent className="h-[85vh]">
+          <DrawerHeader className="border-b">
+            <DrawerTitle className="text-xl font-bold text-center">Mark Bot</DrawerTitle>
+          </DrawerHeader>
+          <div className="flex-1 overflow-y-auto">
+            <SidebarContent />
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <aside className={cn(
       "fixed left-0 top-0 z-40 h-full bg-white shadow-md transition-all duration-300 ease-in-out",
@@ -78,26 +126,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         </Button>
       </div>
 
-      <div className="px-2 py-4">
-        <nav className="space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center rounded-lg px-3 py-2 transition-colors",
-                location.pathname === item.path
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-gray-100",
-                !isOpen && "justify-center"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", !isOpen && "mr-0")} />
-              {isOpen && <span className="ml-3">{item.title}</span>}
-            </Link>
-          ))}
-        </nav>
-      </div>
+      <SidebarContent />
     </aside>
   );
 };

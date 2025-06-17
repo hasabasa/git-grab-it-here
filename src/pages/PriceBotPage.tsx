@@ -15,6 +15,14 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductList from "@/components/price-bot/ProductList";
 import { useAuth } from "@/components/integration/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 // Демо-данные продуктов
 const demoProducts: Product[] = [
@@ -70,6 +78,7 @@ const demoProducts: Product[] = [
 
 const PriceBotPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const isMobile = useIsMobile();
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -77,6 +86,8 @@ const PriceBotPage = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [showProductDrawer, setShowProductDrawer] = useState(false);
+  const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
 
   // Загружаем выбранный магазин из localStorage при инициализации
   useEffect(() => {
@@ -161,12 +172,15 @@ const PriceBotPage = () => {
   
   const handleProductSelect = (productId: string) => {
     setActiveProduct(productId);
+    if (isMobile) {
+      setShowSettingsDrawer(true);
+    }
   };
 
   const handleStoreChange = (storeId: string | null) => {
     setSelectedStoreId(storeId);
-    setActiveProduct(null); // Сбрасываем выбранный продукт при смене магазина
-    setSelectedProducts([]); // Сбрасываем выбранные продукты
+    setActiveProduct(null);
+    setSelectedProducts([]);
   };
 
   // Фильтруем продукты по выбранному магазину и поисковому запросу
@@ -311,14 +325,141 @@ const PriceBotPage = () => {
     );
   }
 
+  const ProductsSection = () => (
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg md:text-xl">Мои товары</CardTitle>
+        <CardDescription className="text-sm">
+          {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
+        </CardDescription>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2">
+          <Input 
+            placeholder="Поиск товаров..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1"
+          />
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <Checkbox 
+              id="select-all"
+              checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+              onCheckedChange={toggleSelectAll}
+            />
+            <label htmlFor="select-all" className="text-sm">Все</label>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {loadingProducts ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => handleProductSelect(product.id)}
+                className={`p-3 rounded-xl cursor-pointer transition-all ${
+                  activeProduct === product.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card hover:bg-gray-100'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <Checkbox 
+                    checked={selectedProducts.includes(product.id)}
+                    onCheckedChange={() => toggleProductSelection(product.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                        {product.image && (
+                          <img 
+                            src={product.image} 
+                            alt={product.name} 
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm md:text-base line-clamp-2">{product.name}</div>
+                        <div className="text-xs md:text-sm mt-1 flex flex-wrap items-center gap-2">
+                          <span className={activeProduct === product.id ? 'text-primary-foreground' : 'text-gray-500'}>
+                            {Number(product.price).toLocaleString()} ₸
+                          </span>
+                          <Badge 
+                            variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
+                            className="text-xs"
+                          >
+                            {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
+                          </Badge>
+                        </div>
+                        {product.storeName && (
+                          <div className={`text-xs mt-1 truncate ${activeProduct === product.id ? 'text-primary-foreground/70' : 'text-gray-400'}`}>
+                            {product.storeName}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-6 text-gray-500 text-sm">
+                {products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены"}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const SettingsSection = () => activeProduct && (
+    <Card className="h-full">
+      <Tabs defaultValue="settings">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+            <CardTitle className="text-base md:text-lg line-clamp-2 flex-1">
+              {products.find(p => p.id === activeProduct)?.name}
+            </CardTitle>
+            <Badge 
+              variant={(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'default' : 'outline'}
+              className="self-start"
+            >
+              {(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'Активен' : 'На паузе'}
+            </Badge>
+          </div>
+          <TabsList className="grid grid-cols-1 w-full md:w-[200px]">
+            <TabsTrigger value="settings" className="text-sm">Настройки бота</TabsTrigger>
+          </TabsList>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <TabsContent value="settings">
+            <PriceBotSettings 
+              productId={activeProduct} 
+              onSave={handleSaveSettings}
+            />
+          </TabsContent>
+        </CardContent>
+      </Tabs>
+    </Card>
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Бот демпинга</h1>
-        <div className="flex items-center gap-2">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Button 
             onClick={() => handleBulkAction('start')} 
             disabled={selectedProducts.length === 0 || isLoading}
+            size={isMobile ? "sm" : "default"}
+            className="flex-1 sm:flex-none"
           >
             <Play className="mr-2 h-4 w-4" />
             Запустить выбранные
@@ -327,6 +468,8 @@ const PriceBotPage = () => {
             onClick={() => handleBulkAction('stop')} 
             variant="outline"
             disabled={selectedProducts.length === 0 || isLoading}
+            size={isMobile ? "sm" : "default"}
+            className="flex-1 sm:flex-none"
           >
             <Pause className="mr-2 h-4 w-4" />
             Остановить выбранные
@@ -337,140 +480,62 @@ const PriceBotPage = () => {
       {isDemo && (
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700">
+          <AlertDescription className="text-blue-700 text-sm">
             Вы работаете в демо-режиме. Все изменения будут сохранены только в памяти браузера.
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Селектор магазинов */}
-        <div className="lg:col-span-1">
+      {isMobile ? (
+        <div className="space-y-4">
+          {/* Store Selector - Mobile */}
           <StoreSelector 
             selectedStoreId={selectedStoreId}
             onStoreChange={handleStoreChange}
           />
-        </div>
-
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Мои товары</CardTitle>
-            <CardDescription>
-              {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
-            </CardDescription>
-            <div className="flex items-center gap-4 mt-2">
-              <Input 
-                placeholder="Поиск товаров..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="select-all"
-                  checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                />
-                <label htmlFor="select-all" className="text-sm">Все</label>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {loadingProducts ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                {filteredProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => handleProductSelect(product.id)}
-                    className={`p-3 rounded-xl cursor-pointer transition-all ${
-                      activeProduct === product.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Checkbox 
-                        checked={selectedProducts.includes(product.id)}
-                        onCheckedChange={() => toggleProductSelection(product.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-lg bg-gray-200 mr-3 overflow-hidden">
-                            {product.image && (
-                              <img 
-                                src={product.image} 
-                                alt={product.name} 
-                                className="h-full w-full object-cover"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-medium line-clamp-2">{product.name}</div>
-                            <div className="text-sm mt-1 flex items-center">
-                              <span className={activeProduct === product.id ? 'text-primary-foreground' : 'text-gray-500'}>
-                                {Number(product.price).toLocaleString()} ₸
-                              </span>
-                              <Badge 
-                                variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
-                                className="ml-2 text-xs"
-                              >
-                                {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
-                              </Badge>
-                            </div>
-                            {product.storeName && (
-                              <div className={`text-xs mt-1 ${activeProduct === product.id ? 'text-primary-foreground/70' : 'text-gray-400'}`}>
-                                {product.storeName}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {filteredProducts.length === 0 && (
-                  <div className="text-center py-6 text-gray-500">
-                    {products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены"}
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {activeProduct && (
-          <Card className="lg:col-span-2">
-            <Tabs defaultValue="settings">
-              <CardHeader>
-                <div className="flex justify-between items-center mb-2">
-                  <CardTitle>
-                    {products.find(p => p.id === activeProduct)?.name}
-                  </CardTitle>
-                  <Badge variant={(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'default' : 'outline'}>
-                    {(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'Активен' : 'На паузе'}
-                  </Badge>
+          
+          {/* Products List - Mobile */}
+          <ProductsSection />
+          
+          {/* Settings Drawer - Mobile */}
+          {activeProduct && (
+            <Drawer open={showSettingsDrawer} onOpenChange={setShowSettingsDrawer}>
+              <DrawerContent className="h-[85vh]">
+                <DrawerHeader>
+                  <DrawerTitle className="text-left">
+                    Настройки товара
+                  </DrawerTitle>
+                </DrawerHeader>
+                <div className="px-4 pb-4 overflow-y-auto">
+                  <SettingsSection />
                 </div>
-                <TabsList className="grid grid-cols-1 w-[200px]">
-                  <TabsTrigger value="settings">Настройки бота</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value="settings">
-                  <PriceBotSettings 
-                    productId={activeProduct} 
-                    onSave={handleSaveSettings}
-                  />
-                </TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        )}
-      </div>
+              </DrawerContent>
+            </Drawer>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Store Selector - Desktop */}
+          <div className="lg:col-span-1">
+            <StoreSelector 
+              selectedStoreId={selectedStoreId}
+              onStoreChange={handleStoreChange}
+            />
+          </div>
+
+          {/* Products List - Desktop */}
+          <div className="lg:col-span-1">
+            <ProductsSection />
+          </div>
+
+          {/* Settings Section - Desktop */}
+          {activeProduct && (
+            <div className="lg:col-span-2">
+              <SettingsSection />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
