@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -44,6 +45,7 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
   const [reminderType, setReminderType] = useState(task?.reminderType || "none");
   const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate ? new Date(task?.dueDate) : undefined);
   const [isCustomType, setIsCustomType] = useState(task?.type === "custom");
+  const isMobile = useIsMobile();
 
   const handleTaskTypeChange = (value: string) => {
     setTaskType(value);
@@ -78,16 +80,18 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{task ? "Редактировать задачу" : "Добавить задачу"}</DialogTitle>
+      <DialogContent className={`${isMobile ? 'max-w-[95vw] h-[90vh] max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`}>
+        <DialogHeader className={isMobile ? 'pb-2' : ''}>
+          <DialogTitle className={isMobile ? 'text-lg' : ''}>
+            {task ? "Редактировать задачу" : "Добавить задачу"}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className={`space-y-4 ${isMobile ? 'py-2' : 'py-4'}`}>
           <div className="space-y-2">
-            <Label htmlFor="taskType">Тип задачи</Label>
+            <Label htmlFor="taskType" className={isMobile ? 'text-sm' : ''}>Тип задачи</Label>
             <Select value={taskType} onValueChange={handleTaskTypeChange}>
-              <SelectTrigger id="taskType">
+              <SelectTrigger id="taskType" className={isMobile ? 'h-12 text-base' : ''}>
                 <SelectValue placeholder="Выберите тип задачи" />
               </SelectTrigger>
               <SelectContent>
@@ -102,40 +106,43 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
 
           {isCustomType && (
             <div className="space-y-2">
-              <Label htmlFor="title">Название</Label>
+              <Label htmlFor="title" className={isMobile ? 'text-sm' : ''}>Название</Label>
               <Input 
                 id="title" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
-                placeholder="Введите название задачи" 
+                placeholder="Введите название задачи"
+                className={isMobile ? 'h-12 text-base' : ''}
               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="description">Описание</Label>
+            <Label htmlFor="description" className={isMobile ? 'text-sm' : ''}>Описание</Label>
             <Textarea 
               id="description" 
               value={description} 
               onChange={(e) => setDescription(e.target.value)} 
               placeholder="Что нужно сделать?" 
               rows={3}
+              className={isMobile ? 'text-base min-h-[80px]' : ''}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client">Клиент</Label>
+            <Label htmlFor="client" className={isMobile ? 'text-sm' : ''}>Клиент</Label>
             <Input 
               id="client" 
               value={client} 
               onChange={(e) => setClient(e.target.value)} 
-              placeholder="Имя клиента или номер заказа" 
+              placeholder="Имя клиента или номер заказа"
+              className={isMobile ? 'h-12 text-base' : ''}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
             <div className="space-y-2">
-              <Label htmlFor="dueDate">Срок выполнения</Label>
+              <Label htmlFor="dueDate" className={isMobile ? 'text-sm' : ''}>Срок выполнения</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -143,7 +150,8 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dueDate && "text-muted-foreground"
+                      !dueDate && "text-muted-foreground",
+                      isMobile && "h-12 text-base"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -163,9 +171,9 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="reminderType">Напоминание</Label>
+              <Label htmlFor="reminderType" className={isMobile ? 'text-sm' : ''}>Напоминание</Label>
               <Select value={reminderType} onValueChange={setReminderType}>
-                <SelectTrigger id="reminderType">
+                <SelectTrigger id="reminderType" className={isMobile ? 'h-12 text-base' : ''}>
                   <SelectValue placeholder="Выберите тип напоминания" />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,9 +188,20 @@ const TaskForm = ({ isOpen, onClose, onSave, task }: TaskFormProps) => {
           </div>
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Отмена</Button>
-          <Button onClick={handleSubmit}>Сохранить</Button>
+        <DialogFooter className={`${isMobile ? 'flex-col-reverse gap-2 pt-2' : ''}`}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className={isMobile ? 'w-full h-12 text-base' : ''}
+          >
+            Отмена
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            className={isMobile ? 'w-full h-12 text-base' : ''}
+          >
+            Сохранить
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
