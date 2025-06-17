@@ -85,10 +85,7 @@ const PreordersPage = () => {
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span>Создание карточек товаров для предзаказа</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  
-                </li>
+                
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span>Автоматические уведомления о поступлении</span>
