@@ -66,7 +66,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             margin={{
               top: 10,
               right: isMobile ? 15 : 30,
-              left: isMobile ? 70 : 120,
+              left: isMobile ? 80 : 130,
               bottom: 10,
             }}
           >
@@ -100,13 +100,13 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 70 : 120}
+              width={isMobile ? 80 : 130}
               fontSize={isMobile ? 10 : 12}
               stroke="#64748b"
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-              textAnchor="start"
+              tick={{ textAnchor: 'start', dx: 5 }}
             />
             <Tooltip
               formatter={(value) => {
