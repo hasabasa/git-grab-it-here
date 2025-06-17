@@ -1,4 +1,3 @@
-
 import {
   AreaChart,
   Area,
@@ -30,14 +29,14 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
   const aggregatedData = aggregateDataByTimeFrame(filteredData, timeFrame);
 
   return (
-    <div className={`${isMobile ? 'h-[300px]' : 'h-[450px]'} p-2`}>
+    <div className={`${isMobile ? 'h-[350px]' : 'h-[500px]'} p-2`}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={aggregatedData}
           margin={{
             top: 20,
             right: isMobile ? 15 : 30,
-            left: isMobile ? 5 : 10,
+            left: 0,
             bottom: 10,
           }}
         >
@@ -68,14 +67,7 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
             tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
             axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
           />
-          <YAxis 
-            fontSize={isMobile ? 11 : 13}
-            tickFormatter={(value) => isMobile ? `${(value / 1000).toFixed(0)}k` : value.toLocaleString()}
-            stroke="#64748b"
-            strokeWidth={1}
-            tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-            axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-          />
+          <YAxis hide />
           <Tooltip 
             labelFormatter={(date) => formatDateForChart(date, timeFrame)} 
             formatter={(value) => [`${value.toLocaleString()} ₸`, "Сумма"]}
