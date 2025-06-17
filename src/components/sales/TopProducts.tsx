@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { mockTopProducts } from "@/data/mockData";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TopProductsProps {
   dateRange: {
@@ -12,6 +13,7 @@ interface TopProductsProps {
 }
 
 const TopProducts = ({ dateRange }: TopProductsProps) => {
+  const isMobile = useIsMobile();
   const [sortBy, setSortBy] = useState("quantity");
   
   // In a real app, you'd filter by date range here
@@ -21,37 +23,56 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
     } else {
       return b.totalAmount - a.totalAmount;
     }
-  }).slice(0, 10);
+  }).slice(0, isMobile ? 5 : 10);
 
   const chartData = products.map((product) => ({
-    name: product.name.length > 20 ? product.name.substring(0, 20) + "..." : product.name,
+    name: product.name.length > (isMobile ? 15 : 20) 
+      ? product.name.substring(0, isMobile ? 15 : 20) + "..." 
+      : product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
   }));
 
   return (
     <div>
-      <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className="mb-6">
-        <TabsList>
-          <TabsTrigger value="quantity">По количеству</TabsTrigger>
-          <TabsTrigger value="amount">По сумме</TabsTrigger>
+      <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className="mb-4 md:mb-6">
+        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2' : ''}`}>
+          <TabsTrigger value="quantity" className={isMobile ? 'text-xs' : ''}>
+            {isMobile ? "Кол-во" : "По количеству"}
+          </TabsTrigger>
+          <TabsTrigger value="amount" className={isMobile ? 'text-xs' : ''}>
+            {isMobile ? "Сумма" : "По сумме"}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className="h-[400px]">
+      <div className={`${isMobile ? 'h-[250px]' : 'h-[400px]'}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
               top: 5,
-              right: 30,
-              left: 100,
+              right: isMobile ? 10 : 30,
+              left: isMobile ? 60 : 100,
               bottom: 5,
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis type="category" dataKey="name" width={100} />
+            <XAxis 
+              type="number" 
+              fontSize={isMobile ? 10 : 12}
+              tickFormatter={(value) => 
+                sortBy === "amount" && isMobile 
+                  ? `${(value / 1000).toFixed(0)}k` 
+                  : value.toLocaleString()
+              }
+            />
+            <YAxis 
+              type="category" 
+              dataKey="name" 
+              width={isMobile ? 60 : 100}
+              fontSize={isMobile ? 9 : 12}
+            />
             <Tooltip
               formatter={(value) => {
                 if (sortBy === "amount") {
@@ -59,11 +80,15 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                 }
                 return [value, "Кол-во"];
               }}
+              contentStyle={{
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '6px' : '12px'
+              }}
             />
             <Bar 
               dataKey={sortBy === "quantity" ? "quantity" : "amount"} 
               fill="#8884d8" 
-              radius={[0, 4, 4, 0]}
+              radius={[0, isMobile ? 2 : 4, isMobile ? 2 : 4, 0]}
             />
           </BarChart>
         </ResponsiveContainer>

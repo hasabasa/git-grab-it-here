@@ -12,10 +12,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Download, FileSpreadsheet } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const isMobile = useIsMobile();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
   const [salesData, setSalesData] = useState(mockSalesData);
@@ -65,63 +67,105 @@ const SalesPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Мои продажи</h1>
+    <div className="space-y-4 md:space-y-6">
+      {/* Mobile-first header */}
+      <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
+        <h1 className="text-2xl md:text-3xl font-bold">Мои продажи</h1>
         
-        <div className="flex items-center gap-3">
-          <DateRangePicker
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-          />
+        {/* Mobile-optimized controls */}
+        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-3">
+          <div className="w-full md:w-auto">
+            <DateRangePicker
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
+          </div>
           
-          <Button variant="outline" onClick={() => handleExport("excel")}>
-            Экспорт в Excel
-          </Button>
-          
-          <Button variant="outline" onClick={() => handleExport("csv")}>
-            Экспорт в CSV
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size={isMobile ? "sm" : "default"}
+              onClick={() => handleExport("excel")}
+              className="flex-1 md:flex-none"
+            >
+              {isMobile ? (
+                <FileSpreadsheet className="h-4 w-4" />
+              ) : (
+                <>
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Excel
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size={isMobile ? "sm" : "default"}
+              onClick={() => handleExport("csv")}
+              className="flex-1 md:flex-none"
+            >
+              {isMobile ? (
+                <Download className="h-4 w-4" />
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  CSV
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
       
       {isDemo && (
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700">
-            Вы просматриваете демо-данные. Подключите свой магазин Kaspi для просмотра реальных данных.
+          <AlertDescription className="text-blue-700 text-sm">
+            {isMobile 
+              ? "Демо-данные. Подключите Kaspi для реальной статистики."
+              : "Вы просматриваете демо-данные. Подключите свой магазин Kaspi для просмотра реальных данных."
+            }
           </AlertDescription>
         </Alert>
       )}
       
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <div className="flex justify-center items-center h-48 md:h-64">
+          <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-b-2 border-primary" />
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Mobile-optimized stats grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <SalesStats salesData={salesData} dateRange={dateRange} />
           </div>
           
+          {/* Mobile-optimized chart */}
           <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Динамика продаж</CardTitle>
+            <CardHeader className="pb-3 md:pb-6">
+              <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
+                <CardTitle className="text-lg md:text-xl">Динамика продаж</CardTitle>
                 <Tabs
                   defaultValue="daily"
                   value={timeFrame}
                   onValueChange={setTimeFrame}
+                  className="w-full md:w-auto"
                 >
-                  <TabsList>
-                    <TabsTrigger value="daily">По дням</TabsTrigger>
-                    <TabsTrigger value="weekly">По неделям</TabsTrigger>
-                    <TabsTrigger value="monthly">По месяцам</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none">
+                    <TabsTrigger value="daily" className="text-xs md:text-sm">
+                      {isMobile ? "Дни" : "По дням"}
+                    </TabsTrigger>
+                    <TabsTrigger value="weekly" className="text-xs md:text-sm">
+                      {isMobile ? "Недели" : "По неделям"}
+                    </TabsTrigger>
+                    <TabsTrigger value="monthly" className="text-xs md:text-sm">
+                      {isMobile ? "Месяцы" : "По месяцам"}
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <SalesChart
                 salesData={salesData}
                 timeFrame={timeFrame}
@@ -130,12 +174,18 @@ const SalesPage = () => {
             </CardContent>
           </Card>
           
+          {/* Mobile-optimized top products */}
           <Card>
-            <CardHeader>
-              <CardTitle>Самые продаваемые товары</CardTitle>
-              <CardDescription>Топ товаров по количеству и сумме продаж</CardDescription>
+            <CardHeader className="pb-3 md:pb-6">
+              <CardTitle className="text-lg md:text-xl">Топ товары</CardTitle>
+              <CardDescription className="text-sm">
+                {isMobile 
+                  ? "Лучшие по продажам" 
+                  : "Самые продаваемые товары по количеству и сумме продаж"
+                }
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <TopProducts dateRange={dateRange} />
             </CardContent>
           </Card>
