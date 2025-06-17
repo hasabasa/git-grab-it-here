@@ -1,3 +1,4 @@
+
 import {
   AreaChart,
   Area,
@@ -29,15 +30,15 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
   const aggregatedData = aggregateDataByTimeFrame(filteredData, timeFrame);
 
   return (
-    <div className={`${isMobile ? 'h-[350px]' : 'h-[500px]'} p-2`}>
+    <div className={`${isMobile ? 'h-[400px]' : 'h-[500px]'} p-2`}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={aggregatedData}
           margin={{
             top: 20,
-            right: isMobile ? 15 : 30,
-            left: 0,
-            bottom: 10,
+            right: isMobile ? 20 : 30,
+            left: isMobile ? 20 : 30,
+            bottom: isMobile ? 40 : 20,
           }}
         >
           <defs>
@@ -60,30 +61,59 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
           <XAxis 
             dataKey="date" 
             tickFormatter={(date) => formatDateForChart(date, timeFrame)}
-            fontSize={isMobile ? 11 : 13}
+            fontSize={isMobile ? 14 : 16}
             interval={isMobile ? 'preserveStartEnd' : 'preserveStart'}
-            stroke="#64748b"
-            strokeWidth={1}
-            tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-            axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+            stroke="#374151"
+            strokeWidth={1.5}
+            tickLine={{ stroke: '#9ca3af', strokeWidth: 1 }}
+            axisLine={{ stroke: '#9ca3af', strokeWidth: 1.5 }}
+            angle={isMobile ? -45 : 0}
+            textAnchor={isMobile ? 'end' : 'middle'}
+            height={isMobile ? 60 : 30}
+            tick={{
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: 500,
+              fill: '#374151'
+            }}
           />
-          <YAxis hide />
+          <YAxis 
+            fontSize={isMobile ? 14 : 16}
+            stroke="#374151"
+            strokeWidth={1.5}
+            tickLine={{ stroke: '#9ca3af', strokeWidth: 1 }}
+            axisLine={{ stroke: '#9ca3af', strokeWidth: 1.5 }}
+            tickFormatter={(value) => 
+              value > 999999 
+                ? `${(value / 1000000).toFixed(1)}M` 
+                : value > 999 
+                  ? `${(value / 1000).toFixed(0)}k` 
+                  : value.toLocaleString()
+            }
+            tick={{
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: 500,
+              fill: '#374151'
+            }}
+            width={isMobile ? 60 : 80}
+          />
           <Tooltip 
             labelFormatter={(date) => formatDateForChart(date, timeFrame)} 
             formatter={(value) => [`${value.toLocaleString()} ₸`, "Сумма"]}
             contentStyle={{
-              fontSize: isMobile ? '13px' : '14px',
-              padding: isMobile ? '10px' : '15px',
+              fontSize: isMobile ? '15px' : '16px',
+              padding: isMobile ? '12px' : '16px',
               backgroundColor: 'rgba(255, 255, 255, 0.98)',
-              border: 'none',
+              border: '1px solid #e5e7eb',
               borderRadius: '12px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
-              backdropFilter: 'blur(10px)'
+              backdropFilter: 'blur(10px)',
+              fontWeight: 500
             }}
             labelStyle={{
-              color: '#1e293b',
+              color: '#1f2937',
               fontWeight: '600',
-              marginBottom: '4px'
+              marginBottom: '6px',
+              fontSize: isMobile ? '15px' : '16px'
             }}
           />
           <Area 
@@ -91,9 +121,9 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
             dataKey="amount" 
             stroke="url(#salesStroke)"
             fill="url(#salesGradient)"
-            strokeWidth={isMobile ? 2.5 : 3}
+            strokeWidth={isMobile ? 3 : 3.5}
             activeDot={{ 
-              r: isMobile ? 6 : 8,
+              r: isMobile ? 7 : 9,
               fill: '#1d4ed8',
               stroke: '#ffffff',
               strokeWidth: 3,
@@ -103,7 +133,7 @@ const SalesChart = ({ salesData, timeFrame, dateRange }: SalesChartProps) => {
               fill: '#3b82f6',
               stroke: '#ffffff',
               strokeWidth: 2,
-              r: isMobile ? 3 : 4
+              r: isMobile ? 4 : 5
             }}
           />
         </AreaChart>
