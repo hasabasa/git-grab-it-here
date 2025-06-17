@@ -12,6 +12,7 @@ import SalesPage from "./pages/SalesPage";
 import UnitEconomicsPage from "./pages/UnitEconomicsPage";
 import CrmPage from "./pages/CrmPage";
 import NicheSearchPage from "./pages/NicheSearchPage";
+import PreordersPage from "./pages/PreordersPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationPage from "./pages/IntegrationPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
@@ -49,6 +50,7 @@ const App = () => {
                 <Route path="unit-economics" element={<UnitEconomicsPage />} />
                 <Route path="crm" element={<CrmPage />} />
                 <Route path="niche-search" element={<NicheSearchPage />} />
+                <Route path="preorders" element={<PreordersPage />} />
                 <Route path="whatsapp" element={<WhatsAppPage />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="integrations" element={<IntegrationPage />} />
