@@ -1,24 +1,16 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Package, Clock, TrendingUp } from "lucide-react";
 import PreordersComingSoonModal from "@/components/preorders/PreordersComingSoonModal";
-
 const PreordersPage = () => {
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
-
   const handleFeatureClick = () => {
     setShowComingSoonModal(true);
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Модальное окно */}
-      <PreordersComingSoonModal 
-        isOpen={showComingSoonModal}
-        onClose={() => setShowComingSoonModal(false)}
-      />
+      <PreordersComingSoonModal isOpen={showComingSoonModal} onClose={() => setShowComingSoonModal(false)} />
 
       {/* Заголовок */}
       <div>
@@ -95,7 +87,7 @@ const PreordersPage = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Сбор предоплаты с клиентов</span>
+                  
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -116,27 +108,15 @@ const PreordersPage = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Начать работу:</h3>
               <div className="space-y-3">
-                <Button 
-                  onClick={handleFeatureClick}
-                  className="w-full justify-start"
-                  variant="outline"
-                >
+                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
                   <ShoppingCart className="mr-2 h-4 w-4" />
                   Создать предзаказ
                 </Button>
-                <Button 
-                  onClick={handleFeatureClick}
-                  className="w-full justify-start"
-                  variant="outline"
-                >
+                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
                   <Package className="mr-2 h-4 w-4" />
                   Управление поставками
                 </Button>
-                <Button 
-                  onClick={handleFeatureClick}
-                  className="w-full justify-start"
-                  variant="outline"
-                >
+                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
                   <Clock className="mr-2 h-4 w-4" />
                   Отчеты по предзаказам
                 </Button>
@@ -165,8 +145,6 @@ const PreordersPage = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default PreordersPage;
