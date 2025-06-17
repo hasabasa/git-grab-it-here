@@ -26,9 +26,10 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   }).slice(0, isMobile ? 5 : 8);
 
   const chartData = products.map((product, index) => ({
-    name: product.name.length > (isMobile ? 12 : 18) 
-      ? product.name.substring(0, isMobile ? 12 : 18) + "..." 
+    name: product.name.length > (isMobile ? 8 : 18) 
+      ? product.name.substring(0, isMobile ? 8 : 18) + "..." 
       : product.name,
+    fullName: product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
     index: index
   }));
@@ -40,34 +41,34 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   ];
 
   return (
-    <div>
-      <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className="mb-4 md:mb-6">
-        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2' : ''} bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl`}>
+    <div className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+      <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className={isMobile ? 'mb-3' : 'mb-4'}>
+        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2 h-9' : 'h-10'} bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl`}>
           <TabsTrigger 
             value="quantity" 
-            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+            className={`${isMobile ? 'text-xs px-2' : 'px-4'} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
           >
             {isMobile ? "Кол-во" : "По количеству"}
           </TabsTrigger>
           <TabsTrigger 
             value="amount" 
-            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+            className={`${isMobile ? 'text-xs px-2' : 'px-4'} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
           >
             {isMobile ? "Сумма" : "По сумме"}
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className={`${isMobile ? 'h-[400px]' : 'h-[550px]'} p-2`}>
+      <div className={`${isMobile ? 'h-[350px] -mx-2' : 'h-[550px]'} ${isMobile ? 'p-1' : 'p-2'}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
-              top: 10,
-              right: isMobile ? 15 : 30,
-              left: isMobile ? 80 : 130,
-              bottom: 10,
+              top: isMobile ? 5 : 10,
+              right: isMobile ? 10 : 30,
+              left: isMobile ? 5 : 130,
+              bottom: isMobile ? 5 : 10,
             }}
           >
             <defs>
@@ -86,52 +87,67 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             />
             <XAxis 
               type="number" 
-              fontSize={isMobile ? 11 : 13}
+              fontSize={isMobile ? 9 : 13}
               tickFormatter={(value) => 
-                sortBy === "amount" && isMobile 
-                  ? `${(value / 1000).toFixed(0)}k` 
-                  : value.toLocaleString()
+                sortBy === "amount" 
+                  ? isMobile 
+                    ? `${(value / 1000).toFixed(0)}k` 
+                    : `${value.toLocaleString()}`
+                  : isMobile 
+                    ? value > 999 ? `${(value / 1000).toFixed(0)}k` : value.toString()
+                    : value.toLocaleString()
               }
               stroke="#64748b"
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+              interval={0}
             />
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 80 : 130}
-              fontSize={isMobile ? 10 : 12}
+              width={isMobile ? 0 : 130}
+              fontSize={isMobile ? 0 : 12}
               stroke="#64748b"
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-              tick={{ textAnchor: 'start', dx: 5 }}
+              tick={isMobile ? false : { textAnchor: 'start', dx: 5 }}
+              hide={isMobile}
             />
             <Tooltip
-              formatter={(value) => {
+              formatter={(value, name, props) => {
                 if (sortBy === "amount") {
                   return [`${value.toLocaleString()} ₸`, "Сумма"];
                 }
                 return [value, "Кол-во"];
               }}
+              labelFormatter={(label, payload) => {
+                if (isMobile && payload && payload[0]) {
+                  return payload[0].payload.fullName;
+                }
+                return label;
+              }}
               contentStyle={{
-                fontSize: isMobile ? '12px' : '14px',
-                padding: isMobile ? '8px 12px' : '12px 16px',
+                fontSize: isMobile ? '10px' : '14px',
+                padding: isMobile ? '6px 8px' : '12px 16px',
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: isMobile ? '8px' : '12px',
                 boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(10px)'
+                backdropFilter: 'blur(10px)',
+                maxWidth: isMobile ? '200px' : 'none'
               }}
               labelStyle={{
                 color: '#1e293b',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontSize: isMobile ? '10px' : '14px'
               }}
             />
             <Bar 
               dataKey={sortBy === "quantity" ? "quantity" : "amount"}
-              radius={[0, isMobile ? 6 : 8, isMobile ? 6 : 8, 0]}
+              radius={[0, isMobile ? 4 : 8, isMobile ? 4 : 8, 0]}
+              minPointSize={isMobile ? 2 : 5}
             >
               {chartData.map((entry, index) => (
                 <Cell 
@@ -143,6 +159,29 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {isMobile && (
+        <div className="mt-3 space-y-1 text-xs">
+          <div className="font-medium text-gray-700 mb-2">Товары:</div>
+          {products.slice(0, 5).map((product, index) => (
+            <div key={product.name} className="flex items-center gap-2 py-1">
+              <div 
+                className="w-3 h-3 rounded-sm flex-shrink-0"
+                style={{ backgroundColor: barColors[index % barColors.length] }}
+              />
+              <span className="text-gray-600 truncate flex-1">
+                {product.name}
+              </span>
+              <span className="font-medium text-gray-900 text-right">
+                {sortBy === "quantity" 
+                  ? `${product.quantity} шт`
+                  : `${product.totalAmount.toLocaleString()} ₸`
+                }
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
