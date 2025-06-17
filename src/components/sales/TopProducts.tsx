@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, defs, linearGradient, stop } from "recharts";
 import { mockTopProducts } from "@/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -23,55 +23,89 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
     } else {
       return b.totalAmount - a.totalAmount;
     }
-  }).slice(0, isMobile ? 5 : 10);
+  }).slice(0, isMobile ? 5 : 8);
 
-  const chartData = products.map((product) => ({
-    name: product.name.length > (isMobile ? 15 : 20) 
-      ? product.name.substring(0, isMobile ? 15 : 20) + "..." 
+  const chartData = products.map((product, index) => ({
+    name: product.name.length > (isMobile ? 12 : 18) 
+      ? product.name.substring(0, isMobile ? 12 : 18) + "..." 
       : product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
+    index: index
   }));
+
+  // Градиентные цвета для столбцов
+  const barColors = [
+    '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', 
+    '#ef4444', '#f59e0b', '#10b981', '#06b6d4'
+  ];
 
   return (
     <div>
       <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className="mb-4 md:mb-6">
-        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2' : ''}`}>
-          <TabsTrigger value="quantity" className={isMobile ? 'text-xs' : ''}>
+        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2' : ''} bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl`}>
+          <TabsTrigger 
+            value="quantity" 
+            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+          >
             {isMobile ? "Кол-во" : "По количеству"}
           </TabsTrigger>
-          <TabsTrigger value="amount" className={isMobile ? 'text-xs' : ''}>
+          <TabsTrigger 
+            value="amount" 
+            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+          >
             {isMobile ? "Сумма" : "По сумме"}
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className={`${isMobile ? 'h-[250px]' : 'h-[400px]'}`}>
+      <div className={`${isMobile ? 'h-[320px]' : 'h-[450px]'} p-2`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
-              top: 5,
-              right: isMobile ? 10 : 30,
-              left: isMobile ? 60 : 100,
-              bottom: 5,
+              top: 10,
+              right: isMobile ? 15 : 30,
+              left: isMobile ? 70 : 120,
+              bottom: 10,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <defs>
+              {barColors.map((color, index) => (
+                <linearGradient key={`gradient-${index}`} id={`barGradient-${index}`} x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor={color} stopOpacity={0.8}/>
+                  <stop offset="100%" stopColor={color} stopOpacity={1}/>
+                </linearGradient>
+              ))}
+            </defs>
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="#e2e8f0" 
+              strokeOpacity={0.6}
+              horizontal={false}
+            />
             <XAxis 
               type="number" 
-              fontSize={isMobile ? 10 : 12}
+              fontSize={isMobile ? 11 : 13}
               tickFormatter={(value) => 
                 sortBy === "amount" && isMobile 
                   ? `${(value / 1000).toFixed(0)}k` 
                   : value.toLocaleString()
               }
+              stroke="#64748b"
+              strokeWidth={1}
+              tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+              axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
             />
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 60 : 100}
-              fontSize={isMobile ? 9 : 12}
+              width={isMobile ? 70 : 120}
+              fontSize={isMobile ? 10 : 12}
+              stroke="#64748b"
+              strokeWidth={1}
+              tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+              axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
             />
             <Tooltip
               formatter={(value) => {
@@ -81,15 +115,30 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                 return [value, "Кол-во"];
               }}
               contentStyle={{
-                fontSize: isMobile ? '11px' : '14px',
-                padding: isMobile ? '6px' : '12px'
+                fontSize: isMobile ? '12px' : '14px',
+                padding: isMobile ? '8px 12px' : '12px 16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                border: 'none',
+                borderRadius: '12px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(10px)'
+              }}
+              labelStyle={{
+                color: '#1e293b',
+                fontWeight: '600'
               }}
             />
             <Bar 
-              dataKey={sortBy === "quantity" ? "quantity" : "amount"} 
-              fill="#8884d8" 
-              radius={[0, isMobile ? 2 : 4, isMobile ? 2 : 4, 0]}
-            />
+              dataKey={sortBy === "quantity" ? "quantity" : "amount"}
+              radius={[0, isMobile ? 6 : 8, isMobile ? 6 : 8, 0]}
+            >
+              {chartData.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={`url(#barGradient-${index % barColors.length})`}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
