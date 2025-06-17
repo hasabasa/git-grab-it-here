@@ -1,16 +1,24 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Package, Clock, TrendingUp } from "lucide-react";
 import PreordersComingSoonModal from "@/components/preorders/PreordersComingSoonModal";
+
 const PreordersPage = () => {
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+
   const handleFeatureClick = () => {
     setShowComingSoonModal(true);
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       {/* Модальное окно */}
-      <PreordersComingSoonModal isOpen={showComingSoonModal} onClose={() => setShowComingSoonModal(false)} />
+      <PreordersComingSoonModal 
+        isOpen={showComingSoonModal} 
+        onClose={() => setShowComingSoonModal(false)} 
+      />
 
       {/* Заголовок */}
       <div>
@@ -136,12 +144,14 @@ const PreordersPage = () => {
             </p>
             <div className="flex justify-center space-x-2 text-2xl">
               <span className="animate-pulse">📦</span>
-              <span className="animate-bounce delay-100">💰</span>
+              <span>💰</span>
               <span className="animate-pulse delay-200">🎯</span>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default PreordersPage;
