@@ -8,10 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   BarChart,
-  Bar,
-  defs,
-  linearGradient,
-  stop
+  Bar
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { SalesData } from "@/types";
