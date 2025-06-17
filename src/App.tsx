@@ -18,7 +18,6 @@ import IntegrationPage from "./pages/IntegrationPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import { MotionConfig } from "framer-motion";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,36 +31,34 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <MotionConfig>
-        <TooltipProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Welcome />} />
-              <Route path="/auth" element={<AuthPage />} />
-              
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
-              }>
-                <Route index element={<Navigate to="price-bot" replace />} />
-                <Route path="price-bot" element={<PriceBotPage />} />
-                <Route path="sales" element={<SalesPage />} />
-                <Route path="unit-economics" element={<UnitEconomicsPage />} />
-                <Route path="crm" element={<CrmPage />} />
-                <Route path="niche-search" element={<NicheSearchPage />} />
-                <Route path="preorders" element={<PreordersPage />} />
-                <Route path="whatsapp" element={<WhatsAppPage />} />
-                <Route path="subscription" element={<SubscriptionPage />} />
-                <Route path="integrations" element={<IntegrationPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </MotionConfig>
+      <TooltipProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/auth" element={<AuthPage />} />
+            
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="price-bot" replace />} />
+              <Route path="price-bot" element={<PriceBotPage />} />
+              <Route path="sales" element={<SalesPage />} />
+              <Route path="unit-economics" element={<UnitEconomicsPage />} />
+              <Route path="crm" element={<CrmPage />} />
+              <Route path="niche-search" element={<NicheSearchPage />} />
+              <Route path="preorders" element={<PreordersPage />} />
+              <Route path="whatsapp" element={<WhatsAppPage />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
+              <Route path="integrations" element={<IntegrationPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
