@@ -58,7 +58,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
         </TabsList>
       </Tabs>
 
-      <div className={`${isMobile ? 'h-[320px]' : 'h-[450px]'} p-2`}>
+      <div className={`${isMobile ? 'h-[400px]' : 'h-[550px]'} p-2`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
