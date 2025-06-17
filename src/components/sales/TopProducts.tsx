@@ -26,8 +26,8 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   }).slice(0, isMobile ? 5 : 8);
 
   const chartData = products.map((product, index) => ({
-    name: product.name.length > (isMobile ? 12 : 18) 
-      ? product.name.substring(0, isMobile ? 12 : 18) + "..." 
+    name: product.name.length > (isMobile ? 10 : 18) 
+      ? product.name.substring(0, isMobile ? 10 : 18) + "..." 
       : product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
     index: index
@@ -42,32 +42,32 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   return (
     <div>
       <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy} className="mb-4 md:mb-6">
-        <TabsList className={`${isMobile ? 'w-full grid grid-cols-2' : ''} bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl`}>
+        <TabsList className="w-full grid grid-cols-2 bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl">
           <TabsTrigger 
             value="quantity" 
-            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+            className="text-xs md:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
           >
             {isMobile ? "Кол-во" : "По количеству"}
           </TabsTrigger>
           <TabsTrigger 
             value="amount" 
-            className={`${isMobile ? 'text-xs' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200`}
+            className="text-xs md:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
           >
             {isMobile ? "Сумма" : "По сумме"}
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className={`${isMobile ? 'h-[400px]' : 'h-[550px]'} p-2`}>
+      <div className={`${isMobile ? 'h-[350px]' : 'h-[550px]'}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
-              top: 10,
-              right: isMobile ? 15 : 30,
-              left: isMobile ? 80 : 130,
-              bottom: 10,
+              top: 5,
+              right: 10,
+              left: isMobile ? 75 : 130,
+              bottom: 5,
             }}
           >
             <defs>
@@ -86,9 +86,9 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             />
             <XAxis 
               type="number" 
-              fontSize={isMobile ? 11 : 13}
+              fontSize={isMobile ? 10 : 13}
               tickFormatter={(value) => 
-                sortBy === "amount" && isMobile 
+                sortBy === "amount" && value > 999
                   ? `${(value / 1000).toFixed(0)}k` 
                   : value.toLocaleString()
               }
@@ -100,13 +100,13 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 80 : 130}
-              fontSize={isMobile ? 10 : 12}
+              width={isMobile ? 75 : 130}
+              fontSize={isMobile ? 9 : 12}
               stroke="#64748b"
               strokeWidth={1}
-              tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+              tickLine={{ stroke: '#cbd5e1', strokeWidth: 0 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-              tick={{ textAnchor: 'start', dx: 5 }}
+              tick={{ textAnchor: 'start', dx: 2 }}
             />
             <Tooltip
               formatter={(value) => {
@@ -116,22 +116,27 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                 return [value, "Кол-во"];
               }}
               contentStyle={{
-                fontSize: isMobile ? '12px' : '14px',
-                padding: isMobile ? '8px 12px' : '12px 16px',
+                fontSize: isMobile ? '11px' : '14px',
+                padding: isMobile ? '6px 10px' : '12px 16px',
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
                 border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
+                borderRadius: '8px',
+                boxShadow: '0 5px 15px rgba(0, 0, 0, 0.15)',
                 backdropFilter: 'blur(10px)'
               }}
               labelStyle={{
                 color: '#1e293b',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontSize: isMobile ? '10px' : '14px'
+              }}
+              wrapperStyle={{
+                zIndex: 1000
               }}
             />
             <Bar 
               dataKey={sortBy === "quantity" ? "quantity" : "amount"}
-              radius={[0, isMobile ? 6 : 8, isMobile ? 6 : 8, 0]}
+              radius={[0, isMobile ? 4 : 8, isMobile ? 4 : 8, 0]}
+              barSize={isMobile ? 15 : 20}
             >
               {chartData.map((entry, index) => (
                 <Cell 
