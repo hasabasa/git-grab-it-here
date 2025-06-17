@@ -106,6 +106,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+              textAnchor="start"
             />
             <Tooltip
               formatter={(value) => {
