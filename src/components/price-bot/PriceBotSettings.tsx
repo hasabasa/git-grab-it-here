@@ -76,7 +76,9 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
             checked={isActive} 
             onCheckedChange={setIsActive} 
           />
-          <Label htmlFor="bot-active">Бот активен</Label>
+          <Label htmlFor="bot-active">
+            {isActive ? 'Бот активен' : 'Бот выключен'}
+          </Label>
         </div>
       </div>
 
