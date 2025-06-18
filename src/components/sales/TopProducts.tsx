@@ -26,8 +26,8 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   }).slice(0, isMobile ? 5 : 8);
 
   const chartData = products.map((product, index) => ({
-    name: product.name.length > (isMobile ? 8 : 30) 
-      ? product.name.substring(0, isMobile ? 8 : 30) + "..." 
+    name: product.name.length > (isMobile ? 8 : 22) 
+      ? product.name.substring(0, isMobile ? 8 : 22) + "..." 
       : product.name,
     fullName: product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
@@ -67,7 +67,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             margin={{
               top: isMobile ? 5 : 10,
               right: isMobile ? 10 : 30,
-              left: isMobile ? 5 : 200,
+              left: isMobile ? 5 : 150,
               bottom: isMobile ? 5 : 10,
             }}
           >
@@ -106,13 +106,18 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 0 : 200}
-              fontSize={isMobile ? 0 : 12}
+              width={isMobile ? 0 : 150}
+              fontSize={isMobile ? 0 : 11}
               stroke="#64748b"
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-              tick={isMobile ? false : { textAnchor: 'start', dx: 5 }}
+              tick={isMobile ? false : { 
+                textAnchor: 'start', 
+                dx: 5,
+                wordWrap: true,
+                width: 145
+              }}
               hide={isMobile}
             />
             <Tooltip
