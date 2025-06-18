@@ -167,10 +167,10 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
             onClick={() => isMobile && setIsOpen(false)}
             className={cn(
               "group relative flex items-center rounded-xl transition-all duration-200",
-              "hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50",
+              // Улучшенная цветовая схема для hover состояний
               location.pathname === item.path
-                ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
-                : "text-gray-700 hover:text-gray-900",
+                ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-indigo-700"
+                : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
               !isOpen && !isMobile && "justify-center px-3",
               getMenuItemPadding()
             )}
@@ -178,8 +178,8 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
             <div className={cn(
               "flex items-center justify-center rounded-lg transition-colors flex-shrink-0",
               location.pathname === item.path
-                ? "bg-white/20"
-                : "bg-gray-100 group-hover:bg-white group-hover:shadow-sm",
+                ? "bg-white/20 group-hover:bg-white/30"
+                : "bg-gray-100 group-hover:bg-gray-200",
               getIconPadding()
             )}>
               <item.icon className={cn(
