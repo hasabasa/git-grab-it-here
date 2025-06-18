@@ -18,13 +18,42 @@ const DemoModeButton = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Открываем форму сбора контактов
-    setShowContactForm(true);
+    // Проверяем, заполнял ли пользователь уже форму
+    const hasFilledDemoForm = localStorage.getItem('kaspi-demo-form-filled');
+    
+    if (hasFilledDemoForm === 'true') {
+      // Если форма уже была заполнена, сразу входим в демо режим
+      handleDirectDemoEntry();
+    } else {
+      // Если форма не была заполнена, показываем форму
+      setShowContactForm(true);
+    }
+  };
+
+  const handleDirectDemoEntry = async () => {
+    try {
+      console.log("DemoModeButton: Прямой вход в демо режим без формы...");
+      
+      // Входим в демо режим и ждем завершения
+      await enterDemoMode();
+      
+      console.log("DemoModeButton: Демо режим активирован, переходим на dashboard");
+      
+      // Принудительная навигация
+      window.location.href = "/dashboard";
+      
+      console.log("DemoModeButton: Навигация завершена");
+    } catch (error) {
+      console.error("DemoModeButton: Ошибка при входе в демо режим:", error);
+    }
   };
 
   const handleContactFormSuccess = async () => {
     try {
       console.log("DemoModeButton: Контакты собраны, запускаем демо режим...");
+      
+      // Отмечаем, что форма была заполнена
+      localStorage.setItem('kaspi-demo-form-filled', 'true');
       
       // Входим в демо режим и ждем завершения
       await enterDemoMode();
