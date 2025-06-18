@@ -417,36 +417,40 @@ const PriceBotPage = () => {
     </Card>
   );
 
-  const SettingsSection = () => activeProduct && (
-    <Card className="h-full">
-      <Tabs defaultValue="settings">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
-            <CardTitle className="text-base md:text-lg line-clamp-2 flex-1">
-              {products.find(p => p.id === activeProduct)?.name}
-            </CardTitle>
-            <Badge 
-              variant={(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'default' : 'outline'}
-              className="self-start"
-            >
-              {(products.find(p => p.id === activeProduct)?.botActive || products.find(p => p.id === activeProduct)?.bot_active) ? 'Активен' : 'На паузе'}
-            </Badge>
-          </div>
-          <TabsList className="grid grid-cols-1 w-full md:w-[200px]">
-            <TabsTrigger value="settings" className="text-sm">Настройки бота</TabsTrigger>
-          </TabsList>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <TabsContent value="settings">
-            <PriceBotSettings 
-              productId={activeProduct} 
-              onSave={handleSaveSettings}
-            />
-          </TabsContent>
-        </CardContent>
-      </Tabs>
-    </Card>
-  );
+  const SettingsSection = () => {
+    const selectedProduct = products.find(p => p.id === activeProduct);
+    
+    return selectedProduct ? (
+      <Card className="h-full">
+        <Tabs defaultValue="settings">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+              <CardTitle className="text-base md:text-lg line-clamp-2 flex-1">
+                {selectedProduct.name}
+              </CardTitle>
+              <Badge 
+                variant={(selectedProduct.botActive || selectedProduct.bot_active) ? 'default' : 'outline'}
+                className="self-start"
+              >
+                {(selectedProduct.botActive || selectedProduct.bot_active) ? 'Активен' : 'На паузе'}
+              </Badge>
+            </div>
+            <TabsList className="grid grid-cols-1 w-full md:w-[200px]">
+              <TabsTrigger value="settings" className="text-sm">Настройки бота</TabsTrigger>
+            </TabsList>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <TabsContent value="settings">
+              <PriceBotSettings 
+                product={selectedProduct}
+                onSave={handleSaveSettings}
+              />
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+      </Card>
+    ) : null;
+  };
 
   if (authLoading) {
     return (
