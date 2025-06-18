@@ -492,14 +492,14 @@ const PriceBotPage = () => {
         </Alert>
       )}
 
+      {/* Store Selector - Now above products for both mobile and desktop */}
+      <StoreSelector 
+        selectedStoreId={selectedStoreId}
+        onStoreChange={handleStoreChange}
+      />
+
       {isMobile ? (
         <div className="space-y-4">
-          {/* Store Selector - Mobile */}
-          <StoreSelector 
-            selectedStoreId={selectedStoreId}
-            onStoreChange={handleStoreChange}
-          />
-          
           {/* Products List - Mobile */}
           <ProductsSection />
           
@@ -520,21 +520,13 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-          {/* Store Selector - Desktop */}
-          <div className="lg:col-span-1">
-            <StoreSelector 
-              selectedStoreId={selectedStoreId}
-              onStoreChange={handleStoreChange}
-            />
-          </div>
-
-          {/* Products List - Desktop - Увеличиваем до 3 колонок */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Products List - Desktop - Now takes more space */}
           <div className="lg:col-span-3">
             <ProductsSection />
           </div>
 
-          {/* Settings Section - Desktop - Оставляем 2 колонки */}
+          {/* Settings Section - Desktop */}
           {activeProduct && (
             <div className="lg:col-span-2">
               <SettingsSection />
