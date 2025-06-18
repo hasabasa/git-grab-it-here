@@ -425,16 +425,7 @@ const PriceBotPage = () => {
     console.log('PriceBotPage: SettingsSection render - activeProduct:', activeProduct, 'selectedProduct:', selectedProduct);
     
     if (!selectedProduct) {
-      return (
-        <Card className="h-full">
-          <CardContent className="flex items-center justify-center h-64">
-            <div className="text-center text-gray-500">
-              <p className="text-lg mb-2">Выберите товар</p>
-              <p className="text-sm">для настройки бота</p>
-            </div>
-          </CardContent>
-        </Card>
-      );
+      return null;
     }
     
     return (
@@ -530,14 +521,16 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3">
+        <div className={activeProduct ? "grid grid-cols-1 lg:grid-cols-5 gap-6" : "grid grid-cols-1"}>
+          <div className={activeProduct ? "lg:col-span-3" : "col-span-full"}>
             <ProductsSection />
           </div>
 
-          <div className="lg:col-span-2">
-            <SettingsSection />
-          </div>
+          {activeProduct && (
+            <div className="lg:col-span-2">
+              <SettingsSection />
+            </div>
+          )}
         </div>
       )}
     </div>
