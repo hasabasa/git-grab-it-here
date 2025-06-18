@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -199,98 +198,47 @@ const SalesPage = () => {
             )}
           </div>
           
-          {/* Enhanced chart layout for desktop */}
-          <div className={cn(
-            "grid gap-6",
-            isExtraLargeDesktop ? "grid-cols-12" : isLargeDesktop ? "grid-cols-12" : "grid-cols-1"
-          )}>
-            <Card className={cn(
-              isExtraLargeDesktop ? "col-span-8" : isLargeDesktop ? "col-span-7" : "col-span-1"
-            )}>
-              <CardHeader className="pb-3 md:pb-6">
-                <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg md:text-xl">Динамика продаж</CardTitle>
-                    {(isLargeDesktop || isExtraLargeDesktop) && (
-                      <CardDescription>
-                        Детальная аналитика изменения продаж по выбранному периоду
-                      </CardDescription>
-                    )}
-                  </div>
-                  <Select
-                    value={timeFrame}
-                    onValueChange={setTimeFrame}
-                  >
-                    <SelectTrigger className={cn(getSelectWidth(), "h-10")}>
-                      <SelectValue placeholder="Выберите период" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-                      <SelectItem value="daily" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
-                        {isMobile ? "По дням" : "Ежедневно"}
-                      </SelectItem>
-                      <SelectItem value="weekly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
-                        {isMobile ? "По неделям" : "Еженедельно"}
-                      </SelectItem>
-                      <SelectItem value="monthly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
-                        {isMobile ? "По месяцам" : "Ежемесячно"}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* Chart section - now takes full width */}
+          <Card>
+            <CardHeader className="pb-3 md:pb-6">
+              <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
+                <div className="space-y-1">
+                  <CardTitle className="text-lg md:text-xl">Динамика продаж</CardTitle>
+                  {(isLargeDesktop || isExtraLargeDesktop) && (
+                    <CardDescription>
+                      Детальная аналитика изменения продаж по выбранному периоду
+                    </CardDescription>
+                  )}
                 </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <SalesChart
-                  salesData={salesData}
-                  timeFrame={timeFrame}
-                  dateRange={dateRange}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Quick actions panel for large screens */}
-            {(isLargeDesktop || isExtraLargeDesktop) && (
-              <Card className={cn(
-                isExtraLargeDesktop ? "col-span-4" : "col-span-5"
-              )}>
-                <CardHeader>
-                  <CardTitle className="text-lg">Быстрые действия</CardTitle>
-                  <CardDescription>Управление и аналитика</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Настроить фильтры
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Сравнить периоды
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Запланировать отчет
-                  </Button>
-                  
-                  <div className="pt-4 border-t space-y-3">
-                    <h4 className="font-medium text-sm">Сводка за сегодня</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Просмотры:</span>
-                        <span className="font-medium">1,234</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Заказы:</span>
-                        <span className="font-medium">67</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Доход:</span>
-                        <span className="font-medium text-green-600">₸ 89,500</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                <Select
+                  value={timeFrame}
+                  onValueChange={setTimeFrame}
+                >
+                  <SelectTrigger className={cn(getSelectWidth(), "h-10")}>
+                    <SelectValue placeholder="Выберите период" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                    <SelectItem value="daily" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                      {isMobile ? "По дням" : "Ежедневно"}
+                    </SelectItem>
+                    <SelectItem value="weekly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                      {isMobile ? "По неделям" : "Еженедельно"}
+                    </SelectItem>
+                    <SelectItem value="monthly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                      {isMobile ? "По месяцам" : "Ежемесячно"}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <SalesChart
+                salesData={salesData}
+                timeFrame={timeFrame}
+                dateRange={dateRange}
+              />
+            </CardContent>
+          </Card>
           
           {/* Top products section */}
           <Card>
