@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -114,9 +113,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               tick={isMobile ? false : { 
                 textAnchor: 'start', 
-                dx: 5,
-                wordWrap: true,
-                width: 145
+                dx: 5
               }}
               hide={isMobile}
             />
