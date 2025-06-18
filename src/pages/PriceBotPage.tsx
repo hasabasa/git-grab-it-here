@@ -4,11 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, Pause, Info } from "lucide-react";
+import { Play, Pause, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
 import StoreSelector from "@/components/price-bot/StoreSelector";
+import ProductsPagination from "@/components/price-bot/ProductsPagination";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
@@ -19,7 +20,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerClose,
 } from "@/components/ui/drawer";
 
 // Демо-данные продуктов
@@ -74,6 +75,8 @@ const demoProducts: Product[] = [
   }
 ];
 
+const PRODUCTS_PER_PAGE = 50;
+
 const PriceBotPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
   const isMobile = useIsMobile();
@@ -86,6 +89,7 @@ const PriceBotPage = () => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [showProductDrawer, setShowProductDrawer] = useState(false);
   const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Загружаем выбранный магазин из localStorage при инициализации
   useEffect(() => {
@@ -180,15 +184,36 @@ const PriceBotPage = () => {
     setSelectedStoreId(storeId);
     setActiveProduct(null);
     setSelectedProducts([]);
+    setCurrentPage(1); // Сбрасываем на первую страницу при смене магазина
   };
 
   // Фильтруем продукты по выбранному магазину и поисковому запросу
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    // В демо-режиме также фильтруем по выбранному магазину
     const matchesStore = selectedStoreId === null || product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
+
+  // Пагинация
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Сбрасываем выбранные товары при смене страницы
+    setSelectedProducts([]);
+    setActiveProduct(null);
+  };
+
+  // Обновляем поиск - сбрасываем на первую страницу
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+    setSelectedProducts([]);
+    setActiveProduct(null);
+  };
 
   const toggleProductSelection = (productId: string) => {
     setSelectedProducts(prev => 
@@ -331,21 +356,33 @@ const PriceBotPage = () => {
         <CardTitle className="text-lg md:text-xl">Мои товары</CardTitle>
         <CardDescription className="text-sm">
           {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
+          {filteredProducts.length > 0 && (
+            <span className="ml-2">
+              ({filteredProducts.length} {filteredProducts.length === 1 ? 'товар' : 
+                filteredProducts.length < 5 ? 'товара' : 'товаров'})
+            </span>
+          )}
         </CardDescription>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2">
           <Input 
             placeholder="Поиск товаров..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="flex-1"
           />
           <div className="flex items-center gap-2 whitespace-nowrap">
             <Checkbox 
               id="select-all"
-              checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-              onCheckedChange={toggleSelectAll}
+              checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
+              onCheckedChange={() => {
+                if (selectedProducts.length === currentProducts.length) {
+                  setSelectedProducts([]);
+                } else {
+                  setSelectedProducts(currentProducts.map(p => p.id));
+                }
+              }}
             />
-            <label htmlFor="select-all" className="text-sm">Все</label>
+            <label htmlFor="select-all" className="text-sm">Все на странице</label>
           </div>
         </div>
       </CardHeader>
@@ -355,65 +392,75 @@ const PriceBotPage = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                onClick={() => handleProductSelect(product.id)}
-                className={`p-6 rounded-xl cursor-pointer transition-all w-full border-2 ${
-                  activeProduct === product.id
-                    ? 'border-primary bg-primary/5 shadow-md'
-                    : 'border-transparent bg-card hover:bg-gray-50 hover:border-gray-200'
-                }`}
-              >
-                <div className="flex items-start gap-6 w-full">
-                  <Checkbox 
-                    checked={selectedProducts.includes(product.id)}
-                    onCheckedChange={() => toggleProductSelection(product.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-1 bg-white border-2"
-                  />
-                  <div className="flex-1 min-w-0 w-full">
-                    <div className="flex items-start gap-6 w-full">
-                      <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-300">
-                        {product.image && (
-                          <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="h-full w-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0 w-full">
-                        <div className="font-medium text-sm md:text-base line-clamp-2 mb-4 pr-4 text-gray-900">{product.name}</div>
-                        <div className="text-xs md:text-sm flex flex-wrap items-center gap-5">
-                          <span className="text-gray-900 font-semibold">
-                            {Number(product.price).toLocaleString()} ₸
-                          </span>
-                          <Badge 
-                            variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
-                            className="text-xs"
-                          >
-                            {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
-                          </Badge>
+          <>
+            <div className="space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+              {currentProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => handleProductSelect(product.id)}
+                  className={`p-6 rounded-xl cursor-pointer transition-all w-full border-2 ${
+                    activeProduct === product.id
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-transparent bg-card hover:bg-gray-50 hover:border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-6 w-full">
+                    <Checkbox 
+                      checked={selectedProducts.includes(product.id)}
+                      onCheckedChange={() => toggleProductSelection(product.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-1 bg-white border-2"
+                    />
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex items-start gap-6 w-full">
+                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-300">
+                          {product.image && (
+                            <img 
+                              src={product.image} 
+                              alt={product.name} 
+                              className="h-full w-full object-cover"
+                            />
+                          )}
                         </div>
-                        {product.storeName && (
-                          <div className="text-xs mt-4 truncate pr-4 text-gray-500">
-                            {product.storeName}
+                        <div className="flex-1 min-w-0 w-full">
+                          <div className="font-medium text-sm md:text-base line-clamp-2 mb-4 pr-4 text-gray-900">{product.name}</div>
+                          <div className="text-xs md:text-sm flex flex-wrap items-center gap-5">
+                            <span className="text-gray-900 font-semibold">
+                              {Number(product.price).toLocaleString()} ₸
+                            </span>
+                            <Badge 
+                              variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
+                              className="text-xs"
+                            >
+                              {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
+                            </Badge>
                           </div>
-                        )}
+                          {product.storeName && (
+                            <div className="text-xs mt-4 truncate pr-4 text-gray-500">
+                              {product.storeName}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-6 text-gray-500 text-sm">
-                {products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены"}
-              </div>
-            )}
-          </div>
+              ))}
+              {currentProducts.length === 0 && (
+                <div className="text-center py-6 text-gray-500 text-sm">
+                  {filteredProducts.length === 0 ? 
+                    (products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены") :
+                    "На этой странице нет товаров"
+                  }
+                </div>
+              )}
+            </div>
+            <ProductsPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </CardContent>
     </Card>
@@ -462,44 +509,49 @@ const PriceBotPage = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <Button 
-            onClick={() => handleBulkAction('start')} 
-            disabled={selectedProducts.length === 0 || isLoading}
-            size={isMobile ? "sm" : "default"}
-            className="flex-1 sm:flex-none"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Запустить выбранные
-          </Button>
-          <Button 
-            onClick={() => handleBulkAction('stop')} 
-            variant="outline"
-            disabled={selectedProducts.length === 0 || isLoading}
-            size={isMobile ? "sm" : "default"}
-            className="flex-1 sm:flex-none"
-          >
-            <Pause className="mr-2 h-4 w-4" />
-            Остановить выбранные
-          </Button>
+      {/* Закрепленный заголовок */}
+      <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 pb-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <Button 
+              onClick={() => handleBulkAction('start')} 
+              disabled={selectedProducts.length === 0 || isLoading}
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none"
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Запустить выбранные
+            </Button>
+            <Button 
+              onClick={() => handleBulkAction('stop')} 
+              variant="outline"
+              disabled={selectedProducts.length === 0 || isLoading}
+              size={isMobile ? "sm" : "default"}
+              className="flex-1 sm:flex-none"
+            >
+              <Pause className="mr-2 h-4 w-4" />
+              Остановить выбранные
+            </Button>
+          </div>
+        </div>
+
+        {isDemo && (
+          <Alert className="bg-blue-50 border-blue-200 mt-4">
+            <Info className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-blue-700 text-sm">
+              Вы работаете в демо-режиме. Все изменения будут сохранены только в памяти браузера.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="mt-4">
+          <StoreSelector 
+            selectedStoreId={selectedStoreId}
+            onStoreChange={handleStoreChange}
+          />
         </div>
       </div>
-
-      {isDemo && (
-        <Alert className="bg-blue-50 border-blue-200">
-          <Info className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700 text-sm">
-            Вы работаете в демо-режиме. Все изменения будут сохранены только в памяти браузера.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <StoreSelector 
-        selectedStoreId={selectedStoreId}
-        onStoreChange={handleStoreChange}
-      />
 
       {isMobile ? (
         <div className="space-y-4">
@@ -508,10 +560,13 @@ const PriceBotPage = () => {
           {activeProduct && (
             <Drawer open={showSettingsDrawer} onOpenChange={setShowSettingsDrawer}>
               <DrawerContent className="h-[90vh] max-h-[90vh] rounded-t-xl">
-                <DrawerHeader className="px-4 py-3 border-b">
+                <DrawerHeader className="px-4 py-3 border-b flex justify-between items-center">
                   <DrawerTitle className="text-left text-lg">
                     Настройки товара
                   </DrawerTitle>
+                  <DrawerClose className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <X className="h-5 w-5" />
+                  </DrawerClose>
                 </DrawerHeader>
                 <div className="flex-1 px-4 py-4 overflow-y-auto">
                   <SettingsSection />
