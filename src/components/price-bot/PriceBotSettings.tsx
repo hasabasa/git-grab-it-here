@@ -17,32 +17,40 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
   
   const [strategy, setStrategy] = useState("become-first");
   const [minProfit, setMinProfit] = useState(2000);
-  const [isActive, setIsActive] = useState(product?.botActive || false);
+  const [isActive, setIsActive] = useState(false);
 
-  // Синхронизируем локальное состояние с данными продукта
+  // Инициализация состояния при изменении продукта
   useEffect(() => {
     if (product) {
-      setIsActive(product.botActive || product.bot_active || false);
+      const botActiveState = product.botActive || product.bot_active || false;
+      console.log('Initializing bot state for product:', productId, 'botActive:', botActiveState);
+      setIsActive(botActiveState);
       setMinProfit(product.minProfit || product.min_profit || 2000);
     }
-  }, [product]);
-
-  // Синхронизируем состояние при изменении продукта
-  useEffect(() => {
-    if (product) {
-      setIsActive(product.botActive || product.bot_active || false);
-    }
-  }, [product?.botActive, product?.bot_active]);
+  }, [product, productId]);
 
   const handleSave = () => {
-    console.log('Saving settings with isActive:', isActive);
+    console.log('handleSave called with:');
+    console.log('- productId:', productId);
+    console.log('- strategy:', strategy);
+    console.log('- minProfit:', minProfit);
+    console.log('- isActive:', isActive);
+    console.log('- current product state:', product?.botActive || product?.bot_active);
+    
     onSave({
       productId,
       strategy,
       minProfit,
-      isActive, // Используем текущее состояние переключателя
+      isActive,
     });
   };
+
+  const handleSwitchChange = (checked: boolean) => {
+    console.log('Switch changed to:', checked);
+    setIsActive(checked);
+  };
+
+  console.log('PriceBotSettings render - isActive:', isActive, 'product:', product?.id, 'botActive:', product?.botActive || product?.bot_active);
 
   return (
     <div className="space-y-6">
@@ -82,7 +90,7 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
           <Switch 
             id="bot-active" 
             checked={isActive} 
-            onCheckedChange={setIsActive} 
+            onCheckedChange={handleSwitchChange}
           />
           <Label htmlFor="bot-active">
             {isActive ? 'Бот активен' : 'Бот выключен'}
