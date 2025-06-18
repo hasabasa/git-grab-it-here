@@ -67,7 +67,7 @@ const SubscriptionPage = () => {
               </div>
               <div className="flex items-center justify-center gap-2 mt-2">
                 <Badge variant="success" className="text-sm">
-                  Первый день бесплатно
+                  3 дня бесплатно
                 </Badge>
               </div>
             </div>
@@ -101,7 +101,7 @@ const SubscriptionPage = () => {
                 className="w-full text-lg py-6"
                 size="lg"
               >
-                Начать с бесплатного дня
+                Начать с 3 бесплатных дней
               </Button>
               <p className="text-center text-sm text-gray-500">
                 Отменить подписку можно в любое время

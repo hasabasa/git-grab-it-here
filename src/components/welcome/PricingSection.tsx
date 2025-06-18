@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,7 +77,7 @@ const PricingSection = () => {
                 
                 <div className="mt-4 sm:mt-6">
                   <div className="text-3xl sm:text-4xl font-bold">10 990 ₸</div>
-                  <p className="text-blue-100 mt-2 text-sm">/месяц • Первый день бесплатно</p>
+                  <p className="text-blue-100 mt-2 text-sm">/месяц • 3 дня бесплатно</p>
                 </div>
               </CardHeader>
 
@@ -102,7 +101,7 @@ const PricingSection = () => {
                 <Link to="/dashboard/subscription">
                   <Button size="lg" className="w-full text-base sm:text-lg py-5 sm:py-6 bg-white text-blue-600 hover:bg-gray-100 smooth-hover">
                     <Crown className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    Начать бесплатный день
+                    Начать 3 бесплатных дня
                   </Button>
                 </Link>
               </CardContent>
