@@ -81,91 +81,91 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
     }
   ];
 
-  // Enhanced responsive dimensions for very large monitors
+  // Более компактные размеры для больших мониторов
   const getSidebarWidth = () => {
     if (isMobile) return isOpen ? "w-64" : "w-0";
-    if (!isOpen) return isUltraWideDesktop ? "w-20" : isExtraLargeDesktop ? "w-18" : "w-16";
-    if (isUltraWideDesktop) return "w-[400px]"; // 400px for ultra-wide monitors
-    if (isExtraLargeDesktop) return "w-96"; // 384px for extra large monitors
-    if (isLargeDesktop) return "w-80"; // 320px for large monitors
-    return "w-72"; // 288px for standard desktop
+    if (!isOpen) return isUltraWideDesktop ? "w-16" : isExtraLargeDesktop ? "w-16" : "w-16";
+    if (isUltraWideDesktop) return "w-80"; // Уменьшено с 400px до 320px
+    if (isExtraLargeDesktop) return "w-72"; // Уменьшено с 384px до 288px
+    if (isLargeDesktop) return "w-64"; // Уменьшено с 320px до 256px
+    return "w-60"; // Уменьшено с 288px до 240px
   };
 
   const getHeaderHeight = () => {
-    if (isUltraWideDesktop) return "h-24";
-    if (isExtraLargeDesktop) return "h-20";
-    if (isDesktop) return "h-16";
-    return "h-14";
+    if (isUltraWideDesktop) return "h-16"; // Уменьшено с h-24
+    if (isExtraLargeDesktop) return "h-14"; // Уменьшено с h-20
+    if (isDesktop) return "h-12"; // Уменьшено с h-16
+    return "h-12";
   };
 
   const getHeaderPadding = () => {
-    if (isUltraWideDesktop) return "px-8";
-    if (isExtraLargeDesktop) return "px-6";
-    if (isDesktop) return "px-4";
+    if (isUltraWideDesktop) return "px-4"; // Уменьшено с px-8
+    if (isExtraLargeDesktop) return "px-3"; // Уменьшено с px-6
+    if (isDesktop) return "px-3";
     return "px-3";
   };
 
   const getContentPadding = () => {
-    if (isUltraWideDesktop) return "px-6 py-8";
-    if (isExtraLargeDesktop) return "px-4 py-6";
-    if (isDesktop) return "px-3 py-4";
-    return "px-2 py-3";
+    if (isUltraWideDesktop) return "px-3 py-4"; // Уменьшено с px-6 py-8
+    if (isExtraLargeDesktop) return "px-3 py-3"; // Уменьшено с px-4 py-6
+    if (isDesktop) return "px-2 py-3";
+    return "px-2 py-2";
   };
 
   const getMenuItemPadding = () => {
-    if (isUltraWideDesktop) return "px-6 py-5";
-    if (isExtraLargeDesktop) return "px-4 py-4";
-    if (isDesktop) return "px-3 py-3";
-    return "px-2 py-2.5";
+    if (isUltraWideDesktop) return "px-3 py-2.5"; // Уменьшено с px-6 py-5
+    if (isExtraLargeDesktop) return "px-3 py-2"; // Уменьшено с px-4 py-4
+    if (isDesktop) return "px-2 py-2";
+    return "px-2 py-2";
   };
 
   const getIconSize = () => {
-    if (isUltraWideDesktop) return "h-7 w-7";
-    if (isExtraLargeDesktop) return "h-6 w-6";
-    return "h-5 w-5";
+    if (isUltraWideDesktop) return "h-5 w-5"; // Уменьшено с h-7 w-7
+    if (isExtraLargeDesktop) return "h-5 w-5"; // Уменьшено с h-6 w-6
+    return "h-4 w-4";
   };
 
   const getIconPadding = () => {
-    if (isUltraWideDesktop) return "p-4";
-    if (isExtraLargeDesktop) return "p-3";
+    if (isUltraWideDesktop) return "p-2"; // Уменьшено с p-4
+    if (isExtraLargeDesktop) return "p-2"; // Уменьшено с p-3
     return "p-2";
   };
 
   const getTitleSize = () => {
-    if (isUltraWideDesktop) return "text-xl font-semibold";
-    if (isExtraLargeDesktop) return "text-lg font-medium";
-    if (isDesktop) return "text-base font-medium";
+    if (isUltraWideDesktop) return "text-base font-medium"; // Уменьшено с text-xl
+    if (isExtraLargeDesktop) return "text-sm font-medium"; // Уменьшено с text-lg
+    if (isDesktop) return "text-sm font-medium";
     return "text-sm font-medium";
   };
 
   const getBrandSize = () => {
-    if (isUltraWideDesktop) return "text-3xl";
-    if (isExtraLargeDesktop) return "text-2xl";
-    if (isDesktop) return "text-xl";
+    if (isUltraWideDesktop) return "text-xl"; // Уменьшено с text-3xl
+    if (isExtraLargeDesktop) return "text-lg"; // Уменьшено с text-2xl
+    if (isDesktop) return "text-base";
     return "text-base";
   };
 
   const getBrandIconSize = () => {
-    if (isUltraWideDesktop) return "w-12 h-12";
-    if (isExtraLargeDesktop) return "w-10 h-10";
-    return "w-8 h-8";
+    if (isUltraWideDesktop) return "w-8 h-8"; // Уменьшено с w-12 h-12
+    if (isExtraLargeDesktop) return "w-7 h-7"; // Уменьшено с w-10 h-10
+    return "w-6 h-6";
   };
 
   const getBrandIconInnerSize = () => {
-    if (isUltraWideDesktop) return "h-7 w-7";
-    if (isExtraLargeDesktop) return "h-6 w-6";
+    if (isUltraWideDesktop) return "h-5 w-5"; // Уменьшено с h-7 w-7
+    if (isExtraLargeDesktop) return "h-4 w-4"; // Уменьшено с h-6 w-6
     return "h-4 w-4";
   };
 
   const getToggleButtonSize = () => {
-    if (isUltraWideDesktop) return "h-12 w-12";
-    if (isExtraLargeDesktop) return "h-10 w-10";
-    return "h-8 w-8";
+    if (isUltraWideDesktop) return "h-8 w-8"; // Уменьшено с h-12 w-12
+    if (isExtraLargeDesktop) return "h-7 w-7"; // Уменьшено с h-10 w-10
+    return "h-6 w-6";
   };
 
   const getToggleIconSize = () => {
-    if (isUltraWideDesktop) return "h-6 w-6";
-    if (isExtraLargeDesktop) return "h-5 w-5";
+    if (isUltraWideDesktop) return "h-4 w-4"; // Уменьшено с h-6 w-6
+    if (isExtraLargeDesktop) return "h-4 w-4"; // Уменьшено с h-5 w-5
     return "h-4 w-4";
   };
 
