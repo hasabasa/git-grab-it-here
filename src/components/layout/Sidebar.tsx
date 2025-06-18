@@ -155,8 +155,14 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
   };
 
   const SidebarContent = () => (
-    <div className={getContentPadding()}>
-      <nav className="space-y-1">
+    <div className={cn(
+      "flex-1 overflow-y-auto",
+      getContentPadding()
+    )}>
+      <nav className={cn(
+        "space-y-1",
+        isUltraWideDesktop && "space-y-2"
+      )}>
         {menuItems.map((item) => (
           <Link
             key={item.path}
@@ -173,7 +179,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
             )}
           >
             <div className={cn(
-              "flex items-center justify-center rounded-lg transition-colors",
+              "flex items-center justify-center rounded-lg transition-colors flex-shrink-0",
               location.pathname === item.path
                 ? "bg-white/20"
                 : "bg-gray-100 group-hover:bg-white group-hover:shadow-sm",
@@ -200,7 +206,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                     </span>
                     {(isLargeDesktop || isExtraLargeDesktop || isUltraWideDesktop) && item.description && (
                       <span className={cn(
-                        "opacity-75 block mt-1 truncate",
+                        "opacity-75 block mt-1 truncate leading-tight",
                         location.pathname === item.path
                           ? "text-white/80"
                           : "text-gray-500",
@@ -215,7 +221,8 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                       variant={item.badge === "Beta" ? "secondary" : "outline"}
                       className={cn(
                         "ml-2 text-xs shrink-0",
-                        location.pathname === item.path && "bg-white/20 text-white border-white/30"
+                        location.pathname === item.path && "bg-white/20 text-white border-white/30",
+                        isUltraWideDesktop && "text-sm px-2 py-1"
                       )}
                     >
                       {item.badge}
@@ -231,7 +238,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       {/* Enhanced footer section for larger screens */}
       {(isOpen || isMobile) && (isLargeDesktop || isExtraLargeDesktop || isUltraWideDesktop) && (
         <div className={cn(
-          "border-t border-gray-200",
+          "border-t border-gray-200 mt-auto",
           isUltraWideDesktop ? "mt-12 pt-8" : "mt-8 pt-6"
         )}>
           <div className={cn(
@@ -279,11 +286,11 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-full bg-white/95 backdrop-blur-sm shadow-xl border-r border-gray-200/50 transition-all duration-300 ease-in-out",
+      "fixed left-0 top-0 z-40 h-full bg-white/95 backdrop-blur-sm shadow-xl border-r border-gray-200/50 transition-all duration-300 ease-in-out flex flex-col",
       getSidebarWidth()
     )}>
       <div className={cn(
-        "flex items-center justify-between border-b border-gray-200/50",
+        "flex items-center justify-between border-b border-gray-200/50 flex-shrink-0",
         getHeaderHeight(),
         getHeaderPadding()
       )}>
