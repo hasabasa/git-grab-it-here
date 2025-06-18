@@ -52,20 +52,20 @@ const ModulesSection = () => {
   ];
 
   return (
-    <div className="relative py-12 sm:py-16 lg:py-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <div className="relative py-12 sm:py-16 lg:py-20 overflow-x-hidden">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
-          <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 px-2">
               Все инструменты в одном месте
             </h2>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Комплексное решение для автоматизации и роста вашего бизнеса на Kaspi.kz
             </p>
           </div>
         </ScrollAnimation>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10">
           {modules.map((module, index) => (
             <ScrollAnimation 
               key={module.title} 
@@ -73,15 +73,17 @@ const ModulesSection = () => {
               delay={index * 100}
             >
               <Card className="h-full bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <CardHeader className="text-center pb-4">
-                  <div className="flex justify-center mb-4">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${module.color} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-                      <span className="text-2xl">{module.icon}</span>
+                <CardHeader className="text-center pb-3 sm:pb-4">
+                  <div className="flex justify-center mb-3 sm:mb-4">
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r ${module.color} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                      <span className="text-xl sm:text-2xl">{module.icon}</span>
                     </div>
                   </div>
-                  <CardTitle className="text-lg mb-2 text-gray-900">{module.title}</CardTitle>
+                  <CardTitle className="text-base sm:text-lg mb-2 text-gray-900 leading-tight px-2">
+                    {module.title}
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="text-gray-600 leading-relaxed text-center px-4 pb-6 text-sm">
+                <CardContent className="text-gray-600 leading-relaxed text-center px-4 pb-4 sm:pb-6 text-sm sm:text-base">
                   {module.description}
                 </CardContent>
               </Card>
@@ -90,14 +92,14 @@ const ModulesSection = () => {
         </div>
 
         <ScrollAnimation animation="fade" delay={600}>
-          <div className="text-center">
+          <div className="text-center px-4">
             <Button 
               onClick={scrollToPricing} 
               size="lg" 
-              className="bg-blue-600 text-white hover:bg-blue-700 text-lg py-6 px-8"
+              className="bg-blue-600 text-white hover:bg-blue-700 text-base sm:text-lg py-4 sm:py-6 px-6 sm:px-8 w-full sm:w-auto"
             >
               Начать использовать
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </ScrollAnimation>

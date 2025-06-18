@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,35 +9,37 @@ import ScrollAnimation from "@/components/ui/scroll-animation";
 
 const PricingSection = () => {
   return (
-    <div id="pricing-section" className="relative py-12 sm:py-16 lg:py-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+    <div id="pricing-section" className="relative py-12 sm:py-16 lg:py-20 overflow-x-hidden">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         <ScrollAnimation animation="slide-up">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">Выберите свой план</h2>
-            <p className="text-lg sm:text-xl text-muted-foreground px-2">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
+              Выберите свой план
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground px-4">
               Начните бесплатно или получите полный доступ к платформе
             </p>
           </div>
         </ScrollAnimation>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
           {/* Demo Plan */}
           <ScrollAnimation animation="slide-left" delay={200}>
             <Card className="relative overflow-hidden h-full glass-enhanced border-2 border-gray-200 smooth-hover ambient-glow">
-              <CardHeader className="text-center pb-6 sm:pb-8">
+              <CardHeader className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="mb-3 sm:mb-4">
-                  <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-blue-500 mx-auto" />
+                  <Zap className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-blue-500 mx-auto" />
                 </div>
-                <CardTitle className="text-xl sm:text-2xl mb-2">Демо-режим</CardTitle>
-                <p className="text-gray-600 text-sm sm:text-base">Попробуйте все функции бесплатно</p>
+                <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2">Демо-режим</CardTitle>
+                <p className="text-gray-600 text-sm sm:text-base px-2">Попробуйте все функции бесплатно</p>
                 
                 <div className="mt-4 sm:mt-6">
-                  <div className="text-3xl sm:text-4xl font-bold text-gray-900">Бесплатно</div>
-                  <p className="text-gray-500 mt-2 text-sm">Полный доступ к просмотру</p>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Бесплатно</div>
+                  <p className="text-gray-500 mt-2 text-xs sm:text-sm">Полный доступ к просмотру</p>
                 </div>
               </CardHeader>
 
-              <CardContent className="px-6 sm:px-8">
+              <CardContent className="px-4 sm:px-6 lg:px-8">
                 <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                   {[
                     "Просмотр всех модулей",
@@ -46,8 +49,8 @@ const PricingSection = () => {
                     "Без ограничений по времени"
                   ].map((feature, i) => (
                     <div key={i} className="flex items-center">
-                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-3" />
-                      <span className="text-gray-700 text-sm sm:text-base">{feature}</span>
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700 text-sm sm:text-base leading-relaxed">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -68,20 +71,20 @@ const PricingSection = () => {
                 </Badge>
               </div>
               
-              <CardHeader className="text-center pb-6 sm:pb-8">
+              <CardHeader className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="mb-3 sm:mb-4">
-                  <Crown className="h-10 w-10 sm:h-12 sm:w-12 text-yellow-400 mx-auto" />
+                  <Crown className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-yellow-400 mx-auto" />
                 </div>
-                <CardTitle className="text-xl sm:text-2xl mb-2">Pro план</CardTitle>
-                <p className="text-blue-100 text-sm sm:text-base">Все возможности для профессионалов</p>
+                <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2">Pro план</CardTitle>
+                <p className="text-blue-100 text-sm sm:text-base px-2">Все возможности для профессионалов</p>
                 
                 <div className="mt-4 sm:mt-6">
-                  <div className="text-3xl sm:text-4xl font-bold">10 990 ₸</div>
-                  <p className="text-blue-100 mt-2 text-sm">/месяц • 3 дня бесплатно</p>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold">10 990 ₸</div>
+                  <p className="text-blue-100 mt-2 text-xs sm:text-sm">/месяц • 3 дня бесплатно</p>
                 </div>
               </CardHeader>
 
-              <CardContent className="px-6 sm:px-8">
+              <CardContent className="px-4 sm:px-6 lg:px-8">
                 <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                   {[
                     "Полный доступ ко всем модулям",
@@ -92,14 +95,14 @@ const PricingSection = () => {
                     "Персональный менеджер"
                   ].map((feature, i) => (
                     <div key={i} className="flex items-center">
-                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 mr-3" />
-                      <span className="text-white text-sm sm:text-base">{feature}</span>
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 mr-3 flex-shrink-0" />
+                      <span className="text-white text-sm sm:text-base leading-relaxed">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 <Link to="/dashboard/subscription">
-                  <Button size="lg" className="w-full text-base sm:text-lg py-5 sm:py-6 bg-white text-blue-600 hover:bg-gray-100 smooth-hover">
+                  <Button size="lg" className="w-full text-sm sm:text-base lg:text-lg py-4 sm:py-5 lg:py-6 bg-white text-blue-600 hover:bg-gray-100 smooth-hover">
                     <Crown className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     Начать 3 бесплатных дня
                   </Button>
@@ -110,7 +113,7 @@ const PricingSection = () => {
         </div>
 
         <ScrollAnimation animation="fade" delay={600}>
-          <div className="text-center mt-8 sm:mt-10 lg:mt-12">
+          <div className="text-center mt-8 sm:mt-10 lg:mt-12 px-4">
             <Link to="/auth">
               
             </Link>
