@@ -8,11 +8,9 @@ import { Play, Pause, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
-import CompetitorsList from "@/components/price-bot/CompetitorsList";
 import StoreSelector from "@/components/price-bot/StoreSelector";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
-import ProductList from "@/components/price-bot/ProductList";
 import { useAuth } from "@/components/integration/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -375,7 +373,7 @@ const PriceBotPage = () => {
                   />
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-start gap-6 w-full">
-                      <div className="h-24 w-24 md:h-28 md:w-28 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                      <div className="h-32 w-32 md:h-36 md:w-36 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
                         {product.image && (
                           <img 
                             src={product.image} 
@@ -450,6 +448,14 @@ const PriceBotPage = () => {
     </Card>
   );
 
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -514,7 +520,7 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
           {/* Store Selector - Desktop */}
           <div className="lg:col-span-1">
             <StoreSelector 
@@ -523,12 +529,12 @@ const PriceBotPage = () => {
             />
           </div>
 
-          {/* Products List - Desktop - Увеличиваем до 2 колонок */}
-          <div className="lg:col-span-2">
+          {/* Products List - Desktop - Увеличиваем до 3 колонок */}
+          <div className="lg:col-span-3">
             <ProductsSection />
           </div>
 
-          {/* Settings Section - Desktop - Уменьшаем до 2 колонок */}
+          {/* Settings Section - Desktop - Оставляем 2 колонки */}
           {activeProduct && (
             <div className="lg:col-span-2">
               <SettingsSection />
