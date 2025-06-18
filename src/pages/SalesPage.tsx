@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SalesChart from "@/components/sales/SalesChart";
 import SalesStats from "@/components/sales/SalesStats";
 import TopProducts from "@/components/sales/TopProducts";
@@ -82,6 +83,18 @@ const SalesPage = () => {
     if (isExtraLargeDesktop) return "gap-6";
     if (isLargeDesktop) return "gap-6";
     return "gap-3 md:gap-6";
+  };
+
+  const getSelectSize = () => {
+    if (isExtraLargeDesktop) return "text-base";
+    if (isLargeDesktop) return "text-sm";
+    return "text-xs md:text-sm";
+  };
+
+  const getSelectWidth = () => {
+    if (isExtraLargeDesktop) return "w-48";
+    if (isLargeDesktop) return "w-40";
+    return "w-full md:w-36";
   };
 
   return (
@@ -204,24 +217,25 @@ const SalesPage = () => {
                       </CardDescription>
                     )}
                   </div>
-                  <Tabs
-                    defaultValue="daily"
+                  <Select
                     value={timeFrame}
                     onValueChange={setTimeFrame}
-                    className="w-full md:w-auto"
                   >
-                    <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none">
-                      <TabsTrigger value="daily" className="text-xs md:text-sm">
-                        {isMobile ? "Дни" : "По дням"}
-                      </TabsTrigger>
-                      <TabsTrigger value="weekly" className="text-xs md:text-sm">
-                        {isMobile ? "Недели" : "По неделям"}
-                      </TabsTrigger>
-                      <TabsTrigger value="monthly" className="text-xs md:text-sm">
-                        {isMobile ? "Месяцы" : "По месяцам"}
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+                    <SelectTrigger className={cn(getSelectWidth(), "h-10")}>
+                      <SelectValue placeholder="Выберите период" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                      <SelectItem value="daily" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                        {isMobile ? "По дням" : "Ежедневно"}
+                      </SelectItem>
+                      <SelectItem value="weekly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                        {isMobile ? "По неделям" : "Еженедельно"}
+                      </SelectItem>
+                      <SelectItem value="monthly" className={cn("cursor-pointer hover:bg-gray-50", getSelectSize())}>
+                        {isMobile ? "По месяцам" : "Ежемесячно"}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
