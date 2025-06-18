@@ -351,119 +351,127 @@ const PriceBotPage = () => {
   }
 
   const ProductsSection = () => (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg md:text-xl">Мои товары</CardTitle>
-        <CardDescription className="text-sm">
-          {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
-          {filteredProducts.length > 0 && (
-            <span className="ml-2">
-              ({filteredProducts.length} {filteredProducts.length === 1 ? 'товар' : 
-                filteredProducts.length < 5 ? 'товара' : 'товаров'})
-            </span>
-          )}
-        </CardDescription>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2">
-          <Input 
-            placeholder="Поиск товаров..." 
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="flex-1"
-          />
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <Checkbox 
-              id="select-all"
-              checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
-              onCheckedChange={() => {
-                if (selectedProducts.length === currentProducts.length) {
-                  setSelectedProducts([]);
-                } else {
-                  setSelectedProducts(currentProducts.map(p => p.id));
-                }
-              }}
+    <div className="space-y-4">
+      {/* Store Selector moved here */}
+      <StoreSelector 
+        selectedStoreId={selectedStoreId}
+        onStoreChange={handleStoreChange}
+      />
+      
+      <Card className="h-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg md:text-xl">Мои товары</CardTitle>
+          <CardDescription className="text-sm">
+            {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
+            {filteredProducts.length > 0 && (
+              <span className="ml-2">
+                ({filteredProducts.length} {filteredProducts.length === 1 ? 'товар' : 
+                  filteredProducts.length < 5 ? 'товара' : 'товаров'})
+              </span>
+            )}
+          </CardDescription>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2">
+            <Input 
+              placeholder="Поиск товаров..." 
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="flex-1"
             />
-            <label htmlFor="select-all" className="text-sm">Все на странице</label>
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <Checkbox 
+                id="select-all"
+                checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
+                onCheckedChange={() => {
+                  if (selectedProducts.length === currentProducts.length) {
+                    setSelectedProducts([]);
+                  } else {
+                    setSelectedProducts(currentProducts.map(p => p.id));
+                  }
+                }}
+              />
+              <label htmlFor="select-all" className="text-sm">Все на странице</label>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {loadingProducts ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
-              {currentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => handleProductSelect(product.id)}
-                  className={`p-6 rounded-xl cursor-pointer transition-all w-full border-2 ${
-                    activeProduct === product.id
-                      ? 'border-primary bg-primary/5 shadow-md'
-                      : 'border-transparent bg-card hover:bg-gray-50 hover:border-gray-200'
-                  }`}
-                >
-                  <div className="flex items-start gap-6 w-full">
-                    <Checkbox 
-                      checked={selectedProducts.includes(product.id)}
-                      onCheckedChange={() => toggleProductSelection(product.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="mt-1 bg-white border-2"
-                    />
-                    <div className="flex-1 min-w-0 w-full">
-                      <div className="flex items-start gap-6 w-full">
-                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-300">
-                          {product.image && (
-                            <img 
-                              src={product.image} 
-                              alt={product.name} 
-                              className="h-full w-full object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 w-full">
-                          <div className="font-medium text-sm md:text-base line-clamp-2 mb-4 pr-4 text-gray-900">{product.name}</div>
-                          <div className="text-xs md:text-sm flex flex-wrap items-center gap-5">
-                            <span className="text-gray-900 font-semibold">
-                              {Number(product.price).toLocaleString()} ₸
-                            </span>
-                            <Badge 
-                              variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
-                              className="text-xs"
-                            >
-                              {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
-                            </Badge>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {loadingProducts ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+                {currentProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductSelect(product.id)}
+                    className={`p-6 rounded-xl cursor-pointer transition-all w-full border-2 ${
+                      activeProduct === product.id
+                        ? 'border-primary bg-primary/5 shadow-md'
+                        : 'border-transparent bg-card hover:bg-gray-50 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start gap-6 w-full">
+                      <Checkbox 
+                        checked={selectedProducts.includes(product.id)}
+                        onCheckedChange={() => toggleProductSelection(product.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1 bg-white border-2"
+                      />
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex items-start gap-6 w-full">
+                          <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0 border border-gray-300">
+                            {product.image && (
+                              <img 
+                                src={product.image} 
+                                alt={product.name} 
+                                className="h-full w-full object-cover"
+                              />
+                            )}
                           </div>
-                          {product.storeName && (
-                            <div className="text-xs mt-4 truncate pr-4 text-gray-500">
-                              {product.storeName}
+                          <div className="flex-1 min-w-0 w-full">
+                            <div className="font-medium text-sm md:text-base line-clamp-2 mb-4 pr-4 text-gray-900">{product.name}</div>
+                            <div className="text-xs md:text-sm flex flex-wrap items-center gap-5">
+                              <span className="text-gray-900 font-semibold">
+                                {Number(product.price).toLocaleString()} ₸
+                              </span>
+                              <Badge 
+                                variant={(product.botActive || product.bot_active) ? 'default' : 'outline'} 
+                                className="text-xs"
+                              >
+                                {(product.botActive || product.bot_active) ? 'Активен' : 'Пауза'}
+                              </Badge>
                             </div>
-                          )}
+                            {product.storeName && (
+                              <div className="text-xs mt-4 truncate pr-4 text-gray-500">
+                                {product.storeName}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              {currentProducts.length === 0 && (
-                <div className="text-center py-6 text-gray-500 text-sm">
-                  {filteredProducts.length === 0 ? 
-                    (products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены") :
-                    "На этой странице нет товаров"
-                  }
-                </div>
-              )}
-            </div>
-            <ProductsPagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </>
-        )}
-      </CardContent>
-    </Card>
+                ))}
+                {currentProducts.length === 0 && (
+                  <div className="text-center py-6 text-gray-500 text-sm">
+                    {filteredProducts.length === 0 ? 
+                      (products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены") :
+                      "На этой странице нет товаров"
+                    }
+                  </div>
+                )}
+              </div>
+              <ProductsPagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 
   const SettingsSection = () => {
@@ -509,8 +517,8 @@ const PriceBotPage = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Закрепленный заголовок */}
-      <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 pb-4">
+      {/* Sticky header with only title and action buttons */}
+      <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 pb-4 border-b border-gray-100">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -544,13 +552,6 @@ const PriceBotPage = () => {
             </AlertDescription>
           </Alert>
         )}
-
-        <div className="mt-4">
-          <StoreSelector 
-            selectedStoreId={selectedStoreId}
-            onStoreChange={handleStoreChange}
-          />
-        </div>
       </div>
 
       {isMobile ? (
