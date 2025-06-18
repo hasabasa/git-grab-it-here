@@ -23,12 +23,13 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 
-// Демо-данные продуктов
+// Расширенные демо-данные продуктов для демонстрации пагинации
 const demoProducts: Product[] = [
+  // Электроника - Магазин 1
   {
     id: 'demo-1',
-    name: 'Смартфон Apple iPhone 13 128Gb черный',
-    price: 389990,
+    name: 'Смартфон Apple iPhone 15 Pro 128Gb черный',
+    price: 529990,
     image: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
     image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
     botActive: true,
@@ -37,14 +38,14 @@ const demoProducts: Product[] = [
     min_profit: 5,
     maxProfit: 15,
     max_profit: 15,
-    storeName: 'Демонстрационный магазин',
-    store_id: 'demo-1',
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
     category: 'Электроника'
   },
   {
     id: 'demo-2',
-    name: 'Ноутбук Apple MacBook Air 13 MGN63 серый',
-    price: 499990,
+    name: 'Смартфон Samsung Galaxy S24 Ultra 256Gb серый',
+    price: 479990,
     image: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
     image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
     botActive: false,
@@ -53,14 +54,14 @@ const demoProducts: Product[] = [
     min_profit: 3,
     maxProfit: 10,
     max_profit: 10,
-    storeName: 'Демонстрационный магазин',
-    store_id: 'demo-1',
-    category: 'Компьютеры'
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
+    category: 'Электроника'
   },
   {
     id: 'demo-3',
-    name: 'Наушники Apple AirPods Pro 2 (2022) белый',
-    price: 129990,
+    name: 'Ноутбук Apple MacBook Air 13 M2 серый',
+    price: 599990,
     image: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
     image_url: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
     botActive: true,
@@ -69,10 +70,95 @@ const demoProducts: Product[] = [
     min_profit: 7,
     maxProfit: 12,
     max_profit: 12,
-    storeName: 'Тестовый магазин',
-    store_id: 'demo-2',
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
+    category: 'Компьютеры'
+  },
+  {
+    id: 'demo-4',
+    name: 'Планшет iPad Air 10.9 Wi-Fi 64Gb синий',
+    price: 289990,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    botActive: false,
+    bot_active: false,
+    minProfit: 4,
+    min_profit: 4,
+    maxProfit: 8,
+    max_profit: 8,
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
+    category: 'Планшеты'
+  },
+  {
+    id: 'demo-5',
+    name: 'Наушники Apple AirPods Pro 2 (2023) белый',
+    price: 149990,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    botActive: true,
+    bot_active: true,
+    minProfit: 6,
+    min_profit: 6,
+    maxProfit: 10,
+    max_profit: 10,
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
     category: 'Аксессуары'
-  }
+  },
+  // Добавляем еще товары для Магазина 1
+  ...Array.from({ length: 45 }, (_, i) => ({
+    id: `demo-store-1-${i + 6}`,
+    name: `Товар ${i + 6} - Электроника Плюс`,
+    price: Math.floor(Math.random() * 500000) + 50000,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
+    botActive: Math.random() > 0.5,
+    bot_active: Math.random() > 0.5,
+    minProfit: Math.floor(Math.random() * 10) + 1,
+    min_profit: Math.floor(Math.random() * 10) + 1,
+    maxProfit: Math.floor(Math.random() * 15) + 5,
+    max_profit: Math.floor(Math.random() * 15) + 5,
+    storeName: 'Электроника Плюс',
+    store_id: 'demo-store-1',
+    category: ['Электроника', 'Компьютеры', 'Аксессуары', 'Планшеты'][Math.floor(Math.random() * 4)]
+  })),
+  
+  // Магазин 2 - Техно Мир
+  ...Array.from({ length: 40 }, (_, i) => ({
+    id: `demo-store-2-${i + 1}`,
+    name: `Товар ${i + 1} - Техно Мир`,
+    price: Math.floor(Math.random() * 400000) + 30000,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
+    botActive: Math.random() > 0.5,
+    bot_active: Math.random() > 0.5,
+    minProfit: Math.floor(Math.random() * 8) + 2,
+    min_profit: Math.floor(Math.random() * 8) + 2,
+    maxProfit: Math.floor(Math.random() * 12) + 8,
+    max_profit: Math.floor(Math.random() * 12) + 8,
+    storeName: 'Техно Мир',
+    store_id: 'demo-store-2',
+    category: ['Электроника', 'Бытовая техника', 'Аксессуары'][Math.floor(Math.random() * 3)]
+  })),
+  
+  // Магазин 3 - Цифровой Центр
+  ...Array.from({ length: 35 }, (_, i) => ({
+    id: `demo-store-3-${i + 1}`,
+    name: `Товар ${i + 1} - Цифровой Центр`,
+    price: Math.floor(Math.random() * 600000) + 40000,
+    image: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
+    botActive: Math.random() > 0.5,
+    bot_active: Math.random() > 0.5,
+    minProfit: Math.floor(Math.random() * 6) + 3,
+    min_profit: Math.floor(Math.random() * 6) + 3,
+    maxProfit: Math.floor(Math.random() * 18) + 7,
+    max_profit: Math.floor(Math.random() * 18) + 7,
+    storeName: 'Цифровой Центр',
+    store_id: 'demo-store-3',
+    category: ['Компьютеры', 'Периферия', 'Комплектующие'][Math.floor(Math.random() * 3)]
+  }))
 ];
 
 const PRODUCTS_PER_PAGE = 50;
@@ -91,7 +177,6 @@ const PriceBotPage = () => {
   const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Загружаем выбранный магазин из localStorage при инициализации
   useEffect(() => {
     const savedStoreId = localStorage.getItem('selectedStoreId');
     if (savedStoreId && savedStoreId !== 'null') {
@@ -99,7 +184,6 @@ const PriceBotPage = () => {
     }
   }, []);
 
-  // Сохраняем выбранный магазин в localStorage
   useEffect(() => {
     if (selectedStoreId !== null) {
       localStorage.setItem('selectedStoreId', selectedStoreId);
@@ -110,7 +194,6 @@ const PriceBotPage = () => {
   
   useEffect(() => {
     if (isDemo) {
-      // В демо-режиме просто используем демо-данные
       setProducts(demoProducts);
     } else if (user) {
       loadUserProducts();
@@ -137,7 +220,6 @@ const PriceBotPage = () => {
           kaspi_stores(name)
         `);
 
-      // Фильтруем по выбранному магазину, если он выбран
       if (selectedStoreId) {
         query = query.eq('store_id', selectedStoreId);
       }
@@ -184,17 +266,15 @@ const PriceBotPage = () => {
     setSelectedStoreId(storeId);
     setActiveProduct(null);
     setSelectedProducts([]);
-    setCurrentPage(1); // Сбрасываем на первую страницу при смене магазина
+    setCurrentPage(1);
   };
 
-  // Фильтруем продукты по выбранному магазину и поисковому запросу
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStore = selectedStoreId === null || product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
 
-  // Пагинация
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
   const endIndex = startIndex + PRODUCTS_PER_PAGE;
@@ -202,12 +282,10 @@ const PriceBotPage = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Сбрасываем выбранные товары при смене страницы
     setSelectedProducts([]);
     setActiveProduct(null);
   };
 
-  // Обновляем поиск - сбрасываем на первую страницу
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -352,7 +430,6 @@ const PriceBotPage = () => {
 
   const ProductsSection = () => (
     <div className="space-y-4">
-      {/* Store Selector moved here */}
       <StoreSelector 
         selectedStoreId={selectedStoreId}
         onStoreChange={handleStoreChange}
@@ -517,7 +594,6 @@ const PriceBotPage = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Sticky header with only title and action buttons */}
       <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 pb-4 border-b border-gray-100">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
