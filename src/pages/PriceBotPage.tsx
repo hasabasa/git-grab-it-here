@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -594,7 +595,7 @@ const PriceBotPage = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 pb-4 border-b border-gray-100">
+      <div className="sticky top-0 z-10 bg-white pb-4 border-b border-gray-200">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">Бот демпинга</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
