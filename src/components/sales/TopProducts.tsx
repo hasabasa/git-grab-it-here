@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -157,22 +156,22 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
     );
   }
 
-  // Десктопная версия
+  // Десктопная версия с уменьшенными левыми отступами
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Tabs для переключения между количеством и суммой */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-start items-center">
         <Tabs defaultValue="quantity" value={sortBy} onValueChange={setSortBy}>
           <TabsList className="bg-gradient-to-r from-slate-100 to-slate-200 p-1 rounded-xl">
             <TabsTrigger 
               value="quantity" 
-              className="px-6 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
+              className="px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
             >
               По количеству
             </TabsTrigger>
             <TabsTrigger 
               value="amount" 
-              className="px-6 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
+              className="px-4 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200"
             >
               По сумме
             </TabsTrigger>
@@ -180,15 +179,15 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
         </Tabs>
       </div>
 
-      {/* Основной контент в две колонки */}
-      <div className="grid grid-cols-3 gap-8 h-[500px]">
-        {/* График */}
-        <div className="col-span-2">
+      {/* Основной контент в две колонки с уменьшенными отступами */}
+      <div className="grid grid-cols-4 gap-4 h-[420px]">
+        {/* График - занимает 3 колонки */}
+        <div className="col-span-3">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 20, right: 30, left: 180, bottom: 20 }}
+              margin={{ top: 10, right: 20, left: 80, bottom: 10 }}
             >
               <defs>
                 {barColors.map((color, index) => (
@@ -206,7 +205,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
               />
               <XAxis 
                 type="number" 
-                fontSize={13}
+                fontSize={11}
                 tickFormatter={(value) => 
                   sortBy === "amount" 
                     ? `${value.toLocaleString()}`
@@ -220,8 +219,8 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
               <YAxis 
                 type="category" 
                 dataKey="name" 
-                width={180}
-                fontSize={13}
+                width={80}
+                fontSize={11}
                 stroke="#64748b"
                 strokeWidth={1}
                 tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
@@ -242,20 +241,20 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                   return label;
                 }}
                 contentStyle={{
-                  fontSize: '14px',
-                  padding: '12px 16px',
+                  fontSize: '12px',
+                  padding: '8px 12px',
                   backgroundColor: 'rgba(255, 255, 255, 0.98)',
                   border: 'none',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
-                  backdropFilter: 'blur(10px)'
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+                  backdropFilter: 'blur(8px)'
                 }}
-                labelStyle={{ color: '#1e293b', fontWeight: '600', fontSize: '14px' }}
+                labelStyle={{ color: '#1e293b', fontWeight: '600', fontSize: '12px' }}
               />
               <Bar 
                 dataKey={sortBy === "quantity" ? "quantity" : "amount"}
-                radius={[0, 8, 8, 0]}
-                minPointSize={5}
+                radius={[0, 6, 6, 0]}
+                minPointSize={3}
               >
                 {chartData.map((entry, index) => (
                   <Cell 
@@ -268,37 +267,37 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
           </ResponsiveContainer>
         </div>
 
-        {/* Список товаров */}
-        <div className="col-span-1 space-y-3 overflow-y-auto pr-2">
-          <h4 className="font-semibold text-lg text-gray-800 mb-4">Топ-{products.length} товаров</h4>
+        {/* Список товаров - занимает 1 колонку */}
+        <div className="col-span-1 space-y-2 overflow-y-auto">
+          <h4 className="font-semibold text-base text-gray-800 mb-3">Топ-{products.length}</h4>
           {products.map((product, index) => (
             <div 
               key={product.name} 
-              className="flex items-start gap-4 p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-100 hover:shadow-md transition-shadow duration-200"
+              className="flex items-start gap-2 p-2 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow duration-200"
             >
               <div className="flex items-center justify-center">
                 <div 
-                  className="w-4 h-4 rounded-md shadow-sm"
+                  className="w-3 h-3 rounded-sm"
                   style={{ backgroundColor: barColors[index % barColors.length] }}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
-                  <span className="text-lg font-bold text-gray-900">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-gray-900">#{index + 1}</span>
+                  <span className="text-sm font-bold text-gray-900">
                     {sortBy === "quantity" 
-                      ? `${product.quantity} шт`
-                      : `${product.totalAmount.toLocaleString()} ₸`
+                      ? `${product.quantity}`
+                      : `${(product.totalAmount / 1000).toFixed(0)}k`
                     }
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-gray-600 line-clamp-2 leading-tight">
                   {product.name}
                 </p>
-                <div className="mt-2 text-xs text-gray-500">
+                <div className="mt-1 text-xs text-gray-500">
                   {sortBy === "quantity" 
-                    ? `Сумма: ${product.totalAmount.toLocaleString()} ₸`
-                    : `Количество: ${product.quantity} шт`
+                    ? `${(product.totalAmount / 1000).toFixed(0)}k ₸`
+                    : `${product.quantity} шт`
                   }
                 </div>
               </div>
