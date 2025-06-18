@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -438,7 +436,7 @@ const PriceBotPage = () => {
       />
       
       {/* Title and controls in one horizontal line */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div className="flex-1">
           <h2 className="text-xl font-semibold">Мои товары</h2>
           <p className="text-sm text-gray-600 mt-1">
@@ -568,7 +566,7 @@ const PriceBotPage = () => {
     }
     
     return (
-      <Card className="h-full">
+      <Card className="h-fit">
         <Tabs defaultValue="settings">
           <CardHeader className="pb-3">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
@@ -598,6 +596,14 @@ const PriceBotPage = () => {
       </Card>
     );
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -660,13 +666,11 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className={activeProduct ? "grid grid-cols-1 md:grid-cols-5 gap-6" : "grid grid-cols-1"}>
-          <div className={activeProduct ? "md:col-span-3" : "col-span-full"}>
-            <ProductsSection />
-          </div>
+        <div className="space-y-6">
+          <ProductsSection />
 
           {activeProduct && (
-            <div className="md:col-span-2">
+            <div className="self-start">
               <SettingsSection />
             </div>
           )}
@@ -677,4 +681,3 @@ const PriceBotPage = () => {
 };
 
 export default PriceBotPage;
-

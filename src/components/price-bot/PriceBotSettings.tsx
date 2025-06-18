@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -50,10 +51,10 @@ const PriceBotSettings = ({ product, onSave }: PriceBotSettingsProps) => {
   console.log('PriceBotSettings render - isActive:', isActive, 'productId:', product.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-medium mb-4">Стратегия бота</h3>
-        <RadioGroup value={strategy} onValueChange={setStrategy} className="space-y-3">
+        <h3 className="text-lg font-medium mb-3">Стратегия бота</h3>
+        <RadioGroup value={strategy} onValueChange={setStrategy} className="space-y-2">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="become-first" id="become-first" />
             <Label htmlFor="become-first" className="font-normal">🥇 Стань первым (на 1 тг дешевле)</Label>
@@ -65,7 +66,7 @@ const PriceBotSettings = ({ product, onSave }: PriceBotSettingsProps) => {
         </RadioGroup>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="text-lg font-medium">Настройки прибыли</h3>
         
         <div className="space-y-2">
@@ -80,7 +81,7 @@ const PriceBotSettings = ({ product, onSave }: PriceBotSettingsProps) => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="text-lg font-medium">Активация бота</h3>
         
         <div className="flex items-center space-x-2">
@@ -101,3 +102,4 @@ const PriceBotSettings = ({ product, onSave }: PriceBotSettingsProps) => {
 };
 
 export default PriceBotSettings;
+
