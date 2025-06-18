@@ -16,7 +16,7 @@ const Welcome = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Kaspi Price
+            Mark Bot
           </div>
           <div className="flex gap-4">
             <Button variant="outline" asChild>
