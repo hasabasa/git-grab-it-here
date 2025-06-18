@@ -500,13 +500,13 @@ const PriceBotPage = () => {
           {/* Settings Drawer - Mobile */}
           {activeProduct && (
             <Drawer open={showSettingsDrawer} onOpenChange={setShowSettingsDrawer}>
-              <DrawerContent className="h-[85vh]">
-                <DrawerHeader>
-                  <DrawerTitle className="text-left">
+              <DrawerContent className="h-[90vh] max-h-[90vh] rounded-t-xl">
+                <DrawerHeader className="px-4 py-3 border-b">
+                  <DrawerTitle className="text-left text-lg">
                     Настройки товара
                   </DrawerTitle>
                 </DrawerHeader>
-                <div className="px-4 pb-4 overflow-y-auto">
+                <div className="flex-1 px-4 py-4 overflow-y-auto">
                   <SettingsSection />
                 </div>
               </DrawerContent>
