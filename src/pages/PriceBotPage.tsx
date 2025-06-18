@@ -514,7 +514,7 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Store Selector - Desktop */}
           <div className="lg:col-span-1">
             <StoreSelector 
@@ -523,12 +523,12 @@ const PriceBotPage = () => {
             />
           </div>
 
-          {/* Products List - Desktop */}
-          <div className="lg:col-span-1">
+          {/* Products List - Desktop - Увеличиваем до 2 колонок */}
+          <div className="lg:col-span-2">
             <ProductsSection />
           </div>
 
-          {/* Settings Section - Desktop */}
+          {/* Settings Section - Desktop - Уменьшаем до 2 колонок */}
           {activeProduct && (
             <div className="lg:col-span-2">
               <SettingsSection />
