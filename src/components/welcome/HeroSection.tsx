@@ -1,11 +1,9 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Crown, Brain, Target } from "lucide-react";
 import DemoModeButton from "@/components/auth/DemoModeButton";
 import ScrollAnimation from "@/components/ui/scroll-animation";
 import AnimatedFeatureCard from "@/components/welcome/AnimatedFeatureCard";
-
 const HeroSection = () => {
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing-section');
@@ -15,9 +13,7 @@ const HeroSection = () => {
       });
     }
   };
-
-  return (
-    <div className="relative min-h-screen flex items-center">
+  return <div className="relative min-h-screen flex items-center">
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10">
         <ScrollAnimation animation="fade" delay={200}>
           <div className="text-center mb-8 sm:mb-12">
@@ -29,7 +25,7 @@ const HeroSection = () => {
             </ScrollAnimation>
             
             <ScrollAnimation animation="slide-up" delay={600}>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 sm:mb-6">Bot Mark</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 sm:mb-6">Mark Bot</h1>
             </ScrollAnimation>
             
             <ScrollAnimation animation="fade" delay={800}>
@@ -41,21 +37,9 @@ const HeroSection = () => {
             
             <ScrollAnimation animation="slide-up" delay={1000}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-                <AnimatedFeatureCard
-                  icon={Brain}
-                  title="На основе данных"
-                  description="Глубокая аналитика продаж и конкурентов помогает принимать обоснованные решения для роста бизнеса на маркетплейсе"
-                  gradient="from-blue-500 to-cyan-500"
-                  delay={1200}
-                />
+                <AnimatedFeatureCard icon={Brain} title="На основе данных" description="Глубокая аналитика продаж и конкурентов помогает принимать обоснованные решения для роста бизнеса на маркетплейсе" gradient="from-blue-500 to-cyan-500" delay={1200} />
                 
-                <AnimatedFeatureCard
-                  icon={Target}
-                  title="Всё в одном"
-                  description="Полный комплекс инструментов включает аналитику продаж автоценообразование юнит экономику и CRM систему управления клиентами"
-                  gradient="from-green-500 to-emerald-500"
-                  delay={1400}
-                />
+                <AnimatedFeatureCard icon={Target} title="Всё в одном" description="Полный комплекс инструментов включает аналитику продаж автоценообразование юнит экономику и CRM систему управления клиентами" gradient="from-green-500 to-emerald-500" delay={1400} />
               </div>
             </ScrollAnimation>
 
@@ -75,8 +59,6 @@ const HeroSection = () => {
           </div>
         </ScrollAnimation>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default HeroSection;
