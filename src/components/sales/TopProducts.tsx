@@ -26,8 +26,8 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
   }).slice(0, isMobile ? 5 : 8);
 
   const chartData = products.map((product, index) => ({
-    name: product.name.length > (isMobile ? 8 : 30) 
-      ? product.name.substring(0, isMobile ? 8 : 30) + "..." 
+    name: product.name.length > (isMobile ? 8 : 18) 
+      ? product.name.substring(0, isMobile ? 8 : 18) + "..." 
       : product.name,
     fullName: product.name,
     [sortBy === "quantity" ? "quantity" : "amount"]: sortBy === "quantity" ? product.quantity : product.totalAmount,
@@ -67,7 +67,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             margin={{
               top: isMobile ? 5 : 10,
               right: isMobile ? 10 : 30,
-              left: isMobile ? 120 : 200,
+              left: isMobile ? 5 : 130,
               bottom: isMobile ? 5 : 10,
             }}
           >
@@ -106,13 +106,14 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
             <YAxis 
               type="category" 
               dataKey="name" 
-              width={isMobile ? 120 : 200}
-              fontSize={isMobile ? 10 : 13}
+              width={isMobile ? 0 : 130}
+              fontSize={isMobile ? 0 : 12}
               stroke="#64748b"
               strokeWidth={1}
               tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
               axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-              tick={isMobile ? { textAnchor: 'end', dx: -5, fontSize: 10 } : { textAnchor: 'start', dx: 5, fontSize: 13 }}
+              tick={isMobile ? false : { textAnchor: 'start', dx: 5 }}
+              hide={isMobile}
             />
             <Tooltip
               formatter={(value, name, props) => {
@@ -122,7 +123,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                 return [value, "Кол-во"];
               }}
               labelFormatter={(label, payload) => {
-                if (payload && payload[0]) {
+                if (isMobile && payload && payload[0]) {
                   return payload[0].payload.fullName;
                 }
                 return label;
@@ -159,7 +160,28 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
         </ResponsiveContainer>
       </div>
 
-      {/* Убираем дублирующую легенду для мобильных устройств, так как теперь названия видны на графике */}
+      {isMobile && (
+        <div className="mt-3 space-y-1 text-xs">
+          <div className="font-medium text-gray-700 mb-2">Товары:</div>
+          {products.slice(0, 5).map((product, index) => (
+            <div key={product.name} className="flex items-center gap-2 py-1">
+              <div 
+                className="w-3 h-3 rounded-sm flex-shrink-0"
+                style={{ backgroundColor: barColors[index % barColors.length] }}
+              />
+              <span className="text-gray-600 truncate flex-1">
+                {product.name}
+              </span>
+              <span className="font-medium text-gray-900 text-right">
+                {sortBy === "quantity" 
+                  ? `${product.quantity} шт`
+                  : `${product.totalAmount.toLocaleString()} ₸`
+                }
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
