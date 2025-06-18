@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -292,7 +293,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                     <span className="text-lg font-bold text-gray-900">
                       {sortBy === "quantity" 
                         ? `${product.quantity}`
-                        : `${(product.totalAmount / 1000).toFixed(0)}k ₸`
+                        : `${product.totalAmount.toLocaleString()} ₸`
                       }
                     </span>
                   </div>
@@ -302,7 +303,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                   <div className="flex justify-between items-center text-xs text-gray-500 pt-1 border-t border-gray-200">
                     <span>
                       {sortBy === "quantity" 
-                        ? `Сумма: ${(product.totalAmount / 1000).toFixed(0)}k ₸`
+                        ? `Сумма: ${product.totalAmount.toLocaleString()} ₸`
                         : `Количество: ${product.quantity} шт`
                       }
                     </span>
