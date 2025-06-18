@@ -373,7 +373,7 @@ const PriceBotPage = () => {
                   />
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-start gap-6 w-full">
-                      <div className="h-32 w-32 md:h-36 md:w-36 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                      <div className="h-20 w-20 md:h-24 md:w-24 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
                         {product.image && (
                           <img 
                             src={product.image} 
