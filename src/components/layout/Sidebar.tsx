@@ -41,12 +41,12 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       path: "/dashboard/unit-economics",
       description: "Расчет рентабельности товаров"
     },
-    {
-      title: "CRM и напоминания",
-      icon: ClipboardList,
-      path: "/dashboard/crm",
-      description: "Управление задачами и клиентами"
-    },
+    // {
+    //   title: "CRM и напоминания",
+    //   icon: ClipboardList,
+    //   path: "/dashboard/crm",
+    //   description: "Управление задачами и клиентами"
+    // },
     {
       title: "WhatsApp",
       icon: MessageCircle,
