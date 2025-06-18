@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -436,11 +437,11 @@ const PriceBotPage = () => {
         onStoreChange={handleStoreChange}
       />
       
-      {/* Search and controls section - moved outside of Card */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+      {/* Title and controls in one horizontal line */}
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold mb-2">Мои товары</h2>
-          <p className="text-sm text-gray-600 mb-4">
+          <h2 className="text-xl font-semibold">Мои товары</h2>
+          <p className="text-sm text-gray-600 mt-1">
             {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
             {filteredProducts.length > 0 && (
               <span className="ml-2">
@@ -676,3 +677,4 @@ const PriceBotPage = () => {
 };
 
 export default PriceBotPage;
+
