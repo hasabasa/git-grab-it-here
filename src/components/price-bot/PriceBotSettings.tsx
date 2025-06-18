@@ -18,16 +18,23 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
   const [strategy, setStrategy] = useState("become-first");
   const [minProfit, setMinProfit] = useState(2000);
   const [isActive, setIsActive] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Инициализация состояния при изменении продукта
+  // Инициализация состояния при изменении продукта (только один раз)
   useEffect(() => {
-    if (product) {
+    if (product && !isInitialized) {
       const botActiveState = product.botActive || product.bot_active || false;
       console.log('Initializing bot state for product:', productId, 'botActive:', botActiveState);
       setIsActive(botActiveState);
       setMinProfit(product.minProfit || product.min_profit || 2000);
+      setIsInitialized(true);
     }
-  }, [product, productId]);
+  }, [product, productId, isInitialized]);
+
+  // Сброс флага инициализации при смене продукта
+  useEffect(() => {
+    setIsInitialized(false);
+  }, [productId]);
 
   const handleSave = () => {
     console.log('handleSave called with:');
@@ -50,7 +57,7 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
     setIsActive(checked);
   };
 
-  console.log('PriceBotSettings render - isActive:', isActive, 'product:', product?.id, 'botActive:', product?.botActive || product?.bot_active);
+  console.log('PriceBotSettings render - isActive:', isActive, 'product:', product?.id, 'botActive:', product?.botActive || product?.bot_active, 'isInitialized:', isInitialized);
 
   return (
     <div className="space-y-6">
