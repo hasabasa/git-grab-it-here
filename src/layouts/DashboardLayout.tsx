@@ -4,19 +4,53 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useScreenSize } from "@/hooks/use-screen-size";
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const isMobile = useIsMobile();
+  const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
+
+  // Responsive sidebar widths
+  const getSidebarWidth = () => {
+    if (isMobile) return sidebarOpen ? "w-64" : "w-0";
+    if (!sidebarOpen) return "w-16";
+    if (isExtraLargeDesktop) return "w-80";
+    if (isLargeDesktop) return "w-72";
+    return "w-64";
+  };
+
+  const getMainMargin = () => {
+    if (isMobile) return "ml-0";
+    if (!sidebarOpen) return "ml-16";
+    if (isExtraLargeDesktop) return "ml-80";
+    if (isLargeDesktop) return "ml-72";
+    return "ml-64";
+  };
+
+  const getMainPadding = () => {
+    if (isMobile) return "p-4";
+    if (isExtraLargeDesktop) return "p-8";
+    if (isLargeDesktop) return "p-6";
+    return "p-6";
+  };
+
+  const getMaxWidth = () => {
+    if (isExtraLargeDesktop) return "max-w-none";
+    if (isLargeDesktop) return "max-w-7xl mx-auto";
+    return "max-w-6xl mx-auto";
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40">
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen}
+        width={getSidebarWidth()}
+      />
       
       <div className={cn(
-        "transition-all duration-300 ease-in-out",
-        isMobile ? "ml-0" : (sidebarOpen ? "ml-64" : "ml-16")
+        "transition-all duration-300 ease-in-out min-h-screen",
+        getMainMargin()
       )}>
         <Header 
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
@@ -24,10 +58,15 @@ const DashboardLayout = () => {
           sidebarOpen={sidebarOpen}
         />
         <main className={cn(
-          "p-6",
-          isMobile && "p-4"
+          getMainPadding(),
+          isDesktop && "min-h-[calc(100vh-80px)]"
         )}>
-          <Outlet />
+          <div className={cn(
+            "w-full",
+            getMaxWidth()
+          )}>
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

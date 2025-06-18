@@ -12,12 +12,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info, Download, FileSpreadsheet } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Info, Download, FileSpreadsheet, TrendingUp, Calendar, Filter } from "lucide-react";
+import { useScreenSize } from "@/hooks/use-screen-size";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
-  const isMobile = useIsMobile();
+  const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
   const [salesData, setSalesData] = useState(mockSalesData);
@@ -66,68 +66,94 @@ const SalesPage = () => {
     );
   }
 
+  const getGridCols = () => {
+    if (isExtraLargeDesktop) return "grid-cols-1 xl:grid-cols-4";
+    if (isLargeDesktop) return "grid-cols-1 lg:grid-cols-3";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  };
+
+  const getSpacing = () => {
+    if (isExtraLargeDesktop) return "space-y-8";
+    if (isLargeDesktop) return "space-y-6";
+    return "space-y-4 md:space-y-6";
+  };
+
+  const getGap = () => {
+    if (isExtraLargeDesktop) return "gap-6";
+    if (isLargeDesktop) return "gap-6";
+    return "gap-3 md:gap-6";
+  };
+
   return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Mobile-first header */}
-      <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
-        <h1 className="text-2xl md:text-3xl font-bold">Мои продажи</h1>
-        
-        {/* Mobile-optimized controls */}
-        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-3">
-          <div className="w-full md:w-auto">
-            <DateRangePicker
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-            />
+    <div className={getSpacing()}>
+      {/* Enhanced header for desktop */}
+      <div className="flex flex-col space-y-4 md:space-y-6">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:justify-between lg:items-start lg:space-y-0">
+          <div className="space-y-2">
+            <h1 className={cn(
+              "font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent",
+              isExtraLargeDesktop ? "text-4xl" : isLargeDesktop ? "text-3xl" : "text-2xl md:text-3xl"
+            )}>
+              Мои продажи
+            </h1>
+            {(isLargeDesktop || isExtraLargeDesktop) && (
+              <p className="text-gray-600 text-lg">
+                Полная аналитика продаж и управление товарами на Kaspi.kz
+              </p>
+            )}
           </div>
           
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size={isMobile ? "sm" : "default"}
-              onClick={() => handleExport("excel")}
-              className="flex-1 md:flex-none"
-            >
-              {isMobile ? (
-                <FileSpreadsheet className="h-4 w-4" />
-              ) : (
-                <>
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
-                  Excel
-                </>
+          {/* Enhanced controls for desktop */}
+          <div className="flex flex-col space-y-3 lg:flex-row lg:items-center lg:space-y-0 lg:space-x-4">
+            <div className="flex items-center gap-3">
+              {(isLargeDesktop || isExtraLargeDesktop) && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  <span>Период:</span>
+                </div>
               )}
-            </Button>
+              <DateRangePicker
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+              />
+            </div>
             
-            <Button 
-              variant="outline" 
-              size={isMobile ? "sm" : "default"}
-              onClick={() => handleExport("csv")}
-              className="flex-1 md:flex-none"
-            >
-              {isMobile ? (
-                <Download className="h-4 w-4" />
-              ) : (
-                <>
-                  <Download className="h-4 w-4 mr-2" />
-                  CSV
-                </>
-              )}
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size={isMobile ? "sm" : "default"}
+                onClick={() => handleExport("excel")}
+                className="flex-1 lg:flex-none"
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                {isMobile ? "Excel" : "Экспорт Excel"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size={isMobile ? "sm" : "default"}
+                onClick={() => handleExport("csv")}
+                className="flex-1 lg:flex-none"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isMobile ? "CSV" : "Экспорт CSV"}
+              </Button>
+            </div>
           </div>
         </div>
+        
+        {isDemo && (
+          <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <Info className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-blue-700 text-sm">
+              {isMobile 
+                ? "Демо-данные. Подключите Kaspi для реальной статистики."
+                : "Вы просматриваете демонстрационные данные. Подключите свой магазин Kaspi.kz для просмотра реальных данных о продажах."
+              }
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
-      
-      {isDemo && (
-        <Alert className="bg-blue-50 border-blue-200">
-          <Info className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700 text-sm">
-            {isMobile 
-              ? "Демо-данные. Подключите Kaspi для реальной статистики."
-              : "Вы просматриваете демо-данные. Подключите свой магазин Kaspi для просмотра реальных данных."
-            }
-          </AlertDescription>
-        </Alert>
-      )}
       
       {isLoading ? (
         <div className="flex justify-center items-center h-48 md:h-64">
@@ -135,55 +161,135 @@ const SalesPage = () => {
         </div>
       ) : (
         <>
-          {/* Mobile-optimized stats grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+          {/* Enhanced stats grid for desktop */}
+          <div className={cn("grid", getGridCols(), getGap())}>
             <SalesStats salesData={salesData} dateRange={dateRange} />
+            
+            {/* Additional stat card for large screens */}
+            {(isLargeDesktop || isExtraLargeDesktop) && (
+              <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground font-medium">Конверсия</p>
+                      <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
+                        12.5%
+                      </div>
+                      <p className="text-xs text-muted-foreground">Процент покупок</p>
+                    </div>
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
+                      <TrendingUp className="h-5 w-5 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
           
-          {/* Mobile-optimized chart */}
-          <Card>
-            <CardHeader className="pb-3 md:pb-6">
-              <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
-                <CardTitle className="text-lg md:text-xl">Динамика продаж</CardTitle>
-                <Tabs
-                  defaultValue="daily"
-                  value={timeFrame}
-                  onValueChange={setTimeFrame}
-                  className="w-full md:w-auto"
-                >
-                  <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none">
-                    <TabsTrigger value="daily" className="text-xs md:text-sm">
-                      {isMobile ? "Дни" : "По дням"}
-                    </TabsTrigger>
-                    <TabsTrigger value="weekly" className="text-xs md:text-sm">
-                      {isMobile ? "Недели" : "По неделям"}
-                    </TabsTrigger>
-                    <TabsTrigger value="monthly" className="text-xs md:text-sm">
-                      {isMobile ? "Месяцы" : "По месяцам"}
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <SalesChart
-                salesData={salesData}
-                timeFrame={timeFrame}
-                dateRange={dateRange}
-              />
-            </CardContent>
-          </Card>
+          {/* Enhanced chart layout for desktop */}
+          <div className={cn(
+            "grid gap-6",
+            isExtraLargeDesktop ? "grid-cols-12" : isLargeDesktop ? "grid-cols-12" : "grid-cols-1"
+          )}>
+            <Card className={cn(
+              isExtraLargeDesktop ? "col-span-8" : isLargeDesktop ? "col-span-7" : "col-span-1"
+            )}>
+              <CardHeader className="pb-3 md:pb-6">
+                <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center md:space-y-0">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg md:text-xl">Динамика продаж</CardTitle>
+                    {(isLargeDesktop || isExtraLargeDesktop) && (
+                      <CardDescription>
+                        Детальная аналитика изменения продаж по выбранному периоду
+                      </CardDescription>
+                    )}
+                  </div>
+                  <Tabs
+                    defaultValue="daily"
+                    value={timeFrame}
+                    onValueChange={setTimeFrame}
+                    className="w-full md:w-auto"
+                  >
+                    <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none">
+                      <TabsTrigger value="daily" className="text-xs md:text-sm">
+                        {isMobile ? "Дни" : "По дням"}
+                      </TabsTrigger>
+                      <TabsTrigger value="weekly" className="text-xs md:text-sm">
+                        {isMobile ? "Недели" : "По неделям"}
+                      </TabsTrigger>
+                      <TabsTrigger value="monthly" className="text-xs md:text-sm">
+                        {isMobile ? "Месяцы" : "По месяцам"}
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <SalesChart
+                  salesData={salesData}
+                  timeFrame={timeFrame}
+                  dateRange={dateRange}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Quick actions panel for large screens */}
+            {(isLargeDesktop || isExtraLargeDesktop) && (
+              <Card className={cn(
+                isExtraLargeDesktop ? "col-span-4" : "col-span-5"
+              )}>
+                <CardHeader>
+                  <CardTitle className="text-lg">Быстрые действия</CardTitle>
+                  <CardDescription>Управление и аналитика</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Настроить фильтры
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Сравнить периоды
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Запланировать отчет
+                  </Button>
+                  
+                  <div className="pt-4 border-t space-y-3">
+                    <h4 className="font-medium text-sm">Сводка за сегодня</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Просмотры:</span>
+                        <span className="font-medium">1,234</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Заказы:</span>
+                        <span className="font-medium">67</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Доход:</span>
+                        <span className="font-medium text-green-600">₸ 89,500</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
           
-          {/* Mobile-optimized top products */}
+          {/* Top products section */}
           <Card>
             <CardHeader className="pb-3 md:pb-6">
-              <CardTitle className="text-lg md:text-xl">Топ товары</CardTitle>
-              <CardDescription className="text-sm">
-                {isMobile 
-                  ? "Лучшие по продажам" 
-                  : "Самые продаваемые товары по количеству и сумме продаж"
-                }
-              </CardDescription>
+              <div className="space-y-1">
+                <CardTitle className="text-lg md:text-xl">Топ товары</CardTitle>
+                <CardDescription className="text-sm">
+                  {isMobile 
+                    ? "Лучшие по продажам" 
+                    : "Самые продаваемые товары по количеству и сумме продаж за выбранный период"
+                  }
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent className="pt-0">
               <TopProducts dateRange={dateRange} />
