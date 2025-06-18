@@ -33,9 +33,15 @@ const DemoContactForm = ({ isOpen, onClose, onSuccess }: DemoContactFormProps) =
       // Функция для генерации текущей даты и времени
       const getFormattedDateTime = () => {
         const now = new Date();
-        const date = now.toISOString().split("T")[0]; // YYYY-MM-DD
-        const time = now.toTimeString().split(" ")[0].slice(0,5); // HH:mm
-        return `${date} ${time}`;
+        
+        // Форматируем дату в локальном времени
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
       };
 
       // Данные для отправки
@@ -44,6 +50,8 @@ const DemoContactForm = ({ isOpen, onClose, onSuccess }: DemoContactFormProps) =
         phone: phone.trim(),
         date: getFormattedDateTime()
       };
+
+      console.log('Отправляемые данные:', data);
 
       // Отправляем данные в SheetDB API
       const response = await fetch("https://sheetdb.io/api/v1/i6w7xjkxeinb8", {
