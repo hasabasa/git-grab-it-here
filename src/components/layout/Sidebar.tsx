@@ -21,7 +21,7 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
   const location = useLocation();
-  const { isMobile, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
+  const { isMobile, isLargeDesktop, isExtraLargeDesktop, isUltraWideDesktop } = useScreenSize();
   
   const menuItems = [
     {
@@ -82,11 +82,80 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
     }
   ];
 
+  // Enhanced responsive dimensions
+  const getSidebarWidth = () => {
+    if (isMobile) return isOpen ? "w-64" : "w-0";
+    if (!isOpen) return "w-16";
+    if (isUltraWideDesktop) return "w-96";
+    if (isExtraLargeDesktop) return "w-80";
+    if (isLargeDesktop) return "w-72";
+    return "w-64";
+  };
+
+  const getHeaderHeight = () => {
+    if (isUltraWideDesktop) return "h-28";
+    if (isExtraLargeDesktop) return "h-24";
+    if (isLargeDesktop) return "h-20";
+    return "h-16";
+  };
+
+  const getHeaderPadding = () => {
+    if (isUltraWideDesktop) return "px-10";
+    if (isExtraLargeDesktop) return "px-8";
+    if (isLargeDesktop) return "px-6";
+    return "px-4";
+  };
+
+  const getContentPadding = () => {
+    if (isUltraWideDesktop) return "px-6 py-8";
+    if (isExtraLargeDesktop) return "px-4 py-6";
+    if (isLargeDesktop) return "px-3 py-5";
+    return "px-2 py-4";
+  };
+
+  const getMenuItemPadding = () => {
+    if (isUltraWideDesktop) return "px-4 py-6";
+    if (isExtraLargeDesktop) return "px-3 py-5";
+    if (isLargeDesktop) return "px-3 py-4";
+    return "px-3 py-3";
+  };
+
+  const getIconSize = () => {
+    if (isUltraWideDesktop) return "h-8 w-8";
+    if (isExtraLargeDesktop) return "h-7 w-7";
+    if (isLargeDesktop) return "h-6 w-6";
+    return "h-5 w-5";
+  };
+
+  const getIconPadding = () => {
+    if (isUltraWideDesktop) return "p-4";
+    if (isExtraLargeDesktop) return "p-3";
+    if (isLargeDesktop) return "p-2.5";
+    return "p-2";
+  };
+
+  const getTitleSize = () => {
+    if (isUltraWideDesktop) return "text-xl font-semibold";
+    if (isExtraLargeDesktop) return "text-lg font-medium";
+    if (isLargeDesktop) return "text-base font-medium";
+    return "text-sm font-medium";
+  };
+
+  const getDescriptionSize = () => {
+    if (isUltraWideDesktop) return "text-sm";
+    if (isExtraLargeDesktop) return "text-xs";
+    return "text-xs";
+  };
+
+  const getBrandSize = () => {
+    if (isUltraWideDesktop) return "text-3xl";
+    if (isExtraLargeDesktop) return "text-2xl";
+    if (isLargeDesktop) return "text-xl";
+    return "text-lg";
+  };
+
   const SidebarContent = () => (
-    <div className={cn(
-      "px-2 py-4",
-      isExtraLargeDesktop && "px-4 py-6"
-    )}>
+    <div className={getContentPadding()}>
       <nav className="space-y-1">
         {menuItems.map((item) => (
           <Link
@@ -94,31 +163,28 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
             to={item.path}
             onClick={() => isMobile && setIsOpen(false)}
             className={cn(
-              "group relative flex items-center rounded-xl px-3 py-3 transition-all duration-200",
+              "group relative flex items-center rounded-xl transition-all duration-200",
               "hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50",
               location.pathname === item.path
                 ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
                 : "text-gray-700 hover:text-gray-900",
               !isOpen && !isMobile && "justify-center px-3",
-              isLargeDesktop && "py-4",
-              isExtraLargeDesktop && "py-5"
+              getMenuItemPadding()
             )}
           >
             <div className={cn(
-              "flex items-center justify-center rounded-lg p-2",
+              "flex items-center justify-center rounded-lg transition-colors",
               location.pathname === item.path
                 ? "bg-white/20"
                 : "bg-gray-100 group-hover:bg-white group-hover:shadow-sm",
-              isLargeDesktop && "p-2.5",
-              isExtraLargeDesktop && "p-3"
+              getIconPadding()
             )}>
               <item.icon className={cn(
-                "h-5 w-5 transition-colors",
+                "transition-colors",
                 location.pathname === item.path
                   ? "text-white"
                   : "text-gray-600 group-hover:text-gray-800",
-                isLargeDesktop && "h-6 w-6",
-                isExtraLargeDesktop && "h-7 w-7"
+                getIconSize()
               )} />
             </div>
             
@@ -127,18 +193,18 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <span className={cn(
-                      "font-medium truncate block",
-                      isLargeDesktop && "text-base",
-                      isExtraLargeDesktop && "text-lg"
+                      "truncate block",
+                      getTitleSize()
                     )}>
                       {item.title}
                     </span>
-                    {(isLargeDesktop || isExtraLargeDesktop) && item.description && (
+                    {(isLargeDesktop || isExtraLargeDesktop || isUltraWideDesktop) && item.description && (
                       <span className={cn(
-                        "text-xs opacity-75 block mt-0.5 truncate",
+                        "opacity-75 block mt-1 truncate",
                         location.pathname === item.path
                           ? "text-white/80"
-                          : "text-gray-500"
+                          : "text-gray-500",
+                        getDescriptionSize()
                       )}>
                         {item.description}
                       </span>
@@ -148,7 +214,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                     <Badge 
                       variant={item.badge === "Beta" ? "secondary" : "outline"}
                       className={cn(
-                        "ml-2 text-xs",
+                        "ml-2 text-xs shrink-0",
                         location.pathname === item.path && "bg-white/20 text-white border-white/30"
                       )}
                     >
@@ -162,12 +228,34 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
         ))}
       </nav>
 
-      {/* Footer section for expanded sidebar */}
-      {(isOpen || isMobile) && (isLargeDesktop || isExtraLargeDesktop) && (
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="px-3 py-2 text-xs text-gray-500">
-            <div className="font-medium">Mark Bot v2.0</div>
-            <div className="mt-1">Платформа автоматизации продаж</div>
+      {/* Enhanced footer section for larger screens */}
+      {(isOpen || isMobile) && (isLargeDesktop || isExtraLargeDesktop || isUltraWideDesktop) && (
+        <div className={cn(
+          "border-t border-gray-200",
+          isUltraWideDesktop ? "mt-12 pt-8" : "mt-8 pt-6"
+        )}>
+          <div className={cn(
+            "text-gray-500",
+            isUltraWideDesktop ? "px-4 py-3" : "px-3 py-2"
+          )}>
+            <div className={cn(
+              "font-medium",
+              isUltraWideDesktop ? "text-base" : isExtraLargeDesktop ? "text-sm" : "text-xs"
+            )}>
+              Mark Bot v2.0
+            </div>
+            <div className={cn(
+              "mt-1",
+              isUltraWideDesktop ? "text-sm" : isExtraLargeDesktop ? "text-xs" : "text-xs"
+            )}>
+              Платформа автоматизации продаж
+            </div>
+            {isUltraWideDesktop && (
+              <div className="mt-3 text-xs text-gray-400">
+                <div>© 2024 Mark Bot</div>
+                <div className="mt-1">Все права защищены</div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -192,24 +280,27 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
   return (
     <aside className={cn(
       "fixed left-0 top-0 z-40 h-full bg-white/95 backdrop-blur-sm shadow-xl border-r border-gray-200/50 transition-all duration-300 ease-in-out",
-      width || (isOpen ? "w-64" : "w-16"),
-      isExtraLargeDesktop && isOpen && "w-80",
-      isLargeDesktop && isOpen && "w-72"
+      getSidebarWidth()
     )}>
       <div className={cn(
-        "flex h-16 items-center justify-between border-b border-gray-200/50 px-4",
-        isLargeDesktop && "h-20 px-6",
-        isExtraLargeDesktop && "h-24 px-8"
+        "flex items-center justify-between border-b border-gray-200/50",
+        getHeaderHeight(),
+        getHeaderPadding()
       )}>
         {isOpen && (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <BarChart2 className="h-5 w-5 text-white" />
+            <div className={cn(
+              "bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center",
+              isUltraWideDesktop ? "w-12 h-12" : isExtraLargeDesktop ? "w-10 h-10" : "w-8 h-8"
+            )}>
+              <BarChart2 className={cn(
+                "text-white",
+                isUltraWideDesktop ? "h-7 w-7" : isExtraLargeDesktop ? "h-6 w-6" : "h-5 w-5"
+              )} />
             </div>
             <span className={cn(
               "font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent",
-              isLargeDesktop && "text-xl",
-              isExtraLargeDesktop && "text-2xl"
+              getBrandSize()
             )}>
               Mark Bot
             </span>
@@ -220,14 +311,19 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "ml-auto rounded-lg hover:bg-gray-100",
-            !isOpen && "mx-auto"
+            "rounded-lg hover:bg-gray-100",
+            !isOpen && "mx-auto",
+            isUltraWideDesktop && "h-10 w-10"
           )}
         >
           {isOpen ? (
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className={cn(
+              isUltraWideDesktop ? "h-6 w-6" : "h-5 w-5"
+            )} />
           ) : (
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className={cn(
+              isUltraWideDesktop ? "h-6 w-6" : "h-5 w-5"
+            )} />
           )}
         </Button>
       </div>
