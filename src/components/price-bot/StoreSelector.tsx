@@ -80,63 +80,95 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
     : selectedStore?.products_count || 0;
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Store className="h-5 w-5" />
+    <Card className="h-fit">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <Store className="h-6 w-6 text-blue-600" />
           Выбор магазина
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Select 
-            value={selectedStoreId || 'all'} 
-            onValueChange={(value) => onStoreChange(value === 'all' ? null : value)}
-            disabled={loading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите магазин" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4" />
-                  Все магазины
+      <CardContent className="space-y-6">
+        <Select 
+          value={selectedStoreId || 'all'} 
+          onValueChange={(value) => onStoreChange(value === 'all' ? null : value)}
+          disabled={loading}
+        >
+          <SelectTrigger className="h-12 text-base">
+            <SelectValue placeholder="Выберите магазин" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="py-3">
+              <div className="flex items-center gap-3">
+                <Store className="h-5 w-5 text-gray-500" />
+                <span className="font-medium">Все магазины</span>
+              </div>
+            </SelectItem>
+            {stores.map((store) => (
+              <SelectItem key={store.id} value={store.id} className="py-3">
+                <div className="flex items-center gap-3">
+                  <Store className="h-5 w-5 text-blue-500" />
+                  <span>{store.name}</span>
                 </div>
               </SelectItem>
-              {stores.map((store) => (
-                <SelectItem key={store.id} value={store.id}>
-                  <div className="flex items-center gap-2">
-                    <Store className="h-4 w-4" />
-                    {store.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            ))}
+          </SelectContent>
+        </Select>
 
-          {stores.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm font-medium">
-                    {selectedStoreId === null ? 'Все магазины' : selectedStore?.name || 'Магазин не найден'}
-                  </span>
+        {stores.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Package className="h-5 w-5 text-blue-600" />
                 </div>
-                <div className="text-sm text-gray-600">
-                  {totalProducts} товаров
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900 text-base">
+                    {selectedStoreId === null ? 'Все магазины' : selectedStore?.name || 'Магазин не найден'}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {totalProducts} товаров в системе
+                  </div>
                 </div>
               </div>
+              
+              {selectedStoreId === null && stores.length > 1 && (
+                <div className="pt-3 border-t border-blue-200">
+                  <div className="text-xs text-gray-500 mb-2">Распределение по магазинам:</div>
+                  <div className="space-y-2">
+                    {stores.map((store) => (
+                      <div key={store.id} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-700 truncate flex-1 mr-2">
+                          {store.name}
+                        </span>
+                        <span className="font-medium text-gray-900 bg-white px-2 py-1 rounded">
+                          {store.products_count || 0}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {stores.length === 0 && !loading && (
-            <div className="text-center py-4 text-gray-500 text-sm">
+        {stores.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            <Store className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <div className="text-base font-medium mb-1">
               {isDemo ? 'Загрузка демо-магазинов...' : 'Магазины не найдены'}
             </div>
-          )}
-        </div>
+            <div className="text-sm">
+              {!isDemo && 'Подключите магазины через интеграцию'}
+            </div>
+          </div>
+        )}
+
+        {loading && (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
