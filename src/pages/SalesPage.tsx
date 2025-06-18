@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info, Download, FileSpreadsheet, TrendingUp, Calendar, Filter } from "lucide-react";
 import { useScreenSize } from "@/hooks/use-screen-size";
+import { cn } from "@/lib/utils";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
