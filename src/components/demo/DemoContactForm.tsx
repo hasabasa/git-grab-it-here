@@ -30,47 +30,46 @@ const DemoContactForm = ({ isOpen, onClose, onSuccess }: DemoContactFormProps) =
     setIsSubmitting(true);
 
     try {
-      // Данные для отправки
-      const formData = {
-        name: name.trim(),
-        phone: phone.trim(),
-        date: new Date().toISOString(),
-        timestamp: new Date().toLocaleString('ru-RU', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
+      // Функция для генерации текущей даты и времени
+      const getFormattedDateTime = () => {
+        const now = new Date();
+        const date = now.toISOString().split("T")[0]; // YYYY-MM-DD
+        const time = now.toTimeString().split(" ")[0].slice(0,5); // HH:mm
+        return `${date} ${time}`;
       };
 
-      // Отправляем данные в Google Sheets через Google Apps Script Web App
-      // Замените URL на ваш Google Apps Script Web App URL
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
-      
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Необходимо для Google Apps Script
+      // Данные для отправки
+      const data = {
+        name: name.trim(),
+        phone: phone.trim(),
+        date: getFormattedDateTime()
+      };
+
+      // Отправляем данные в SheetDB API
+      const response = await fetch("https://sheetdb.io/api/v1/i6w7xjkxeinb8", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ data: data })
       });
 
-      // При использовании mode: 'no-cors' response всегда будет opaque
-      // Поэтому мы предполагаем успех если нет ошибки
-      console.log('Данные отправлены:', formData);
-      
-      toast.success("Спасибо! Данные отправлены. Открываем демо-режим...");
-      
-      // Небольшая задержка для показа уведомления
-      setTimeout(() => {
-        onSuccess();
-        onClose();
-        // Сбрасываем форму
-        setName("");
-        setPhone("");
-      }, 1000);
+      if (response.ok) {
+        console.log('Данные отправлены:', data);
+        
+        toast.success("Спасибо! Данные отправлены. Открываем демо-режим...");
+        
+        // Небольшая задержка для показа уведомления
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+          // Сбрасываем форму
+          setName("");
+          setPhone("");
+        }, 1000);
+      } else {
+        throw new Error("Ошибка при отправке");
+      }
 
     } catch (error) {
       console.error('Ошибка отправки данных:', error);
