@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,8 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -23,6 +26,12 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error('Необходимо принять пользовательское соглашение и политику конфиденциальности');
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -167,10 +176,61 @@ const AuthPage = () => {
                       Минимум 6 символов
                     </p>
                   </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox 
+                        id="terms" 
+                        checked={termsAccepted}
+                        onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="terms"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Ознакомлен(а) с{" "}
+                          <a 
+                            href="https://docs.google.com/document/d/1eENTvZ9aw7y8SPCbW4UMo2u89VtaIBhBiVLknsFbfVU/edit?usp=sharing"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Пользовательским соглашением
+                          </a>
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-2">
+                      <Checkbox 
+                        id="privacy" 
+                        checked={privacyAccepted}
+                        onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="privacy"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Ознакомлен(а) с{" "}
+                          <a 
+                            href="https://docs.google.com/document/d/1ImPXaWTILkUN2ERgB6lLqH7-N1OllC2Xj_fKLjcxDwY/edit?usp=sharing"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Политикой конфиденциальности
+                          </a>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <Button 
                     type="submit" 
                     className="w-full gap-2"
-                    disabled={loading}
+                    disabled={loading || !termsAccepted || !privacyAccepted}
                   >
                     <UserPlus className="h-4 w-4" />
                     {loading ? 'Регистрация...' : 'Зарегистрироваться'}
