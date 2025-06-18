@@ -27,12 +27,20 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
     }
   }, [product]);
 
+  // Синхронизируем состояние при изменении продукта
+  useEffect(() => {
+    if (product) {
+      setIsActive(product.botActive || product.bot_active || false);
+    }
+  }, [product?.botActive, product?.bot_active]);
+
   const handleSave = () => {
+    console.log('Saving settings with isActive:', isActive);
     onSave({
       productId,
       strategy,
       minProfit,
-      isActive,
+      isActive, // Используем текущее состояние переключателя
     });
   };
 
