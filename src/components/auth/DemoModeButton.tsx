@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,22 +10,28 @@ const DemoModeButton = () => {
   const { enterDemoMode } = useAuth();
   const [showContactForm, setShowContactForm] = useState(false);
 
-  const handleDemoClick = (e: React.MouseEvent) => {
+  const handleDemoClick = async (e: React.MouseEvent) => {
     console.log("DemoModeButton: Кнопка нажата!");
     
     // Предотвращаем стандартное поведение
     e.preventDefault();
     e.stopPropagation();
     
-    // Проверяем, заполнял ли пользователь уже форму
-    const hasFilledDemoForm = localStorage.getItem('kaspi-demo-form-filled');
-    
-    if (hasFilledDemoForm === 'true') {
-      // Если форма уже была заполнена, сразу входим в демо режим
-      handleDirectDemoEntry();
-    } else {
-      // Если форма не была заполнена, показываем форму
-      setShowContactForm(true);
+    // Сразу входим в демо режим без формы
+    try {
+      console.log("DemoModeButton: Прямой вход в демо режим...");
+      
+      // Входим в демо режим и ждем завершения
+      await enterDemoMode();
+      
+      console.log("DemoModeButton: Демо режим активирован, переходим на dashboard");
+      
+      // Принудительная навигация
+      window.location.href = "/dashboard";
+      
+      console.log("DemoModeButton: Навигация завершена");
+    } catch (error) {
+      console.error("DemoModeButton: Ошибка при входе в демо режим:", error);
     }
   };
 
