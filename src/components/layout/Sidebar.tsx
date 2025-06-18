@@ -81,74 +81,92 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
     }
   ];
 
-  // Improved responsive dimensions for better PC adaptation
+  // Enhanced responsive dimensions for very large monitors
   const getSidebarWidth = () => {
     if (isMobile) return isOpen ? "w-64" : "w-0";
-    if (!isOpen) return "w-16";
-    if (isUltraWideDesktop) return "w-96";
-    if (isExtraLargeDesktop) return "w-80";
-    if (isLargeDesktop) return "w-72";
-    return "w-64"; // Standard desktop
+    if (!isOpen) return isUltraWideDesktop ? "w-20" : isExtraLargeDesktop ? "w-18" : "w-16";
+    if (isUltraWideDesktop) return "w-[400px]"; // 400px for ultra-wide monitors
+    if (isExtraLargeDesktop) return "w-96"; // 384px for extra large monitors
+    if (isLargeDesktop) return "w-80"; // 320px for large monitors
+    return "w-72"; // 288px for standard desktop
   };
 
   const getHeaderHeight = () => {
-    if (isUltraWideDesktop) return "h-20";
-    if (isExtraLargeDesktop) return "h-18";
+    if (isUltraWideDesktop) return "h-24";
+    if (isExtraLargeDesktop) return "h-20";
     if (isDesktop) return "h-16";
     return "h-14";
   };
 
   const getHeaderPadding = () => {
-    if (isUltraWideDesktop) return "px-6";
-    if (isExtraLargeDesktop) return "px-5";
+    if (isUltraWideDesktop) return "px-8";
+    if (isExtraLargeDesktop) return "px-6";
     if (isDesktop) return "px-4";
     return "px-3";
   };
 
   const getContentPadding = () => {
-    if (isUltraWideDesktop) return "px-4 py-6";
-    if (isExtraLargeDesktop) return "px-3 py-5";
+    if (isUltraWideDesktop) return "px-6 py-8";
+    if (isExtraLargeDesktop) return "px-4 py-6";
     if (isDesktop) return "px-3 py-4";
     return "px-2 py-3";
   };
 
   const getMenuItemPadding = () => {
-    if (isUltraWideDesktop) return "px-4 py-4";
-    if (isExtraLargeDesktop) return "px-3 py-3.5";
+    if (isUltraWideDesktop) return "px-6 py-5";
+    if (isExtraLargeDesktop) return "px-4 py-4";
     if (isDesktop) return "px-3 py-3";
     return "px-2 py-2.5";
   };
 
   const getIconSize = () => {
-    if (isUltraWideDesktop) return "h-6 w-6";
-    if (isExtraLargeDesktop) return "h-5 w-5";
+    if (isUltraWideDesktop) return "h-7 w-7";
+    if (isExtraLargeDesktop) return "h-6 w-6";
     return "h-5 w-5";
   };
 
   const getIconPadding = () => {
-    if (isUltraWideDesktop) return "p-3";
-    if (isExtraLargeDesktop) return "p-2.5";
+    if (isUltraWideDesktop) return "p-4";
+    if (isExtraLargeDesktop) return "p-3";
     return "p-2";
   };
 
   const getTitleSize = () => {
-    if (isUltraWideDesktop) return "text-lg font-semibold";
-    if (isExtraLargeDesktop) return "text-base font-medium";
-    if (isDesktop) return "text-sm font-medium";
+    if (isUltraWideDesktop) return "text-xl font-semibold";
+    if (isExtraLargeDesktop) return "text-lg font-medium";
+    if (isDesktop) return "text-base font-medium";
     return "text-sm font-medium";
   };
 
-  const getDescriptionSize = () => {
-    if (isUltraWideDesktop) return "text-sm";
-    if (isExtraLargeDesktop) return "text-xs";
-    return "text-xs";
+  const getBrandSize = () => {
+    if (isUltraWideDesktop) return "text-3xl";
+    if (isExtraLargeDesktop) return "text-2xl";
+    if (isDesktop) return "text-xl";
+    return "text-base";
   };
 
-  const getBrandSize = () => {
-    if (isUltraWideDesktop) return "text-2xl";
-    if (isExtraLargeDesktop) return "text-xl";
-    if (isDesktop) return "text-lg";
-    return "text-base";
+  const getBrandIconSize = () => {
+    if (isUltraWideDesktop) return "w-12 h-12";
+    if (isExtraLargeDesktop) return "w-10 h-10";
+    return "w-8 h-8";
+  };
+
+  const getBrandIconInnerSize = () => {
+    if (isUltraWideDesktop) return "h-7 w-7";
+    if (isExtraLargeDesktop) return "h-6 w-6";
+    return "h-4 w-4";
+  };
+
+  const getToggleButtonSize = () => {
+    if (isUltraWideDesktop) return "h-12 w-12";
+    if (isExtraLargeDesktop) return "h-10 w-10";
+    return "h-8 w-8";
+  };
+
+  const getToggleIconSize = () => {
+    if (isUltraWideDesktop) return "h-6 w-6";
+    if (isExtraLargeDesktop) return "h-5 w-5";
+    return "h-4 w-4";
   };
 
   const SidebarContent = () => (
@@ -158,7 +176,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
     )}>
       <nav className={cn(
         "space-y-1",
-        isUltraWideDesktop && "space-y-1.5"
+        isUltraWideDesktop && "space-y-2"
       )}>
         {menuItems.map((item) => (
           <Link
@@ -206,9 +224,9 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                     <Badge 
                       variant={item.badge === "Beta" ? "secondary" : "outline"}
                       className={cn(
-                        "ml-2 text-xs shrink-0",
+                        "ml-2 shrink-0",
                         location.pathname === item.path && "bg-white/20 text-white border-white/30",
-                        isUltraWideDesktop && "text-sm px-2 py-1"
+                        isUltraWideDesktop ? "text-sm px-3 py-1" : isExtraLargeDesktop ? "text-sm px-2 py-1" : "text-xs"
                       )}
                     >
                       {item.badge}
@@ -224,26 +242,29 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       {(isOpen || isMobile) && isDesktop && (
         <div className={cn(
           "border-t border-gray-200 mt-auto",
-          isUltraWideDesktop ? "mt-8 pt-6" : isExtraLargeDesktop ? "mt-6 pt-4" : "mt-4 pt-3"
+          isUltraWideDesktop ? "mt-10 pt-8" : isExtraLargeDesktop ? "mt-8 pt-6" : "mt-4 pt-3"
         )}>
           <div className={cn(
             "text-gray-500",
-            isUltraWideDesktop ? "px-4 py-3" : isExtraLargeDesktop ? "px-3 py-2" : "px-2 py-2"
+            isUltraWideDesktop ? "px-6 py-4" : isExtraLargeDesktop ? "px-4 py-3" : "px-2 py-2"
           )}>
             <div className={cn(
               "font-medium",
-              isUltraWideDesktop ? "text-base" : isExtraLargeDesktop ? "text-sm" : "text-xs"
+              isUltraWideDesktop ? "text-lg" : isExtraLargeDesktop ? "text-base" : "text-xs"
             )}>
               Mark Bot v2.0
             </div>
             <div className={cn(
               "mt-1",
-              isUltraWideDesktop ? "text-sm" : isExtraLargeDesktop ? "text-xs" : "text-xs"
+              isUltraWideDesktop ? "text-base" : isExtraLargeDesktop ? "text-sm" : "text-xs"
             )}>
               Платформа автоматизации продаж
             </div>
             {(isExtraLargeDesktop || isUltraWideDesktop) && (
-              <div className="mt-2 text-xs text-gray-400">
+              <div className={cn(
+                "mt-2 text-gray-400",
+                isUltraWideDesktop ? "text-sm" : "text-xs"
+              )}>
                 <div>© 2024 Mark Bot</div>
                 <div className="mt-1">Все права защищены</div>
               </div>
@@ -283,11 +304,11 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
           <div className="flex items-center gap-3">
             <div className={cn(
               "bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center",
-              isUltraWideDesktop ? "w-10 h-10" : isExtraLargeDesktop ? "w-9 h-9" : "w-8 h-8"
+              getBrandIconSize()
             )}>
               <BarChart2 className={cn(
                 "text-white",
-                isUltraWideDesktop ? "h-6 w-6" : isExtraLargeDesktop ? "h-5 w-5" : "h-4 w-4"
+                getBrandIconInnerSize()
               )} />
             </div>
             <span className={cn(
@@ -305,16 +326,16 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
           className={cn(
             "rounded-lg hover:bg-gray-100",
             !isOpen && "mx-auto",
-            isUltraWideDesktop && "h-10 w-10"
+            getToggleButtonSize()
           )}
         >
           {isOpen ? (
             <ArrowLeft className={cn(
-              isUltraWideDesktop ? "h-5 w-5" : "h-4 w-4"
+              getToggleIconSize()
             )} />
           ) : (
             <ArrowRight className={cn(
-              isUltraWideDesktop ? "h-5 w-5" : "h-4 w-4"
+              getToggleIconSize()
             )} />
           )}
         </Button>
