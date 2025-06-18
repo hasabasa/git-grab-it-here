@@ -274,7 +274,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
 
         {/* Список товаров - занимает 4 колонки */}
         <div className="col-span-4 bg-white rounded-lg border border-gray-200 p-4 overflow-y-auto">
-          <h4 className="font-semibold text-lg text-gray-800 mb-4 sticky top-0 bg-white pb-2">
+          <h4 className="font-semibold text-lg text-gray-800 mb-4 sticky top-0 bg-white pb-2 border-b border-gray-100 z-10 -mx-4 px-4 pt-1">
             Топ-{products.length} товаров
           </h4>
           <div className="space-y-3">
