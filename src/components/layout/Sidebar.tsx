@@ -201,18 +201,6 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                     )}>
                       {item.title}
                     </span>
-                    {/* Show descriptions on all desktop sizes, not just large ones */}
-                    {isDesktop && item.description && (
-                      <span className={cn(
-                        "opacity-75 block mt-1 truncate leading-tight",
-                        location.pathname === item.path
-                          ? "text-white/80"
-                          : "text-gray-500",
-                        getDescriptionSize()
-                      )}>
-                        {item.description}
-                      </span>
-                    )}
                   </div>
                   {item.badge && (
                     <Badge 
@@ -233,7 +221,6 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
         ))}
       </nav>
 
-      {/* Show footer on all desktop sizes for better PC adaptation */}
       {(isOpen || isMobile) && isDesktop && (
         <div className={cn(
           "border-t border-gray-200 mt-auto",
