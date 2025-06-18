@@ -310,6 +310,8 @@ const PriceBotPage = () => {
     setIsLoading(true);
     
     try {
+      const { PriceBotService } = await import("@/services/priceBotService");
+      
       if (isDemo) {
         setProducts(prevProducts => 
           prevProducts.map(product => 
@@ -323,15 +325,7 @@ const PriceBotPage = () => {
           `Бот ${action === 'start' ? 'запущен' : 'остановлен'} для ${selectedProducts.length} товаров`
         );
       } else {
-        const { error } = await supabase
-          .from('products')
-          .update({
-            bot_active: action === 'start',
-            updated_at: new Date().toISOString()
-          })
-          .in('id', selectedProducts);
-          
-        if (error) throw error;
+        await PriceBotService.toggleBotStatus(selectedProducts, action === 'start', false);
         
         setProducts(prevProducts => 
           prevProducts.map(product => 
@@ -366,6 +360,8 @@ const PriceBotPage = () => {
   const handleSaveSettings = async (settings: any) => {
     console.log('PriceBotPage: Saving settings:', settings);
     try {
+      const { PriceBotService } = await import("@/services/priceBotService");
+      
       if (isDemo) {
         setProducts(prevProducts => 
           prevProducts.map(product => 
@@ -385,16 +381,7 @@ const PriceBotPage = () => {
         
         toast.success("Настройки бота сохранены");
       } else {
-        const { error } = await supabase
-          .from('products')
-          .update({
-            bot_active: settings.isActive,
-            min_profit: settings.minProfit,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', settings.productId);
-          
-        if (error) throw error;
+        await PriceBotService.saveSettings(settings, false);
         
         setProducts(prevProducts => 
           prevProducts.map(product => 
