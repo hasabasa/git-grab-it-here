@@ -81,8 +81,8 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
                 fontSize={9}
                 tickFormatter={(value) => 
                   sortBy === "amount" 
-                    ? `${(value / 1000).toFixed(0)}k` 
-                    : value > 999 ? `${(value / 1000).toFixed(0)}k` : value.toString()
+                    ? value.toLocaleString()
+                    : value > 999 ? value.toLocaleString() : value.toString()
                 }
                 stroke="#64748b"
                 strokeWidth={1}
@@ -209,11 +209,7 @@ const TopProducts = ({ dateRange }: TopProductsProps) => {
               <XAxis 
                 type="number" 
                 fontSize={12}
-                tickFormatter={(value) => 
-                  sortBy === "amount" 
-                    ? `${value.toLocaleString()}`
-                    : value.toLocaleString()
-                }
+                tickFormatter={(value) => value.toLocaleString()}
                 stroke="#64748b"
                 strokeWidth={1}
                 tickLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
