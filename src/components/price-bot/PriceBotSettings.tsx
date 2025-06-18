@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,14 @@ const PriceBotSettings = ({ productId, onSave }: PriceBotSettingsProps) => {
   const [strategy, setStrategy] = useState("become-first");
   const [minProfit, setMinProfit] = useState(2000);
   const [isActive, setIsActive] = useState(product?.botActive || false);
+
+  // Синхронизируем локальное состояние с данными продукта
+  useEffect(() => {
+    if (product) {
+      setIsActive(product.botActive || product.bot_active || false);
+      setMinProfit(product.minProfit || product.min_profit || 2000);
+    }
+  }, [product]);
 
   const handleSave = () => {
     onSave({
