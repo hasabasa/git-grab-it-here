@@ -169,6 +169,7 @@ const PriceBotPage = () => {
   };
   
   const handleProductSelect = (productId: string) => {
+    console.log('PriceBotPage: Product selected:', productId);
     setActiveProduct(productId);
     if (isMobile) {
       setShowSettingsDrawer(true);
@@ -260,6 +261,7 @@ const PriceBotPage = () => {
   };
   
   const handleSaveSettings = async (settings: any) => {
+    console.log('PriceBotPage: Saving settings:', settings);
     try {
       if (isDemo) {
         setProducts(prevProducts => 
@@ -420,7 +422,22 @@ const PriceBotPage = () => {
   const SettingsSection = () => {
     const selectedProduct = products.find(p => p.id === activeProduct);
     
-    return selectedProduct ? (
+    console.log('PriceBotPage: SettingsSection render - activeProduct:', activeProduct, 'selectedProduct:', selectedProduct);
+    
+    if (!selectedProduct) {
+      return (
+        <Card className="h-full">
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center text-gray-500">
+              <p className="text-lg mb-2">Выберите товар</p>
+              <p className="text-sm">для настройки бота</p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return (
       <Card className="h-full">
         <Tabs defaultValue="settings">
           <CardHeader className="pb-3">
@@ -449,16 +466,8 @@ const PriceBotPage = () => {
           </CardContent>
         </Tabs>
       </Card>
-    ) : null;
-  };
-
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
     );
-  }
+  };
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -496,7 +505,6 @@ const PriceBotPage = () => {
         </Alert>
       )}
 
-      {/* Store Selector - Now above products for both mobile and desktop */}
       <StoreSelector 
         selectedStoreId={selectedStoreId}
         onStoreChange={handleStoreChange}
@@ -504,10 +512,8 @@ const PriceBotPage = () => {
 
       {isMobile ? (
         <div className="space-y-4">
-          {/* Products List - Mobile */}
           <ProductsSection />
           
-          {/* Settings Drawer - Mobile */}
           {activeProduct && (
             <Drawer open={showSettingsDrawer} onOpenChange={setShowSettingsDrawer}>
               <DrawerContent className="h-[90vh] max-h-[90vh] rounded-t-xl">
@@ -525,17 +531,13 @@ const PriceBotPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Products List - Desktop - Now takes more space */}
           <div className="lg:col-span-3">
             <ProductsSection />
           </div>
 
-          {/* Settings Section - Desktop */}
-          {activeProduct && (
-            <div className="lg:col-span-2">
-              <SettingsSection />
-            </div>
-          )}
+          <div className="lg:col-span-2">
+            <SettingsSection />
+          </div>
         </div>
       )}
     </div>
