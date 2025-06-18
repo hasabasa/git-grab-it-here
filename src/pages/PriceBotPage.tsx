@@ -521,13 +521,13 @@ const PriceBotPage = () => {
           )}
         </div>
       ) : (
-        <div className={activeProduct ? "grid grid-cols-1 lg:grid-cols-5 gap-6" : "grid grid-cols-1"}>
-          <div className={activeProduct ? "lg:col-span-3" : "col-span-full"}>
+        <div className={activeProduct ? "grid grid-cols-1 md:grid-cols-5 gap-6" : "grid grid-cols-1"}>
+          <div className={activeProduct ? "md:col-span-3" : "col-span-full"}>
             <ProductsSection />
           </div>
 
           {activeProduct && (
-            <div className="lg:col-span-2">
+            <div className="md:col-span-2">
               <SettingsSection />
             </div>
           )}
