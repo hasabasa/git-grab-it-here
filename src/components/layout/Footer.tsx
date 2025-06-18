@@ -83,8 +83,8 @@ const Footer = () => {
 
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-blue-600" />
-                <a href="mailto:dev@eternal-ai.kz" className="hover:text-gray-900 transition-colors">
-                  dev@eternal-ai.kz
+                <a href="mailto:info@eternal-ai.kz" className="hover:text-gray-900 transition-colors">
+                  info@eternal-ai.kz
                 </a>
               </div>
             </div>
@@ -110,12 +110,32 @@ const Footer = () => {
                 </a>
               </div>
               <div>
-                <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
+                <a 
+                  href="https://docs.google.com/document/d/1KiAnPPh4KTIKnMT8H5NrhHtnh_TOjDj-Iwh7gzgmFpc/edit?usp=sharing" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+                >
                   Договор оферты
                 </a>
               </div>
               <div>
-                <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
+                <a 
+                  href="https://docs.google.com/document/d/1eENTvZ9aw7y8SPCbW4UMo2u89VtaIBhBiVLknsFbfVU/edit?usp=sharing" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+                >
+                  Пользовательское соглашение
+                </a>
+              </div>
+              <div>
+                <a 
+                  href="https://docs.google.com/document/d/1ImPXaWTILkUN2ERgB6lLqH7-N1OllC2Xj_fKLjcxDwY/edit?usp=sharing" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+                >
                   Политика конфиденциальности
                 </a>
               </div>
