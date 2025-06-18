@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -435,10 +436,11 @@ const PriceBotPage = () => {
         onStoreChange={handleStoreChange}
       />
       
-      <Card className="h-full">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg md:text-xl">Мои товары</CardTitle>
-          <CardDescription className="text-sm">
+      {/* Search and controls section - moved outside of Card */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div className="flex-1">
+          <h2 className="text-xl font-semibold mb-2">Мои товары</h2>
+          <p className="text-sm text-gray-600 mb-4">
             {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
             {filteredProducts.length > 0 && (
               <span className="ml-2">
@@ -446,31 +448,35 @@ const PriceBotPage = () => {
                   filteredProducts.length < 5 ? 'товара' : 'товаров'})
               </span>
             )}
-          </CardDescription>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2">
-            <Input 
-              placeholder="Поиск товаров..." 
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="flex-1"
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <Input 
+            placeholder="Поиск товаров..." 
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full sm:w-64"
+          />
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <Checkbox 
+              id="select-all"
+              checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
+              onCheckedChange={() => {
+                if (selectedProducts.length === currentProducts.length) {
+                  setSelectedProducts([]);
+                } else {
+                  setSelectedProducts(currentProducts.map(p => p.id));
+                }
+              }}
             />
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <Checkbox 
-                id="select-all"
-                checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
-                onCheckedChange={() => {
-                  if (selectedProducts.length === currentProducts.length) {
-                    setSelectedProducts([]);
-                  } else {
-                    setSelectedProducts(currentProducts.map(p => p.id));
-                  }
-                }}
-              />
-              <label htmlFor="select-all" className="text-sm">Все на странице</label>
-            </div>
+            <label htmlFor="select-all" className="text-sm">Все на странице</label>
           </div>
-        </CardHeader>
-        <CardContent className="pt-0">
+        </div>
+      </div>
+      
+      <Card className="h-full">
+        <CardContent className="pt-6">
           {loadingProducts ? (
             <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
