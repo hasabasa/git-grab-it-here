@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,10 +7,8 @@ import ModulesSection from "@/components/welcome/ModulesSection";
 import PricingSection from "@/components/welcome/PricingSection";
 import GrowthSection from "@/components/welcome/GrowthSection";
 import Footer from "@/components/layout/Footer";
-
 const Welcome = () => {
-  return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+  return <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
@@ -20,9 +17,7 @@ const Welcome = () => {
           </div>
           <div className="flex gap-2 sm:gap-4">
             <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
-              <Link to="/auth">
-                Войти
-              </Link>
+              
             </Button>
             <Button asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/auth">
@@ -45,8 +40,6 @@ const Welcome = () => {
 
       {/* Footer */}
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Welcome;
