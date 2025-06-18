@@ -355,18 +355,18 @@ const PriceBotPage = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
+          <div className="space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2">
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
                 onClick={() => handleProductSelect(product.id)}
-                className={`p-3 rounded-xl cursor-pointer transition-all ${
+                className={`p-4 rounded-xl cursor-pointer transition-all ${
                   activeProduct === product.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-card hover:bg-gray-100'
                 }`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-4">
                   <Checkbox 
                     checked={selectedProducts.includes(product.id)}
                     onCheckedChange={() => toggleProductSelection(product.id)}
@@ -374,8 +374,8 @@ const PriceBotPage = () => {
                     className="mt-1"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
+                    <div className="flex items-start gap-4">
+                      <div className="h-16 w-16 md:h-20 md:w-20 rounded-lg bg-gray-200 overflow-hidden flex-shrink-0">
                         {product.image && (
                           <img 
                             src={product.image} 
@@ -385,9 +385,9 @@ const PriceBotPage = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm md:text-base line-clamp-2">{product.name}</div>
-                        <div className="text-xs md:text-sm mt-1 flex flex-wrap items-center gap-2">
-                          <span className={activeProduct === product.id ? 'text-primary-foreground' : 'text-gray-500'}>
+                        <div className="font-medium text-sm md:text-base line-clamp-2 mb-2">{product.name}</div>
+                        <div className="text-xs md:text-sm flex flex-wrap items-center gap-3">
+                          <span className={activeProduct === product.id ? 'text-primary-foreground font-semibold' : 'text-gray-900 font-semibold'}>
                             {Number(product.price).toLocaleString()} ₸
                           </span>
                           <Badge 
@@ -398,7 +398,7 @@ const PriceBotPage = () => {
                           </Badge>
                         </div>
                         {product.storeName && (
-                          <div className={`text-xs mt-1 truncate ${activeProduct === product.id ? 'text-primary-foreground/70' : 'text-gray-400'}`}>
+                          <div className={`text-xs mt-2 truncate ${activeProduct === product.id ? 'text-primary-foreground/70' : 'text-gray-400'}`}>
                             {product.storeName}
                           </div>
                         )}
