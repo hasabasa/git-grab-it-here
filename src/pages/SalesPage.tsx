@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,41 +44,35 @@ const SalesPage = () => {
 
     console.log('Fetching sales data for store:', selectedStoreId || 'all stores');
     
-    // В реальном приложении здесь был бы запрос к Supabase
-    // с фильтрацией по selectedStoreId через Edge Function или RPC
+    // Поскольку у нас нет реальной таблицы sales, используем мок данные
+    // В реальном приложении здесь был бы запрос к таблице sales с фильтрацией
     try {
+      // Имитируем загрузку данных с сервера
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       if (selectedStoreId && selectedStoreId !== 'all') {
-        // Запрос данных для конкретного магазина
-        const { data, error } = await supabase
-          .rpc('get_sales_data', { 
-            store_id: selectedStoreId,
-            date_from: dateRange.from?.toISOString(),
-            date_to: dateRange.to?.toISOString()
-          });
+        console.log('Filtering sales data for specific store:', selectedStoreId);
+        // В реальном приложении:
+        // const { data, error } = await supabase
+        //   .from('sales')
+        //   .select('*')
+        //   .eq('store_id', selectedStoreId)
+        //   .gte('date', dateRange.from?.toISOString())
+        //   .lte('date', dateRange.to?.toISOString());
         
-        if (error) {
-          console.error('Error fetching store sales data:', error);
-          // Fallback к мок данным в случае ошибки
-          return mockSalesData;
-        }
-        
-        return data || mockSalesData;
+        return mockSalesData;
       } else {
-        // Запрос данных для всех магазинов пользователя
-        const { data, error } = await supabase
-          .rpc('get_all_sales_data', {
-            user_id: user.id,
-            date_from: dateRange.from?.toISOString(),
-            date_to: dateRange.to?.toISOString()
-          });
+        console.log('Fetching sales data for all user stores');
+        // В реальном приложении:
+        // const storeIds = stores.map(store => store.id);
+        // const { data, error } = await supabase
+        //   .from('sales')
+        //   .select('*')
+        //   .in('store_id', storeIds)
+        //   .gte('date', dateRange.from?.toISOString())
+        //   .lte('date', dateRange.to?.toISOString());
         
-        if (error) {
-          console.error('Error fetching all sales data:', error);
-          // Fallback к мок данным в случае ошибки
-          return mockSalesData;
-        }
-        
-        return data || mockSalesData;
+        return mockSalesData;
       }
     } catch (error) {
       console.error('Error in fetchSalesData:', error);
