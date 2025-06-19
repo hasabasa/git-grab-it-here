@@ -17,7 +17,7 @@ interface PopoverSettingsProps {
 
 const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSettingsProps) => {
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'left' });
+  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'right' });
 
   useEffect(() => {
     if (!triggerElement || !popoverRef.current) return;
@@ -31,19 +31,19 @@ const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSe
       const popoverHeight = 500; // Примерная высота popover
       const offset = 16; // Отступ между карточкой и панелью
       
-      let left = triggerRect.left - popoverWidth - offset; // По умолчанию слева
-      let top = triggerRect.top;
-      let placement = 'left';
+      let left = triggerRect.right + offset; // По умолчанию справа
+      let top = triggerRect.top; // На уровне карточки
+      let placement = 'right';
       
-      // Проверяем, помещается ли popover слева
-      if (left < 20) {
-        // Если слева не помещается, размещаем справа от карточки
-        left = triggerRect.right + offset;
-        placement = 'right';
+      // Проверяем, помещается ли popover справа
+      if (left + popoverWidth > viewportWidth - 20) {
+        // Если справа не помещается, размещаем слева от карточки
+        left = triggerRect.left - popoverWidth - offset;
+        placement = 'left';
         
-        // Проверяем, помещается ли справа
-        if (left + popoverWidth > viewportWidth - 20) {
-          // Если и справа не помещается, размещаем по центру экрана
+        // Проверяем, помещается ли слева
+        if (left < 20) {
+          // Если и слева не помещается, размещаем по центру экрана
           left = (viewportWidth - popoverWidth) / 2;
           placement = 'center';
         }
@@ -107,11 +107,11 @@ const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSe
       }}
     >
       {/* Стрелка, указывающая на товар */}
-      {position.placement === 'left' && (
-        <div className="absolute right-0 top-4 translate-x-2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-white"></div>
-      )}
       {position.placement === 'right' && (
         <div className="absolute left-0 top-4 -translate-x-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-white"></div>
+      )}
+      {position.placement === 'left' && (
+        <div className="absolute right-0 top-4 translate-x-2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-white"></div>
       )}
       
       <Card className="shadow-lg border-2">
