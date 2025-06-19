@@ -100,7 +100,7 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     
     // Update URL params
     const newSearchParams = new URLSearchParams(searchParams);
-    if (storeId && storeId !== 'all') {
+    if (storeId) {
       newSearchParams.set('storeId', storeId);
     } else {
       newSearchParams.delete('storeId');
@@ -115,17 +115,28 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     }
   };
 
-  // Initialize from URL or localStorage
+  // Initialize from URL or localStorage, auto-select first store if needed
   const initializeSelectedStore = () => {
     const urlStoreId = searchParams.get('storeId');
     const savedStoreId = localStorage.getItem('selectedStoreId');
     
-    if (urlStoreId) {
+    // Check if URL store ID is valid
+    if (urlStoreId && stores.find(store => store.id === urlStoreId)) {
       setSelectedStoreId(urlStoreId);
-    } else if (savedStoreId) {
+      return;
+    }
+    
+    // Check if saved store ID is valid
+    if (savedStoreId && savedStoreId !== 'all' && stores.find(store => store.id === savedStoreId)) {
       setSelectedStoreId(savedStoreId);
+      return;
+    }
+    
+    // Auto-select first store if available
+    if (stores.length > 0) {
+      setSelectedStoreId(stores[0].id);
     } else {
-      setSelectedStoreId(null); // "All stores"
+      setSelectedStoreId(null);
     }
   };
 
@@ -134,15 +145,15 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     loadStores();
   }, [user, isDemo]);
 
-  // Initialize selected store
+  // Initialize selected store when stores change
   useEffect(() => {
-    if (stores.length > 0) {
+    if (!loading && stores.length > 0) {
       initializeSelectedStore();
     }
-  }, [stores]);
+  }, [stores, loading]);
 
   // Get selected store object
-  const selectedStore = selectedStoreId && selectedStoreId !== 'all' 
+  const selectedStore = selectedStoreId 
     ? stores.find(store => store.id === selectedStoreId) || null
     : null;
 
