@@ -21,17 +21,17 @@ const GlobalStoreSelector = () => {
   const { currentConfig } = useRouteConfig();
   const [open, setOpen] = useState(false);
 
-  // Don't render selector if not needed for current module
-  if (!currentConfig.showSelector) {
-    return null;
-  }
-
   // Auto-select first store if "All stores" is not allowed and currently selected
   useEffect(() => {
     if (!currentConfig.allowAllStores && selectedStoreId === 'all' && stores.length > 0) {
       setSelectedStore(stores[0].id);
     }
   }, [currentConfig.allowAllStores, selectedStoreId, stores, setSelectedStore]);
+
+  // Don't render selector if not needed for current module
+  if (!currentConfig.showSelector) {
+    return null;
+  }
 
   const selectedStore = stores.find(store => store.id === selectedStoreId);
   const totalProducts = selectedStoreId === 'all' 
