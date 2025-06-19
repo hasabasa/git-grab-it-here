@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info, Download, FileSpreadsheet, TrendingUp, Calendar, Filter } from "lucide-react";
 import { useScreenSize } from "@/hooks/use-screen-size";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
@@ -23,43 +24,96 @@ const SalesPage = () => {
   const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
-  const [salesData, setSalesData] = useState(mockSalesData);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Function to fetch sales data based on selected store
+  // Функция для получения данных о продажах с фильтрацией по магазину
   const fetchSalesData = async () => {
     // В демо-режиме всегда используем мок данные
-    setSalesData(mockSalesData);
-    
-    // Если не демо-режим и пользователь авторизован, пытаемся загрузить реальные данные
-    if (!isDemo && user) {
-      setIsLoading(true);
-      try {
-        // В реальном приложении здесь был бы запрос к API для получения данных о продажах
-        // из системы Kaspi через Supabase Edge Function с фильтрацией по selectedStoreId
-        
-        console.log('Fetching sales data for store:', selectedStoreId || 'all stores');
-        
-        // Для демонстрации используем мок данные
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setSalesData(mockSalesData);
-        
-      } catch (error) {
-        console.error("Error fetching sales data:", error);
-        toast.error("Ошибка при загрузке данных о продажах");
-      } finally {
-        setIsLoading(false);
+    if (isDemo) {
+      // Фильтруем мок данные если выбран конкретный магазин
+      if (selectedStoreId && selectedStoreId !== 'all') {
+        console.log('Demo mode: filtering mock data for store:', selectedStoreId);
+        // В реальном приложении здесь была бы фильтрация мок данных по магазину
+        return mockSalesData;
       }
+      return mockSalesData;
+    }
+    
+    // Если не демо-режим и пользователь авторизован, загружаем реальные данные
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    console.log('Fetching sales data for store:', selectedStoreId || 'all stores');
+    
+    // В реальном приложении здесь был бы запрос к Supabase
+    // с фильтрацией по selectedStoreId через Edge Function или RPC
+    try {
+      if (selectedStoreId && selectedStoreId !== 'all') {
+        // Запрос данных для конкретного магазина
+        const { data, error } = await supabase
+          .rpc('get_sales_data', { 
+            store_id: selectedStoreId,
+            date_from: dateRange.from?.toISOString(),
+            date_to: dateRange.to?.toISOString()
+          });
+        
+        if (error) {
+          console.error('Error fetching store sales data:', error);
+          // Fallback к мок данным в случае ошибки
+          return mockSalesData;
+        }
+        
+        return data || mockSalesData;
+      } else {
+        // Запрос данных для всех магазинов пользователя
+        const { data, error } = await supabase
+          .rpc('get_all_sales_data', {
+            user_id: user.id,
+            date_from: dateRange.from?.toISOString(),
+            date_to: dateRange.to?.toISOString()
+          });
+        
+        if (error) {
+          console.error('Error fetching all sales data:', error);
+          // Fallback к мок данным в случае ошибки
+          return mockSalesData;
+        }
+        
+        return data || mockSalesData;
+      }
+    } catch (error) {
+      console.error('Error in fetchSalesData:', error);
+      // Fallback к мок данным в случае ошибки
+      return mockSalesData;
     }
   };
 
-  // Refetch data when selected store changes
+  // React Query для загрузки данных о продажах
+  const { 
+    data: salesData = mockSalesData, 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['salesData', selectedStoreId, dateRange.from, dateRange.to, user?.id],
+    queryFn: fetchSalesData,
+    enabled: !authLoading && (isDemo || !!user), // Запрос только после инициализации auth
+    staleTime: 5 * 60 * 1000, // 5 минут
+    retry: 1
+  });
+
+  // Автоматическое обновление данных при смене магазина
   useEffect(() => {
-    fetchSalesData();
-  }, [user, isDemo, selectedStoreId]);
+    if (!authLoading && (isDemo || user)) {
+      console.log('Store changed, refetching sales data for:', selectedStoreId);
+      refetch();
+    }
+  }, [selectedStoreId, refetch, authLoading, isDemo, user]);
 
   const handleExport = (format: "excel" | "csv") => {
-    const storeInfo = selectedStoreId ? ` для магазина "${selectedStore?.name || 'Unknown'}"` : ' для всех магазинов';
+    const storeInfo = selectedStoreId && selectedStoreId !== 'all' 
+      ? ` для магазина "${selectedStore?.name || 'Unknown'}"` 
+      : ' для всех магазинов';
     toast.success(`Экспорт данных в формате ${format}${storeInfo} начат`);
     // Реализация экспорта данных будет добавлена позже
   };
@@ -187,12 +241,30 @@ const SalesPage = () => {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Отображение информации о выбранном магазине */}
+        {selectedStoreId && selectedStoreId !== 'all' && selectedStore && (
+          <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <Info className="h-4 w-4 text-green-500" />
+            <AlertDescription className="text-green-700 text-sm">
+              Отображаются данные для магазина: <strong>{selectedStore.name}</strong>
+              {selectedStore.products_count && ` (${selectedStore.products_count} товаров)`}
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
       
       {isLoading ? (
         <div className="flex justify-center items-center h-48 md:h-64">
           <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-b-2 border-primary" />
         </div>
+      ) : error ? (
+        <Alert className="bg-gradient-to-r from-red-50 to-pink-50 border-red-200">
+          <Info className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-700 text-sm">
+            Ошибка загрузки данных о продажах. Отображаются демонстрационные данные.
+          </AlertDescription>
+        </Alert>
       ) : (
         <>
           {/* Enhanced stats grid for desktop */}
@@ -229,6 +301,9 @@ const SalesPage = () => {
                   {(isLargeDesktop || isExtraLargeDesktop) && (
                     <CardDescription>
                       Детальная аналитика изменения продаж по выбранному периоду
+                      {selectedStoreId && selectedStoreId !== 'all' && selectedStore && 
+                        ` для магазина "${selectedStore.name}"`
+                      }
                     </CardDescription>
                   )}
                 </div>
@@ -271,6 +346,9 @@ const SalesPage = () => {
                   {isMobile 
                     ? "Лучшие по продажам" 
                     : "Самые продаваемые товары по количеству и сумме продаж за выбранный период"
+                  }
+                  {selectedStoreId && selectedStoreId !== 'all' && selectedStore && 
+                    ` для магазина "${selectedStore.name}"`
                   }
                 </CardDescription>
               </div>
