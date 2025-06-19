@@ -8,7 +8,6 @@ import { Play, Pause, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
-import StoreSelector from "@/components/price-bot/StoreSelector";
 import ProductsPagination from "@/components/price-bot/ProductsPagination";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +22,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import PopoverSettings from "@/components/price-bot/PopoverSettings";
+import { useStoreContext } from "@/contexts/StoreContext";
 
 // Расширенные демо-данные продуктов для демонстрации пагинации
 const demoProducts: Product[] = [
@@ -148,8 +148,8 @@ const PRODUCTS_PER_PAGE = 50;
 
 const PriceBotPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const { selectedStoreId, stores } = useStoreContext();
   const isMobile = useIsMobile();
-  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
   const [activeProductElement, setActiveProductElement] = useState<HTMLElement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -165,13 +165,15 @@ const PriceBotPage = () => {
   useEffect(() => {
     if (isDemo) {
       setProducts(demoProducts);
-    } else if (user && selectedStoreId) {
+    } else if (user && selectedStoreId && selectedStoreId !== 'all') {
       loadUserProducts();
+    } else if (user && selectedStoreId === 'all') {
+      loadAllUserProducts();
     }
   }, [user, isDemo, selectedStoreId]);
 
   const loadUserProducts = async () => {
-    if (!user || isDemo || !selectedStoreId) return;
+    if (!user || isDemo || !selectedStoreId || selectedStoreId === 'all') return;
     
     setLoadingProducts(true);
     try {
@@ -219,6 +221,55 @@ const PriceBotPage = () => {
       setLoadingProducts(false);
     }
   };
+
+  const loadAllUserProducts = async () => {
+    if (!user || isDemo || selectedStoreId !== 'all') return;
+    
+    setLoadingProducts(true);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id, 
+          name, 
+          price, 
+          image_url,
+          bot_active,
+          min_profit,
+          max_profit,
+          store_id,
+          category,
+          kaspi_stores(name)
+        `)
+        .order('name');
+      
+      if (error) throw error;
+      
+      const formattedProducts: Product[] = data?.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_url || '',
+        image_url: product.image_url,
+        botActive: product.bot_active,
+        bot_active: product.bot_active,
+        minProfit: product.min_profit || 0,
+        min_profit: product.min_profit || 0,
+        maxProfit: product.max_profit || 0,
+        max_profit: product.max_profit || 0,
+        storeName: product.kaspi_stores?.name || '',
+        store_id: product.store_id,
+        category: product.category || ''
+      })) || [];
+
+      setProducts(formattedProducts);
+    } catch (error: any) {
+      console.error('Error loading all products:', error);
+      toast.error('Ошибка при загрузке товаров');
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
   
   const handleProductSelect = (productId: string, event?: React.MouseEvent) => {
     console.log('PriceBotPage: Product selected:', productId);
@@ -245,17 +296,9 @@ const PriceBotPage = () => {
     setActiveProductElement(null);
   };
 
-  const handleStoreChange = (storeId: string | null) => {
-    console.log('PriceBotPage: Store changed to:', storeId);
-    setSelectedStoreId(storeId);
-    setActiveProduct(null);
-    setSelectedProducts([]);
-    setCurrentPage(1);
-  };
-
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStore = !selectedStoreId || product.store_id === selectedStoreId;
+    const matchesStore = selectedStoreId === 'all' || !selectedStoreId || product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
 
@@ -399,19 +442,21 @@ const PriceBotPage = () => {
     );
   }
 
+  const getStoreInfo = () => {
+    if (!selectedStoreId) return 'Выберите магазин для просмотра товаров';
+    if (selectedStoreId === 'all') return 'Товары всех магазинов';
+    const store = stores.find(s => s.id === selectedStoreId);
+    return store ? `Товары магазина "${store.name}"` : 'Товары выбранного магазина';
+  };
+
   const ProductsSection = () => (
     <div className="space-y-4">
-      <StoreSelector 
-        selectedStoreId={selectedStoreId}
-        onStoreChange={handleStoreChange}
-      />
-      
       {/* Title and controls in one horizontal line */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div className="flex-1">
           <h2 className="text-xl font-semibold">Мои товары</h2>
           <p className="text-sm text-gray-600 mt-1">
-            {selectedStoreId ? 'Товары выбранного магазина' : 'Выберите магазин для просмотра товаров'}
+            {getStoreInfo()}
             {filteredProducts.length > 0 && (
               <span className="ml-2">
                 ({filteredProducts.length} {filteredProducts.length === 1 ? 'товар' : 
@@ -513,7 +558,7 @@ const PriceBotPage = () => {
                   <div className="text-center py-6 text-gray-500 text-sm">
                     {!selectedStoreId ? "Выберите магазин для просмотра товаров" :
                      filteredProducts.length === 0 ? 
-                      (products.length === 0 ? "В выбранном магазине нет товаров" : "Товары не найдены") :
+                      (products.length === 0 ? "Нет товаров для отображения" : "Товары не найдены") :
                       "На этой странице нет товаров"
                     }
                   </div>
