@@ -100,7 +100,7 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     
     // Update URL params
     const newSearchParams = new URLSearchParams(searchParams);
-    if (storeId && storeId !== 'all') {
+    if (storeId) {
       newSearchParams.set('storeId', storeId);
     } else {
       newSearchParams.delete('storeId');
@@ -115,7 +115,7 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     }
   };
 
-  // Initialize from URL or localStorage, default to 'all'
+  // Initialize from URL or localStorage, auto-select first store if needed
   const initializeSelectedStore = () => {
     const urlStoreId = searchParams.get('storeId');
     const savedStoreId = localStorage.getItem('selectedStoreId');
@@ -127,13 +127,17 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     }
     
     // Check if saved store ID is valid
-    if (savedStoreId && savedStoreId !== 'null' && stores.find(store => store.id === savedStoreId)) {
+    if (savedStoreId && savedStoreId !== 'all' && stores.find(store => store.id === savedStoreId)) {
       setSelectedStoreId(savedStoreId);
       return;
     }
     
-    // Default to 'all' for global context
-    setSelectedStoreId('all');
+    // Auto-select first store if available
+    if (stores.length > 0) {
+      setSelectedStoreId(stores[0].id);
+    } else {
+      setSelectedStoreId(null);
+    }
   };
 
   // Load stores on user change
@@ -143,13 +147,13 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
 
   // Initialize selected store when stores change
   useEffect(() => {
-    if (!loading) {
+    if (!loading && stores.length > 0) {
       initializeSelectedStore();
     }
   }, [stores, loading]);
 
   // Get selected store object
-  const selectedStore = selectedStoreId && selectedStoreId !== 'all'
+  const selectedStore = selectedStoreId 
     ? stores.find(store => store.id === selectedStoreId) || null
     : null;
 
