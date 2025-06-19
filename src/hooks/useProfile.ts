@@ -8,6 +8,7 @@ interface UserProfile {
   full_name: string | null;
   company_name: string | null;
   phone: string | null;
+  phone_verified: boolean | null;
   created_at: string;
   updated_at: string;
 }

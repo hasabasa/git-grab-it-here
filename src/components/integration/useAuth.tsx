@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
@@ -106,13 +105,54 @@ export const useAuth = () => {
     };
   }, [isInitialized]);
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, userData?: { fullName?: string; companyName?: string }) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: userData?.fullName,
+          company_name: userData?.companyName
+        }
+      }
+    });
+    if (error) throw error;
+  };
+
+  const signUpWithPhone = async (phone: string, password: string, userData?: { fullName?: string; companyName?: string }) => {
+    const { error } = await supabase.auth.signUp({
+      phone,
+      password,
+      options: {
+        data: {
+          full_name: userData?.fullName,
+          company_name: userData?.companyName,
+          phone: phone
+        }
+      }
+    });
+    if (error) throw error;
+  };
+
+  const verifyOtp = async (phone: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms'
+    });
     if (error) throw error;
   };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  };
+
+  const signInWithPhone = async (phone: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ phone, password });
     if (error) throw error;
   };
 
@@ -127,10 +167,8 @@ export const useAuth = () => {
   const enterDemoMode = () => {
     console.log("useAuth: Entering demo mode - immediate state update");
     
-    // Set localStorage first
     localStorage.setItem('kaspi-demo-mode', 'true');
     
-    // Update state immediately and synchronously
     setIsDemo(true);
     setUser(null);
     setSession(null);
@@ -138,7 +176,6 @@ export const useAuth = () => {
     
     console.log("useAuth: Demo mode state updated - isDemo: true, loading: false");
     
-    // Force a small delay to ensure state propagation
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         console.log("useAuth: Demo mode setup complete");
@@ -153,7 +190,6 @@ export const useAuth = () => {
     setIsDemo(false);
   };
 
-  // Helper to check current demo state
   const isDemoActive = () => {
     return isDemo || localStorage.getItem('kaspi-demo-mode') === 'true';
   };
@@ -162,7 +198,10 @@ export const useAuth = () => {
     user, 
     session,
     signUp, 
+    signUpWithPhone,
+    verifyOtp,
     signIn, 
+    signInWithPhone,
     signOut,
     loading,
     isDemo: isDemoActive(),
