@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,14 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
     }
   }, [user, isDemo, globalStores]);
 
+  // Auto-select first store if no store is selected
+  useEffect(() => {
+    if (stores.length > 0 && !selectedStoreId) {
+      const firstStore = stores[0];
+      onStoreChange(firstStore.id);
+    }
+  }, [stores, selectedStoreId, onStoreChange]);
+
   const loadStores = async () => {
     if (!user || isDemo) return;
     
@@ -79,16 +88,14 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
   };
 
   // Synchronize with global store context
-  const handleStoreChange = (storeId: string | null) => {
+  const handleStoreChange = (storeId: string) => {
     onStoreChange(storeId);
     // Also update global context
     setGlobalStore(storeId);
   };
 
   const selectedStore = stores.find(store => store.id === selectedStoreId);
-  const totalProducts = selectedStoreId === 'all' 
-    ? stores.reduce((sum, store) => sum + (store.products_count || 0), 0)
-    : selectedStore?.products_count || 0;
+  const totalProducts = selectedStore?.products_count || 0;
 
   const isLoading = loading || globalLoading;
 
@@ -102,20 +109,14 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
       </CardHeader>
       <CardContent className="space-y-6">
         <Select 
-          value={selectedStoreId || 'all'} 
-          onValueChange={(value) => handleStoreChange(value === 'all' ? null : value)}
+          value={selectedStoreId || ''} 
+          onValueChange={handleStoreChange}
           disabled={isLoading}
         >
           <SelectTrigger className="h-12 text-base">
             <SelectValue placeholder="Выберите магазин" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all" className="py-3">
-              <div className="flex items-center gap-3">
-                <Store className="h-5 w-5 text-gray-500" />
-                <span className="font-medium">Все магазины</span>
-              </div>
-            </SelectItem>
             {stores.map((store) => (
               <SelectItem key={store.id} value={store.id} className="py-3">
                 <div className="flex items-center gap-3">
@@ -127,7 +128,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
           </SelectContent>
         </Select>
 
-        {stores.length > 0 && (
+        {selectedStore && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -136,31 +137,13 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-gray-900 text-base">
-                    {selectedStoreId === null ? 'Все магазины' : selectedStore?.name || 'Магазин не найден'}
+                    {selectedStore.name}
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
                     {totalProducts} товаров в системе
                   </div>
                 </div>
               </div>
-              
-              {selectedStoreId === null && stores.length > 1 && (
-                <div className="pt-3 border-t border-blue-200">
-                  <div className="text-xs text-gray-500 mb-2">Распределение по магазинам:</div>
-                  <div className="space-y-2">
-                    {stores.map((store) => (
-                      <div key={store.id} className="flex justify-between items-center text-sm">
-                        <span className="text-gray-700 truncate flex-1 mr-2">
-                          {store.name}
-                        </span>
-                        <span className="font-medium text-gray-900 bg-white px-2 py-1 rounded">
-                          {store.products_count || 0}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
