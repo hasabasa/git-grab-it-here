@@ -163,21 +163,26 @@ const PriceBotPage = () => {
   const productRefs = useRef<{ [key: string]: HTMLElement }>({});
 
   useEffect(() => {
-    if (isDemo) {
-      setProducts(demoProducts);
-    } else if (user && selectedStoreId && selectedStoreId !== 'all') {
-      loadUserProducts();
-    } else if (user && selectedStoreId === 'all') {
-      loadAllUserProducts();
-    }
+    loadProducts();
   }, [user, isDemo, selectedStoreId]);
 
-  const loadUserProducts = async () => {
-    if (!user || isDemo || !selectedStoreId || selectedStoreId === 'all') return;
+  const loadProducts = async () => {
+    console.log('Loading products for store:', selectedStoreId);
     
+    if (isDemo) {
+      // В демо-режиме всегда показываем все товары
+      setProducts(demoProducts);
+      return;
+    }
+
+    if (!user) {
+      setProducts([]);
+      return;
+    }
+
     setLoadingProducts(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('products')
         .select(`
           id, 
@@ -191,8 +196,14 @@ const PriceBotPage = () => {
           category,
           kaspi_stores(name)
         `)
-        .eq('store_id', selectedStoreId)
         .order('name');
+
+      // Если выбран конкретный магазин, фильтруем по нему
+      if (selectedStoreId && selectedStoreId !== 'all') {
+        query = query.eq('store_id', selectedStoreId);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       
@@ -213,59 +224,12 @@ const PriceBotPage = () => {
         category: product.category || ''
       })) || [];
 
+      console.log('Loaded products:', formattedProducts.length);
       setProducts(formattedProducts);
     } catch (error: any) {
       console.error('Error loading products:', error);
       toast.error('Ошибка при загрузке товаров');
-    } finally {
-      setLoadingProducts(false);
-    }
-  };
-
-  const loadAllUserProducts = async () => {
-    if (!user || isDemo || selectedStoreId !== 'all') return;
-    
-    setLoadingProducts(true);
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          id, 
-          name, 
-          price, 
-          image_url,
-          bot_active,
-          min_profit,
-          max_profit,
-          store_id,
-          category,
-          kaspi_stores(name)
-        `)
-        .order('name');
-      
-      if (error) throw error;
-      
-      const formattedProducts: Product[] = data?.map(product => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image_url || '',
-        image_url: product.image_url,
-        botActive: product.bot_active,
-        bot_active: product.bot_active,
-        minProfit: product.min_profit || 0,
-        min_profit: product.min_profit || 0,
-        maxProfit: product.max_profit || 0,
-        max_profit: product.max_profit || 0,
-        storeName: product.kaspi_stores?.name || '',
-        store_id: product.store_id,
-        category: product.category || ''
-      })) || [];
-
-      setProducts(formattedProducts);
-    } catch (error: any) {
-      console.error('Error loading all products:', error);
-      toast.error('Ошибка при загрузке товаров');
+      setProducts([]);
     } finally {
       setLoadingProducts(false);
     }
@@ -298,7 +262,14 @@ const PriceBotPage = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStore = selectedStoreId === 'all' || !selectedStoreId || product.store_id === selectedStoreId;
+    
+    // В демо-режиме или когда выбраны "все магазины", показываем все товары
+    if (isDemo || selectedStoreId === 'all' || !selectedStoreId) {
+      return matchesSearch;
+    }
+    
+    // Для реальных данных фильтруем по выбранному магазину
+    const matchesStore = product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
 
