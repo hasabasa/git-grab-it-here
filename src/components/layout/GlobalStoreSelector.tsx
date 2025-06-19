@@ -12,24 +12,20 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const GlobalStoreSelector = () => {
   const { selectedStoreId, stores, loading, setSelectedStore } = useStoreContext();
   const { isMobile, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [open, setOpen] = useState(false);
 
-  // Auto-select first store if no store is selected or "all" is selected
-  useEffect(() => {
-    if (!loading && stores.length > 0 && (selectedStoreId === null || selectedStoreId === 'all')) {
-      setSelectedStore(stores[0].id);
-    }
-  }, [stores, selectedStoreId, loading, setSelectedStore]);
-
   const selectedStore = stores.find(store => store.id === selectedStoreId);
-  const totalProducts = selectedStore?.products_count || 0;
+  const totalProducts = selectedStoreId === 'all' 
+    ? stores.reduce((sum, store) => sum + (store.products_count || 0), 0)
+    : selectedStore?.products_count || 0;
 
   const getDisplayName = () => {
+    if (selectedStoreId === 'all') return 'Все магазины';
     const store = selectedStore;
     if (!store) return 'Выберите магазин';
     
@@ -40,7 +36,7 @@ const GlobalStoreSelector = () => {
   };
 
   const handleStoreChange = (value: string) => {
-    setSelectedStore(value);
+    setSelectedStore(value === 'all' ? 'all' : value);
     setOpen(false);
   };
 
@@ -69,6 +65,14 @@ const GlobalStoreSelector = () => {
             <DrawerTitle>Выберите магазин</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 space-y-2">
+            <Button
+              variant={selectedStoreId === 'all' ? "default" : "outline"}
+              className="w-full justify-start"
+              onClick={() => handleStoreChange('all')}
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Все магазины ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
+            </Button>
             {stores.map((store) => (
               <Button
                 key={store.id}
@@ -93,14 +97,23 @@ const GlobalStoreSelector = () => {
     <div className="flex items-center gap-2">
       <Store className="h-4 w-4 text-gray-500 hidden lg:block" />
       <Select 
-        value={selectedStoreId || ''} 
+        value={selectedStoreId || 'all'} 
         onValueChange={handleStoreChange}
         disabled={loading}
       >
         <SelectTrigger className={cn("h-9", selectWidth)}>
-          <SelectValue placeholder="Выберите магазин" />
+          <SelectValue placeholder="Все магазины" />
         </SelectTrigger>
         <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+          <SelectItem value="all" className="cursor-pointer hover:bg-gray-50">
+            <div className="flex items-center gap-2">
+              <Store className="h-4 w-4 text-gray-500" />
+              <span>Все магазины</span>
+              <span className="text-xs text-gray-500 ml-auto">
+                ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
+              </span>
+            </div>
+          </SelectItem>
           {stores.map((store) => (
             <SelectItem key={store.id} value={store.id} className="cursor-pointer hover:bg-gray-50">
               <div className="flex items-center gap-2">

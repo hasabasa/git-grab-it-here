@@ -88,7 +88,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
   };
 
   // Synchronize with global store context
-  const handleStoreChange = (storeId: string) => {
+  const handleStoreChange = (storeId: string | null) => {
     onStoreChange(storeId);
     // Also update global context
     setGlobalStore(storeId);
@@ -110,7 +110,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
       <CardContent className="space-y-6">
         <Select 
           value={selectedStoreId || ''} 
-          onValueChange={handleStoreChange}
+          onValueChange={(value) => handleStoreChange(value)}
           disabled={isLoading}
         >
           <SelectTrigger className="h-12 text-base">
@@ -128,7 +128,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
           </SelectContent>
         </Select>
 
-        {selectedStore && (
+        {stores.length > 0 && selectedStore && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
