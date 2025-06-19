@@ -40,7 +40,7 @@ const demoProducts: Product[] = [
     maxProfit: 15,
     max_profit: 15,
     storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    store_id: 'demo-1',
     category: 'Электроника'
   },
   {
@@ -56,7 +56,7 @@ const demoProducts: Product[] = [
     maxProfit: 10,
     max_profit: 10,
     storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    store_id: 'demo-1',
     category: 'Электроника'
   },
   {
@@ -72,7 +72,7 @@ const demoProducts: Product[] = [
     maxProfit: 12,
     max_profit: 12,
     storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    store_id: 'demo-1',
     category: 'Компьютеры'
   },
   {
@@ -88,7 +88,7 @@ const demoProducts: Product[] = [
     maxProfit: 8,
     max_profit: 8,
     storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    store_id: 'demo-1',
     category: 'Планшеты'
   },
   {
@@ -104,13 +104,13 @@ const demoProducts: Product[] = [
     maxProfit: 10,
     max_profit: 10,
     storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    store_id: 'demo-1',
     category: 'Аксессуары'
   },
   // Добавляем еще товары для Магазина 1
   ...Array.from({ length: 45 }, (_, i) => ({
     id: `demo-store-1-${i + 6}`,
-    name: `Товар ${i + 6} - Электроника Плюс`,
+    name: `Товар ${i + 6} - Демонстрационный магазин`,
     price: Math.floor(Math.random() * 500000) + 50000,
     image: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
     image_url: 'https://resources.cdn-kaspi.kz/img/m/p/ha3/h07/84434696175646.jpg?format=gallery-large',
@@ -120,15 +120,15 @@ const demoProducts: Product[] = [
     min_profit: Math.floor(Math.random() * 10) + 1,
     maxProfit: Math.floor(Math.random() * 15) + 5,
     max_profit: Math.floor(Math.random() * 15) + 5,
-    storeName: 'Электроника Плюс',
-    store_id: 'demo-store-1',
+    storeName: 'Демонстрационный магазин',
+    store_id: 'demo-1',
     category: ['Электроника', 'Компьютеры', 'Аксессуары', 'Планшеты'][Math.floor(Math.random() * 4)]
   })),
   
-  // Магазин 2 - Техно Мир
+  // Магазин 2 - Тестовый магазин
   ...Array.from({ length: 40 }, (_, i) => ({
     id: `demo-store-2-${i + 1}`,
-    name: `Товар ${i + 1} - Техно Мир`,
+    name: `Товар ${i + 1} - Тестовый магазин`,
     price: Math.floor(Math.random() * 400000) + 30000,
     image: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
     image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84378448199710.jpg?format=gallery-large',
@@ -138,27 +138,9 @@ const demoProducts: Product[] = [
     min_profit: Math.floor(Math.random() * 8) + 2,
     maxProfit: Math.floor(Math.random() * 12) + 8,
     max_profit: Math.floor(Math.random() * 12) + 8,
-    storeName: 'Техно Мир',
-    store_id: 'demo-store-2',
+    storeName: 'Тестовый магазин',
+    store_id: 'demo-2',
     category: ['Электроника', 'Бытовая техника', 'Аксессуары'][Math.floor(Math.random() * 3)]
-  })),
-  
-  // Магазин 3 - Цифровой Центр
-  ...Array.from({ length: 35 }, (_, i) => ({
-    id: `demo-store-3-${i + 1}`,
-    name: `Товар ${i + 1} - Цифровой Центр`,
-    price: Math.floor(Math.random() * 600000) + 40000,
-    image: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
-    image_url: 'https://resources.cdn-kaspi.kz/img/m/p/h73/h87/63947822596126.jpg?format=gallery-large',
-    botActive: Math.random() > 0.5,
-    bot_active: Math.random() > 0.5,
-    minProfit: Math.floor(Math.random() * 6) + 3,
-    min_profit: Math.floor(Math.random() * 6) + 3,
-    maxProfit: Math.floor(Math.random() * 18) + 7,
-    max_profit: Math.floor(Math.random() * 18) + 7,
-    storeName: 'Цифровой Центр',
-    store_id: 'demo-store-3',
-    category: ['Компьютеры', 'Периферия', 'Комплектующие'][Math.floor(Math.random() * 3)]
   }))
 ];
 
@@ -181,34 +163,19 @@ const PriceBotPage = () => {
   const productRefs = useRef<{ [key: string]: HTMLElement }>({});
 
   useEffect(() => {
-    const savedStoreId = localStorage.getItem('selectedStoreId');
-    if (savedStoreId && savedStoreId !== 'null') {
-      setSelectedStoreId(savedStoreId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (selectedStoreId !== null) {
-      localStorage.setItem('selectedStoreId', selectedStoreId);
-    } else {
-      localStorage.removeItem('selectedStoreId');
-    }
-  }, [selectedStoreId]);
-  
-  useEffect(() => {
     if (isDemo) {
       setProducts(demoProducts);
-    } else if (user) {
+    } else if (user && selectedStoreId) {
       loadUserProducts();
     }
   }, [user, isDemo, selectedStoreId]);
 
   const loadUserProducts = async () => {
-    if (!user || isDemo) return;
+    if (!user || isDemo || !selectedStoreId) return;
     
     setLoadingProducts(true);
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from('products')
         .select(`
           id, 
@@ -221,13 +188,9 @@ const PriceBotPage = () => {
           store_id,
           category,
           kaspi_stores(name)
-        `);
-
-      if (selectedStoreId) {
-        query = query.eq('store_id', selectedStoreId);
-      }
-      
-      const { data, error } = await query.order('name');
+        `)
+        .eq('store_id', selectedStoreId)
+        .order('name');
       
       if (error) throw error;
       
@@ -283,6 +246,7 @@ const PriceBotPage = () => {
   };
 
   const handleStoreChange = (storeId: string | null) => {
+    console.log('PriceBotPage: Store changed to:', storeId);
     setSelectedStoreId(storeId);
     setActiveProduct(null);
     setSelectedProducts([]);
@@ -291,7 +255,7 @@ const PriceBotPage = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStore = selectedStoreId === null || product.store_id === selectedStoreId;
+    const matchesStore = !selectedStoreId || product.store_id === selectedStoreId;
     return matchesSearch && matchesStore;
   });
 
@@ -370,10 +334,10 @@ const PriceBotPage = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedProducts.length === filteredProducts.length) {
+    if (selectedProducts.length === currentProducts.length) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(filteredProducts.map(p => p.id));
+      setSelectedProducts(currentProducts.map(p => p.id));
     }
   };
   
@@ -447,7 +411,7 @@ const PriceBotPage = () => {
         <div className="flex-1">
           <h2 className="text-xl font-semibold">Мои товары</h2>
           <p className="text-sm text-gray-600 mt-1">
-            {selectedStoreId === null ? 'Товары из всех магазинов' : 'Товары выбранного магазина'}
+            {selectedStoreId ? 'Товары выбранного магазина' : 'Выберите магазин для просмотра товаров'}
             {filteredProducts.length > 0 && (
               <span className="ml-2">
                 ({filteredProducts.length} {filteredProducts.length === 1 ? 'товар' : 
@@ -547,8 +511,9 @@ const PriceBotPage = () => {
                 ))}
                 {currentProducts.length === 0 && (
                   <div className="text-center py-6 text-gray-500 text-sm">
-                    {filteredProducts.length === 0 ? 
-                      (products.length === 0 ? "Добавьте товары через интеграцию с Kaspi" : "Товары не найдены") :
+                    {!selectedStoreId ? "Выберите магазин для просмотра товаров" :
+                     filteredProducts.length === 0 ? 
+                      (products.length === 0 ? "В выбранном магазине нет товаров" : "Товары не найдены") :
                       "На этой странице нет товаров"
                     }
                   </div>
