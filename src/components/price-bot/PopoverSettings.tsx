@@ -17,32 +17,33 @@ interface PopoverSettingsProps {
 
 const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSettingsProps) => {
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'right' });
+  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'left' });
 
   useEffect(() => {
     if (!triggerElement || !popoverRef.current) return;
 
     const updatePosition = () => {
       const triggerRect = triggerElement.getBoundingClientRect();
-      const popoverRect = popoverRef.current?.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       
-      const popoverWidth = 400; // Примерная ширина popover
+      const popoverWidth = 400; // Ширина popover
       const popoverHeight = 500; // Примерная высота popover
+      const offset = 16; // Отступ между карточкой и панелью
       
-      let left = triggerRect.right + 16; // 16px отступ от карточки
+      let left = triggerRect.left - popoverWidth - offset; // По умолчанию слева
       let top = triggerRect.top;
-      let placement = 'right';
+      let placement = 'left';
       
-      // Проверяем, помещается ли popover справа
-      if (left + popoverWidth > viewportWidth - 20) {
-        // Размещаем слева от карточки
-        left = triggerRect.left - popoverWidth - 16;
-        placement = 'left';
+      // Проверяем, помещается ли popover слева
+      if (left < 20) {
+        // Если слева не помещается, размещаем справа от карточки
+        left = triggerRect.right + offset;
+        placement = 'right';
         
-        // Если и слева не помещается, размещаем по центру экрана
-        if (left < 20) {
+        // Проверяем, помещается ли справа
+        if (left + popoverWidth > viewportWidth - 20) {
+          // Если и справа не помещается, размещаем по центру экрана
           left = (viewportWidth - popoverWidth) / 2;
           placement = 'center';
         }
@@ -106,11 +107,11 @@ const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSe
       }}
     >
       {/* Стрелка, указывающая на товар */}
-      {position.placement === 'right' && (
-        <div className="absolute left-0 top-4 -translate-x-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-white"></div>
-      )}
       {position.placement === 'left' && (
         <div className="absolute right-0 top-4 translate-x-2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-white"></div>
+      )}
+      {position.placement === 'right' && (
+        <div className="absolute left-0 top-4 -translate-x-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-white"></div>
       )}
       
       <Card className="shadow-lg border-2">
