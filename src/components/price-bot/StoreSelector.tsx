@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Store, Package } from "lucide-react";
 import { KaspiStore } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
+import { useStoreContext } from "@/contexts/StoreContext";
 
 interface StoreSelectorProps {
   selectedStoreId: string | null;
@@ -14,6 +14,7 @@ interface StoreSelectorProps {
 
 const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) => {
   const { user, isDemo } = useAuth();
+  const { stores: globalStores, loading: globalLoading, setSelectedStore: setGlobalStore } = useStoreContext();
   const [stores, setStores] = useState<KaspiStore[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,13 +46,16 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
     }
   ];
 
+  // Use global stores if available
   useEffect(() => {
-    if (isDemo) {
+    if (globalStores.length > 0) {
+      setStores(globalStores);
+    } else if (isDemo) {
       setStores(demoStores);
     } else if (user) {
       loadStores();
     }
-  }, [user, isDemo]);
+  }, [user, isDemo, globalStores]);
 
   const loadStores = async () => {
     if (!user || isDemo) return;
@@ -74,10 +78,19 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
     }
   };
 
+  // Synchronize with global store context
+  const handleStoreChange = (storeId: string | null) => {
+    onStoreChange(storeId);
+    // Also update global context
+    setGlobalStore(storeId);
+  };
+
   const selectedStore = stores.find(store => store.id === selectedStoreId);
   const totalProducts = selectedStoreId === 'all' 
     ? stores.reduce((sum, store) => sum + (store.products_count || 0), 0)
     : selectedStore?.products_count || 0;
+
+  const isLoading = loading || globalLoading;
 
   return (
     <Card className="h-fit">
@@ -90,8 +103,8 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
       <CardContent className="space-y-6">
         <Select 
           value={selectedStoreId || 'all'} 
-          onValueChange={(value) => onStoreChange(value === 'all' ? null : value)}
-          disabled={loading}
+          onValueChange={(value) => handleStoreChange(value === 'all' ? null : value)}
+          disabled={isLoading}
         >
           <SelectTrigger className="h-12 text-base">
             <SelectValue placeholder="Выберите магазин" />
@@ -152,7 +165,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
           </div>
         )}
 
-        {stores.length === 0 && !loading && (
+        {stores.length === 0 && !isLoading && (
           <div className="text-center py-8 text-gray-500">
             <Store className="h-12 w-12 mx-auto mb-3 text-gray-300" />
             <div className="text-base font-medium mb-1">
@@ -164,7 +177,7 @@ const StoreSelector = ({ selectedStoreId, onStoreChange }: StoreSelectorProps) =
           </div>
         )}
 
-        {loading && (
+        {isLoading && (
           <div className="flex justify-center py-6">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>

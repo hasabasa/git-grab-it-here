@@ -9,6 +9,7 @@ import DateRangePicker from "@/components/sales/DateRangePicker";
 import { mockSalesData } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
+import { useStoreContext } from "@/contexts/StoreContext";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info, Download, FileSpreadsheet, TrendingUp, Calendar, Filter } from "lucide-react";
@@ -17,13 +18,14 @@ import { cn } from "@/lib/utils";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const { selectedStoreId, selectedStore } = useStoreContext();
   const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
   const [salesData, setSalesData] = useState(mockSalesData);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Функция для получения данных о продажах
+  // Function to fetch sales data based on selected store
   const fetchSalesData = async () => {
     // В демо-режиме всегда используем мок данные
     setSalesData(mockSalesData);
@@ -33,7 +35,9 @@ const SalesPage = () => {
       setIsLoading(true);
       try {
         // В реальном приложении здесь был бы запрос к API для получения данных о продажах
-        // из системы Kaspi через Supabase Edge Function
+        // из системы Kaspi через Supabase Edge Function с фильтрацией по selectedStoreId
+        
+        console.log('Fetching sales data for store:', selectedStoreId || 'all stores');
         
         // Для демонстрации используем мок данные
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -48,12 +52,14 @@ const SalesPage = () => {
     }
   };
 
+  // Refetch data when selected store changes
   useEffect(() => {
     fetchSalesData();
-  }, [user, isDemo]);
+  }, [user, isDemo, selectedStoreId]);
 
   const handleExport = (format: "excel" | "csv") => {
-    toast.success(`Экспорт данных в формате ${format} начат`);
+    const storeInfo = selectedStoreId ? ` для магазина "${selectedStore?.name || 'Unknown'}"` : ' для всех магазинов';
+    toast.success(`Экспорт данных в формате ${format}${storeInfo} начат`);
     // Реализация экспорта данных будет добавлена позже
   };
 
@@ -110,7 +116,10 @@ const SalesPage = () => {
             </h1>
             {(isLargeDesktop || isExtraLargeDesktop) && (
               <p className="text-gray-600 text-lg">
-                Полная аналитика продаж и управление товарами на Kaspi.kz
+                {selectedStoreId 
+                  ? `Аналитика продаж для магазина "${selectedStore?.name || 'Выбранный магазин'}"`
+                  : "Полная аналитика продаж по всем магазинам на Kaspi.kz"
+                }
               </p>
             )}
           </div>

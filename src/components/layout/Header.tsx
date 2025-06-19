@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import GlobalStoreSelector from "./GlobalStoreSelector";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -88,6 +89,11 @@ const Header = ({
       </div>
       
       <div className="flex items-center gap-2 md:gap-4">
+        {/* Global Store Selector - only show in dashboard */}
+        {(user || isDemo) && (
+          <GlobalStoreSelector />
+        )}
+
         {/* Notifications for large screens */}
         {(isLargeDesktop || isExtraLargeDesktop) && (
           <Button variant="ghost" size="icon" className="relative">
