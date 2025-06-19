@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
+import PopoverSettings from "@/components/price-bot/PopoverSettings";
 
 // Расширенные демо-данные продуктов для демонстрации пагинации
 const demoProducts: Product[] = [
@@ -169,6 +169,7 @@ const PriceBotPage = () => {
   const isMobile = useIsMobile();
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<string | null>(null);
+  const [activeProductElement, setActiveProductElement] = useState<HTMLElement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -177,6 +178,7 @@ const PriceBotPage = () => {
   const [showProductDrawer, setShowProductDrawer] = useState(false);
   const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const productRefs = useRef<{ [key: string]: HTMLElement }>({});
 
   useEffect(() => {
     const savedStoreId = localStorage.getItem('selectedStoreId');
@@ -255,12 +257,29 @@ const PriceBotPage = () => {
     }
   };
   
-  const handleProductSelect = (productId: string) => {
+  const handleProductSelect = (productId: string, event?: React.MouseEvent) => {
     console.log('PriceBotPage: Product selected:', productId);
-    setActiveProduct(productId);
-    if (isMobile) {
-      setShowSettingsDrawer(true);
+    
+    if (activeProduct === productId) {
+      // Повторный клик - скрываем настройки
+      setActiveProduct(null);
+      setActiveProductElement(null);
+    } else {
+      // Новый выбор товара
+      setActiveProduct(productId);
+      
+      if (event && !isMobile) {
+        const targetElement = event.currentTarget as HTMLElement;
+        setActiveProductElement(targetElement);
+      } else if (isMobile) {
+        setShowSettingsDrawer(true);
+      }
     }
+  };
+
+  const handleClosePopover = () => {
+    setActiveProduct(null);
+    setActiveProductElement(null);
   };
 
   const handleStoreChange = (storeId: string | null) => {
@@ -474,7 +493,10 @@ const PriceBotPage = () => {
                 {currentProducts.map((product) => (
                   <div
                     key={product.id}
-                    onClick={() => handleProductSelect(product.id)}
+                    ref={(el) => {
+                      if (el) productRefs.current[product.id] = el;
+                    }}
+                    onClick={(e) => handleProductSelect(product.id, e)}
                     className={`p-6 rounded-xl cursor-pointer transition-all w-full border-2 ${
                       activeProduct === product.id
                         ? 'border-primary bg-primary/5 shadow-md'
@@ -585,14 +607,6 @@ const PriceBotPage = () => {
     );
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="sticky top-0 z-10 bg-white pb-4 border-b border-gray-200">
@@ -657,10 +671,14 @@ const PriceBotPage = () => {
         <div className="space-y-6">
           <ProductsSection />
 
-          {activeProduct && (
-            <div className="self-start">
-              <SettingsSection />
-            </div>
+          {/* Popover Settings для десктопа */}
+          {activeProduct && activeProductElement && (
+            <PopoverSettings
+              product={products.find(p => p.id === activeProduct)!}
+              onSave={handleSaveSettings}
+              onClose={handleClosePopover}
+              triggerElement={activeProductElement}
+            />
           )}
         </div>
       )}
