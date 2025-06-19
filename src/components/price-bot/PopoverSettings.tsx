@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { Product } from "@/types";
 import PriceBotSettings from "./PriceBotSettings";
+import { usePositionCalculator, Position } from "./PositionCalculator";
 
 interface PopoverSettingsProps {
   product: Product;
@@ -17,48 +17,19 @@ interface PopoverSettingsProps {
 
 const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSettingsProps) => {
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'right' });
+  const [position, setPosition] = useState<Position>({ top: 0, left: 0, placement: 'right' });
 
   useEffect(() => {
     if (!triggerElement || !popoverRef.current) return;
 
     const updatePosition = () => {
-      const triggerRect = triggerElement.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      
-      const popoverWidth = 400; // Ширина popover
-      const popoverHeight = 500; // Примерная высота popover
-      const offset = 16; // Отступ между карточкой и панелью
-      
-      let left = triggerRect.right + offset; // По умолчанию справа
-      let top = triggerRect.top; // На уровне карточки
-      let placement = 'right';
-      
-      // Проверяем, помещается ли popover справа
-      if (left + popoverWidth > viewportWidth - 20) {
-        // Если справа не помещается, размещаем слева от карточки
-        left = triggerRect.left - popoverWidth - offset;
-        placement = 'left';
-        
-        // Проверяем, помещается ли слева
-        if (left < 20) {
-          // Если и слева не помещается, размещаем по центру экрана
-          left = (viewportWidth - popoverWidth) / 2;
-          placement = 'center';
-        }
-      }
-      
-      // Проверяем вертикальное положение
-      if (top + popoverHeight > viewportHeight - 20) {
-        top = viewportHeight - popoverHeight - 20;
-      }
-      
-      if (top < 20) {
-        top = 20;
-      }
-      
-      setPosition({ top, left, placement });
+      const newPosition = usePositionCalculator(triggerElement, {
+        popoverWidth: 400,
+        popoverHeight: 500,
+        offset: 16,
+        preferredPlacement: 'right'
+      });
+      setPosition(newPosition);
     };
 
     updatePosition();
