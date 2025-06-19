@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Welcome from "./pages/Welcome";
 import AuthPage from "./pages/AuthPage";
+import ProfilePage from "./pages/ProfilePage";
 import PriceBotPage from "./pages/PriceBotPage";
 import SalesPage from "./pages/SalesPage";
 import UnitEconomicsPage from "./pages/UnitEconomicsPage";
@@ -52,6 +53,7 @@ const App = () => {
               <Route path="whatsapp" element={<WhatsAppPage />} />
               <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="integrations" element={<IntegrationPage />} />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
