@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 const SalesPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
-  const { selectedStoreId, selectedStore } = useStoreContext();
+  const { selectedStoreId, selectedStore, stores } = useStoreContext();
   const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
@@ -72,6 +73,21 @@ const SalesPage = () => {
     );
   }
 
+  // Определяем заголовок и описание в зависимости от выбранного магазина
+  const getPageTitle = () => {
+    if (selectedStoreId === null || selectedStoreId === 'all') {
+      return "Мои продажи";
+    }
+    return `Продажи магазина`;
+  };
+
+  const getPageDescription = () => {
+    if (selectedStoreId === null || selectedStoreId === 'all') {
+      return "Полная аналитика продаж по всем магазинам на Kaspi.kz";
+    }
+    return `Аналитика продаж для магазина "${selectedStore?.name || 'Выбранный магазин'}"`;
+  };
+
   const getGridCols = () => {
     if (isExtraLargeDesktop) return "grid-cols-1 xl:grid-cols-4";
     if (isLargeDesktop) return "grid-cols-1 lg:grid-cols-3";
@@ -112,14 +128,11 @@ const SalesPage = () => {
               "font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent",
               isExtraLargeDesktop ? "text-4xl" : isLargeDesktop ? "text-3xl" : "text-2xl md:text-3xl"
             )}>
-              Мои продажи
+              {getPageTitle()}
             </h1>
             {(isLargeDesktop || isExtraLargeDesktop) && (
               <p className="text-gray-600 text-lg">
-                {selectedStoreId 
-                  ? `Аналитика продаж для магазина "${selectedStore?.name || 'Выбранный магазин'}"`
-                  : "Полная аналитика продаж по всем магазинам на Kaspi.kz"
-                }
+                {getPageDescription()}
               </p>
             )}
           </div>
