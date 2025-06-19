@@ -7,6 +7,7 @@ import { KaspiStore } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { useStoreContext } from "@/contexts/StoreContext";
+import { useRouteConfig } from "@/hooks/useRouteConfig";
 
 interface StoreSelectorProps {
   selectedStoreId: string | null;
@@ -26,6 +27,7 @@ const StoreSelector = ({
     loading: globalLoading,
     setSelectedStore: setGlobalStore
   } = useStoreContext();
+  const { currentConfig } = useRouteConfig();
   const [stores, setStores] = useState<KaspiStore[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -65,13 +67,15 @@ const StoreSelector = ({
     }
   }, [user, isDemo, globalStores]);
 
-  // Auto-select first store if no store is selected
+  // Auto-select first store if no store is selected or "all" is not allowed
   useEffect(() => {
-    if (stores.length > 0 && !selectedStoreId) {
-      const firstStore = stores[0];
-      onStoreChange(firstStore.id);
+    if (stores.length > 0) {
+      if (!selectedStoreId || (selectedStoreId === 'all' && !currentConfig.allowAllStores)) {
+        const firstStore = stores[0];
+        onStoreChange(firstStore.id);
+      }
     }
-  }, [stores, selectedStoreId, onStoreChange]);
+  }, [stores, selectedStoreId, onStoreChange, currentConfig.allowAllStores]);
 
   const loadStores = async () => {
     if (!user || isDemo) return;
@@ -92,6 +96,10 @@ const StoreSelector = ({
 
   // Synchronize with global store context
   const handleStoreChange = (storeId: string | null) => {
+    // Prevent selecting "all" if not allowed in current module
+    if (storeId === 'all' && !currentConfig.allowAllStores) {
+      return;
+    }
     onStoreChange(storeId);
     // Also update global context
     setGlobalStore(storeId);
@@ -120,6 +128,17 @@ const StoreSelector = ({
               <SelectValue placeholder="Выберите магазин" />
             </SelectTrigger>
             <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+              {currentConfig.allowAllStores && (
+                <SelectItem value="all" className="cursor-pointer hover:bg-gray-50">
+                  <div className="flex items-center gap-2">
+                    <Store className="h-4 w-4 text-gray-500" />
+                    <span>Все магазины</span>
+                    <span className="text-xs text-gray-500 ml-auto">
+                      ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
+                    </span>
+                  </div>
+                </SelectItem>
+              )}
               {stores.map((store) => (
                 <SelectItem key={store.id} value={store.id} className="cursor-pointer hover:bg-gray-50">
                   <div className="flex items-center gap-2">

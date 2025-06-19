@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Store, Package } from "lucide-react";
 import { useStoreContext } from "@/contexts/StoreContext";
 import { useScreenSize } from "@/hooks/use-screen-size";
+import { useRouteConfig } from "@/hooks/useRouteConfig";
 import { cn } from "@/lib/utils";
 import {
   Drawer,
@@ -12,12 +13,25 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const GlobalStoreSelector = () => {
   const { selectedStoreId, stores, loading, setSelectedStore } = useStoreContext();
   const { isMobile, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
+  const { currentConfig } = useRouteConfig();
   const [open, setOpen] = useState(false);
+
+  // Don't render selector if not needed for current module
+  if (!currentConfig.showSelector) {
+    return null;
+  }
+
+  // Auto-select first store if "All stores" is not allowed and currently selected
+  useEffect(() => {
+    if (!currentConfig.allowAllStores && selectedStoreId === 'all' && stores.length > 0) {
+      setSelectedStore(stores[0].id);
+    }
+  }, [currentConfig.allowAllStores, selectedStoreId, stores, setSelectedStore]);
 
   const selectedStore = stores.find(store => store.id === selectedStoreId);
   const totalProducts = selectedStoreId === 'all' 
@@ -25,7 +39,7 @@ const GlobalStoreSelector = () => {
     : selectedStore?.products_count || 0;
 
   const getDisplayName = () => {
-    if (selectedStoreId === 'all') return 'Все магазины';
+    if (selectedStoreId === 'all' && currentConfig.allowAllStores) return 'Все магазины';
     const store = selectedStore;
     if (!store) return 'Выберите магазин';
     
@@ -36,6 +50,10 @@ const GlobalStoreSelector = () => {
   };
 
   const handleStoreChange = (value: string) => {
+    // Prevent selecting "all" if not allowed in current module
+    if (value === 'all' && !currentConfig.allowAllStores) {
+      return;
+    }
     setSelectedStore(value === 'all' ? 'all' : value);
     setOpen(false);
   };
@@ -65,14 +83,16 @@ const GlobalStoreSelector = () => {
             <DrawerTitle>Выберите магазин</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 space-y-2">
-            <Button
-              variant={selectedStoreId === 'all' ? "default" : "outline"}
-              className="w-full justify-start"
-              onClick={() => handleStoreChange('all')}
-            >
-              <Store className="h-4 w-4 mr-2" />
-              Все магазины ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
-            </Button>
+            {currentConfig.allowAllStores && (
+              <Button
+                variant={selectedStoreId === 'all' ? "default" : "outline"}
+                className="w-full justify-start"
+                onClick={() => handleStoreChange('all')}
+              >
+                <Store className="h-4 w-4 mr-2" />
+                Все магазины ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
+              </Button>
+            )}
             {stores.map((store) => (
               <Button
                 key={store.id}
@@ -97,23 +117,25 @@ const GlobalStoreSelector = () => {
     <div className="flex items-center gap-2">
       <Store className="h-4 w-4 text-gray-500 hidden lg:block" />
       <Select 
-        value={selectedStoreId || 'all'} 
+        value={selectedStoreId || (currentConfig.allowAllStores ? 'all' : stores[0]?.id)} 
         onValueChange={handleStoreChange}
         disabled={loading}
       >
         <SelectTrigger className={cn("h-9", selectWidth)}>
-          <SelectValue placeholder="Все магазины" />
+          <SelectValue placeholder={currentConfig.allowAllStores ? "Все магазины" : "Выберите магазин"} />
         </SelectTrigger>
         <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-          <SelectItem value="all" className="cursor-pointer hover:bg-gray-50">
-            <div className="flex items-center gap-2">
-              <Store className="h-4 w-4 text-gray-500" />
-              <span>Все магазины</span>
-              <span className="text-xs text-gray-500 ml-auto">
-                ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
-              </span>
-            </div>
-          </SelectItem>
+          {currentConfig.allowAllStores && (
+            <SelectItem value="all" className="cursor-pointer hover:bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Store className="h-4 w-4 text-gray-500" />
+                <span>Все магазины</span>
+                <span className="text-xs text-gray-500 ml-auto">
+                  ({stores.reduce((sum, store) => sum + (store.products_count || 0), 0)})
+                </span>
+              </div>
+            </SelectItem>
+          )}
           {stores.map((store) => (
             <SelectItem key={store.id} value={store.id} className="cursor-pointer hover:bg-gray-50">
               <div className="flex items-center gap-2">

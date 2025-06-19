@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { KaspiStore } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/integration/useAuth';
@@ -25,7 +25,7 @@ interface StoreContextProviderProps {
 export const StoreContextProvider = ({ children }: StoreContextProviderProps) => {
   const { user, isDemo } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const location = useLocation();
   
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [stores, setStores] = useState<KaspiStore[]>([]);
@@ -59,6 +59,23 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
       updated_at: new Date(Date.now() - 86400000).toISOString()
     }
   ];
+
+  // Module configurations
+  const moduleConfigs: Record<string, { showSelector: boolean; allowAllStores: boolean }> = {
+    '/dashboard/price-bot': { showSelector: true, allowAllStores: true },
+    '/dashboard/sales': { showSelector: true, allowAllStores: false },
+    '/dashboard/unit-economics': { showSelector: false, allowAllStores: false },
+    '/dashboard/whatsapp': { showSelector: false, allowAllStores: false },
+    '/dashboard/niche-search': { showSelector: false, allowAllStores: false },
+    '/dashboard/preorders': { showSelector: true, allowAllStores: false },
+    '/dashboard/crm': { showSelector: false, allowAllStores: false },
+    '/dashboard/subscription': { showSelector: false, allowAllStores: false },
+    '/dashboard/integrations': { showSelector: false, allowAllStores: false }
+  };
+
+  const getCurrentModuleConfig = () => {
+    return moduleConfigs[location.pathname] || { showSelector: true, allowAllStores: true };
+  };
 
   // Load stores function
   const loadStores = async () => {
@@ -115,10 +132,19 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     }
   };
 
-  // Initialize from URL or localStorage, default to 'all'
+  // Initialize from URL or localStorage, with module config consideration
   const initializeSelectedStore = () => {
+    const moduleConfig = getCurrentModuleConfig();
     const urlStoreId = searchParams.get('storeId');
     const savedStoreId = localStorage.getItem('selectedStoreId');
+    
+    // If module doesn't allow "All stores" and current selection is "all", switch to first store
+    if (!moduleConfig.allowAllStores && (selectedStoreId === 'all' || !selectedStoreId)) {
+      if (stores.length > 0) {
+        setSelectedStoreId(stores[0].id);
+        return;
+      }
+    }
     
     // Check if URL store ID is valid
     if (urlStoreId && stores.find(store => store.id === urlStoreId)) {
@@ -128,12 +154,21 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     
     // Check if saved store ID is valid
     if (savedStoreId && savedStoreId !== 'null' && stores.find(store => store.id === savedStoreId)) {
+      // If module doesn't allow "all" and saved is "all", switch to first store
+      if (savedStoreId === 'all' && !moduleConfig.allowAllStores && stores.length > 0) {
+        setSelectedStoreId(stores[0].id);
+        return;
+      }
       setSelectedStoreId(savedStoreId);
       return;
     }
     
-    // Default to 'all' for global context
-    setSelectedStoreId('all');
+    // Default behavior based on module config
+    if (moduleConfig.allowAllStores) {
+      setSelectedStoreId('all');
+    } else if (stores.length > 0) {
+      setSelectedStoreId(stores[0].id);
+    }
   };
 
   // Load stores on user change
@@ -141,12 +176,12 @@ export const StoreContextProvider = ({ children }: StoreContextProviderProps) =>
     loadStores();
   }, [user, isDemo]);
 
-  // Initialize selected store when stores change
+  // Initialize selected store when stores change or route changes
   useEffect(() => {
     if (!loading) {
       initializeSelectedStore();
     }
-  }, [stores, loading]);
+  }, [stores, loading, location.pathname]);
 
   // Get selected store object
   const selectedStore = selectedStoreId && selectedStoreId !== 'all'

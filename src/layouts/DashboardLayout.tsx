@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { useScreenSize } from "@/hooks/use-screen-size";
 import { StoreContextProvider } from "@/contexts/StoreContext";
+import { ModuleConfigProvider } from "@/contexts/ModuleConfigContext";
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -42,37 +43,39 @@ const DashboardLayout = () => {
   };
 
   return (
-    <StoreContextProvider>
-      <div className="min-h-screen bg-gray-50">
-        <Sidebar 
-          isOpen={sidebarOpen} 
-          setIsOpen={setSidebarOpen}
-          width={getSidebarWidth()}
-        />
-        
-        <div className={cn(
-          "transition-all duration-300 ease-in-out min-h-screen",
-          getMainMargin()
-        )}>
-          <Header 
-            toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
-            isMobile={isMobile}
-            sidebarOpen={sidebarOpen}
+    <ModuleConfigProvider>
+      <StoreContextProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Sidebar 
+            isOpen={sidebarOpen} 
+            setIsOpen={setSidebarOpen}
+            width={getSidebarWidth()}
           />
-          <main className={cn(
-            getMainPadding(),
-            isDesktop && "min-h-[calc(100vh-80px)]"
+          
+          <div className={cn(
+            "transition-all duration-300 ease-in-out min-h-screen",
+            getMainMargin()
           )}>
-            <div className={cn(
-              "w-full",
-              getMaxWidth()
+            <Header 
+              toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+              isMobile={isMobile}
+              sidebarOpen={sidebarOpen}
+            />
+            <main className={cn(
+              getMainPadding(),
+              isDesktop && "min-h-[calc(100vh-80px)]"
             )}>
-              <Outlet />
-            </div>
-          </main>
+              <div className={cn(
+                "w-full",
+                getMaxWidth()
+              )}>
+                <Outlet />
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
-    </StoreContextProvider>
+      </StoreContextProvider>
+    </ModuleConfigProvider>
   );
 };
 
