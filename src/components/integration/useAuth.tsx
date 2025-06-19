@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
@@ -105,7 +106,7 @@ export const useAuth = () => {
     };
   }, [isInitialized]);
 
-  const signUp = async (email: string, password: string, userData?: { fullName?: string; companyName?: string }) => {
+  const signUp = async (email: string, password: string, userData?: { fullName?: string; companyName?: string; phone?: string }) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -115,44 +116,16 @@ export const useAuth = () => {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: userData?.fullName,
-          company_name: userData?.companyName
-        }
-      }
-    });
-    if (error) throw error;
-  };
-
-  const signUpWithPhone = async (phone: string, password: string, userData?: { fullName?: string; companyName?: string }) => {
-    const { error } = await supabase.auth.signUp({
-      phone,
-      password,
-      options: {
-        data: {
-          full_name: userData?.fullName,
           company_name: userData?.companyName,
-          phone: phone
+          phone: userData?.phone
         }
       }
-    });
-    if (error) throw error;
-  };
-
-  const verifyOtp = async (phone: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms'
     });
     if (error) throw error;
   };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  };
-
-  const signInWithPhone = async (phone: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ phone, password });
     if (error) throw error;
   };
 
@@ -198,10 +171,7 @@ export const useAuth = () => {
     user, 
     session,
     signUp, 
-    signUpWithPhone,
-    verifyOtp,
     signIn, 
-    signInWithPhone,
     signOut,
     loading,
     isDemo: isDemoActive(),
