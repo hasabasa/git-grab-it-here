@@ -8,8 +8,17 @@ interface UserProfile {
   full_name: string | null;
   company_name: string | null;
   phone: string | null;
+  subscription_end_date: string | null;
+  bonus_days: number;
   created_at: string;
   updated_at: string;
+}
+
+interface SubscriptionStatus {
+  isActive: boolean;
+  daysLeft: number;
+  status: 'active' | 'expired' | 'trial';
+  plan: 'free' | 'pro';
 }
 
 export const useProfile = () => {
@@ -66,10 +75,59 @@ export const useProfile = () => {
     }
   };
 
+  const applyPromoCode = async (promoCode: string) => {
+    if (!user) return { success: false, error: 'Пользователь не авторизован' };
+    
+    try {
+      const { data, error } = await supabase.rpc('apply_promo_code', {
+        p_user_id: user.id,
+        p_promo_code: promoCode
+      });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        await loadProfile(); // Перезагружаем профиль после применения промокода
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error applying promo code:', error);
+      return { success: false, error: 'Ошибка при применении промокода' };
+    }
+  };
+
+  const getSubscriptionStatus = (): SubscriptionStatus => {
+    if (!profile || !profile.subscription_end_date) {
+      return {
+        isActive: false,
+        daysLeft: 0,
+        status: 'expired',
+        plan: 'free'
+      };
+    }
+
+    const endDate = new Date(profile.subscription_end_date);
+    const now = new Date();
+    const timeDiff = endDate.getTime() - now.getTime();
+    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    const isActive = daysLeft > 0;
+    
+    return {
+      isActive,
+      daysLeft: Math.max(0, daysLeft),
+      status: isActive ? 'trial' : 'expired',
+      plan: 'free' // В данный момент у нас только бесплатный план с пробным периодом
+    };
+  };
+
   return {
     profile,
     loading,
     updateProfile,
-    refetchProfile: loadProfile
+    refetchProfile: loadProfile,
+    applyPromoCode,
+    subscriptionStatus: getSubscriptionStatus()
   };
 };

@@ -10,17 +10,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/integration/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
-interface SubscriptionBadgeProps {
-  plan?: "free" | "pro";
-  daysLeft?: number;
-}
-
-const SubscriptionBadge = ({ 
-  plan = "free", 
-  daysLeft = 0 
-}: SubscriptionBadgeProps) => {
+const SubscriptionBadge = () => {
   const { isDemo } = useAuth();
+  const { subscriptionStatus } = useProfile();
 
   const getPlanDetails = () => {
     if (isDemo) {
@@ -31,20 +25,27 @@ const SubscriptionBadge = ({
       };
     }
     
-    switch(plan) {
-      case "pro":
-        return {
-          label: "Pro",
-          color: "bg-gradient-to-r from-purple-500 to-blue-500",
-          textColor: "text-white"
-        };
-      default:
-        return {
-          label: "Free",
-          color: "bg-blue-100",
-          textColor: "text-blue-700"
-        };
+    if (subscriptionStatus.status === 'expired') {
+      return {
+        label: "Истек",
+        color: "bg-red-100",
+        textColor: "text-red-700"
+      };
     }
+    
+    if (subscriptionStatus.isActive) {
+      return {
+        label: "Free",
+        color: "bg-green-100",
+        textColor: "text-green-700"
+      };
+    }
+    
+    return {
+      label: "Free",
+      color: "bg-blue-100",
+      textColor: "text-blue-700"
+    };
   };
 
   const { label, color, textColor } = getPlanDetails();
@@ -53,9 +54,16 @@ const SubscriptionBadge = ({
     if (isDemo) {
       return "Демо режим - данные не сохраняются";
     }
-    return plan === "free" ? 
-      "Подключите Pro план для полного доступа" : 
-      `Ваш тариф: ${label}. Осталось: ${daysLeft} дн.`;
+    
+    if (subscriptionStatus.status === 'expired') {
+      return "Пробный период истек. Подключите Pro план для продолжения работы";
+    }
+    
+    if (subscriptionStatus.isActive) {
+      return `Пробный период. Осталось: ${subscriptionStatus.daysLeft} дн.`;
+    }
+    
+    return "Подключите Pro план для полного доступа";
   };
 
   return (
@@ -72,9 +80,9 @@ const SubscriptionBadge = ({
               <Badge className={`${color} ${textColor}`}>
                 {label}
               </Badge>
-              {plan === "pro" && daysLeft > 0 && !isDemo && (
+              {subscriptionStatus.isActive && subscriptionStatus.daysLeft > 0 && !isDemo && (
                 <span className="text-xs text-gray-500 ml-1">
-                  {daysLeft} дн.
+                  {subscriptionStatus.daysLeft} дн.
                 </span>
               )}
             </Button>

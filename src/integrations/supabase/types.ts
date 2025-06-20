@@ -509,6 +509,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_promo_code: {
+        Args: { p_user_id: string; p_promo_code: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _user_id: string

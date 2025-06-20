@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Check, Crown } from "lucide-react";
+import { Check, Crown, Calendar, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +12,26 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/components/integration/useAuth";
+import PromoCodeInput from "@/components/subscription/PromoCodeInput";
 
 const SubscriptionPage = () => {
-  const [currentPlan, setCurrentPlan] = useState<string>("free");
+  const { isDemo } = useAuth();
+  const { profile, subscriptionStatus, loading } = useProfile();
 
   const handleSubscribe = () => {
     // В реальном приложении здесь будет интеграция с платежной системой
     toast.success("Переход на Pro план будет доступен после интеграции с платежной системой");
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Не установлено";
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   const allFeatures = [
@@ -36,6 +49,14 @@ const SubscriptionPage = () => {
     "Уведомления в реальном времени"
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center max-w-3xl mx-auto">
@@ -45,6 +66,80 @@ const SubscriptionPage = () => {
         </p>
       </div>
 
+      {/* Текущий статус подписки */}
+      {!isDemo && (
+        <div className="max-w-2xl mx-auto">
+          <Card className="border-2 border-blue-200 bg-blue-50/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Текущий статус подписки
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Статус</p>
+                  <Badge 
+                    variant={subscriptionStatus.isActive ? "success" : "destructive"}
+                    className="text-sm"
+                  >
+                    {subscriptionStatus.isActive ? "Активна" : "Истекла"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Осталось дней</p>
+                  <p className="font-semibold text-lg">
+                    {subscriptionStatus.daysLeft}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Дата окончания</p>
+                  <p className="font-medium">
+                    {formatDate(profile?.subscription_end_date)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Бонусные дни</p>
+                  <p className="font-medium">
+                    {profile?.bonus_days || 0}
+                  </p>
+                </div>
+              </div>
+              
+              {subscriptionStatus.status === 'expired' && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 text-sm">
+                    ⚠️ Ваш пробный период истек. Подключите Pro план для продолжения работы с платформой.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Промокод */}
+      {!isDemo && (
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5" />
+                Есть промокод?
+              </CardTitle>
+              <CardDescription>
+                Введите промокод для получения дополнительных дней бесплатного использования
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PromoCodeInput />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Pro план */}
       <div className="max-w-2xl mx-auto">
         <Card className="border-2 border-primary shadow-lg relative">
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -100,8 +195,9 @@ const SubscriptionPage = () => {
                 onClick={handleSubscribe}
                 className="w-full text-lg py-6"
                 size="lg"
+                disabled={isDemo}
               >
-                Начать с 3 бесплатных дней
+                {isDemo ? "Недоступно в демо режиме" : "Начать с 3 бесплатных дней"}
               </Button>
               <p className="text-center text-sm text-gray-500">
                 Отменить подписку можно в любое время
@@ -110,17 +206,19 @@ const SubscriptionPage = () => {
           </CardFooter>
         </Card>
 
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
-            <Crown className="h-4 w-4 text-amber-500" />
-            <span className="text-sm font-medium">
-              Текущий статус: Демо-режим
-            </span>
+        {isDemo && (
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+              <Crown className="h-4 w-4 text-amber-500" />
+              <span className="text-sm font-medium">
+                Текущий статус: Демо-режим
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Зарегистрируйтесь для получения 3 бесплатных дней Pro плана
+            </p>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Подключите Pro план для сохранения данных и полного доступа
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

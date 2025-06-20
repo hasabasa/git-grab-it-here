@@ -1,4 +1,3 @@
-
 import { MenuIcon, LogIn, LogOut, User, Menu, Settings, HelpCircle, Bell, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -129,7 +128,7 @@ const Header = ({
           </Badge>
         )}
         
-        {!isDemo && <SubscriptionBadge plan="free" daysLeft={0} />}
+        {!isDemo && <SubscriptionBadge />}
         
         {/* Help button for desktop */}
         {!isMobile && (
