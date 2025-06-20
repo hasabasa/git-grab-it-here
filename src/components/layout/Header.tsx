@@ -72,6 +72,12 @@ const Header = ({
     }
   };
 
+  const handleHelpClick = () => {
+    const whatsappNumber = "+77082171960";
+    const whatsappUrl = `https://wa.me/${whatsappNumber.replace('+', '')}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const headerHeight = isExtraLargeDesktop ? "h-24" : isLargeDesktop ? "h-20" : "h-16";
   const headerPadding = isExtraLargeDesktop ? "px-8" : isLargeDesktop ? "px-6" : "px-4";
   const currentModuleName = getModuleName(location.pathname);
@@ -147,7 +153,7 @@ const Header = ({
         
         {/* Help button for desktop */}
         {!isMobile && (
-          <Button variant="outline" size="sm" className="hidden md:flex">
+          <Button variant="outline" size="sm" className="hidden md:flex" onClick={handleHelpClick}>
             <HelpCircle className="h-4 w-4 mr-2" />
             Помощь
           </Button>
