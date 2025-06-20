@@ -1,6 +1,7 @@
+
 import { MenuIcon, LogIn, LogOut, User, Menu, Settings, HelpCircle, Bell, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SubscriptionBadge from "@/components/subscription/SubscriptionBadge";
 import { useAuth } from "@/components/integration/useAuth";
 import { Badge } from "@/components/ui/badge";
@@ -47,13 +48,15 @@ const Header = ({
   const { user, signOut, loading, isDemo, exitDemoMode } = useAuth();
   const { isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (isDemo) {
       exitDemoMode();
-      window.location.href = "/";
+      navigate("/auth");
     } else {
-      signOut();
+      await signOut();
+      navigate("/auth");
     }
   };
 
