@@ -42,6 +42,8 @@ interface UserProfile {
   roles: string[];
 }
 
+type UserRole = 'admin' | 'partner' | 'user';
+
 const UsersManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,10 +89,13 @@ const UsersManagement = () => {
 
   const updateUserRole = async (userId: string, role: string, action: 'add' | 'remove') => {
     try {
+      // Type assertion to ensure role is valid
+      const validRole = role as UserRole;
+      
       if (action === 'add') {
         const { error } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role });
+          .insert({ user_id: userId, role: validRole });
         
         if (error) throw error;
         toast.success(`Роль ${role} добавлена`);
@@ -99,7 +104,7 @@ const UsersManagement = () => {
           .from('user_roles')
           .delete()
           .eq('user_id', userId)
-          .eq('role', role);
+          .eq('role', validRole);
         
         if (error) throw error;
         toast.success(`Роль ${role} удалена`);
@@ -286,7 +291,7 @@ const UsersManagement = () => {
                                   <div className="space-y-2">
                                     <div className="flex gap-2">
                                       <Select
-                                        onValueChange={(role) => updateUserRole(selectedUser.id, role, 'add')}
+                                        onValueChange={(role: UserRole) => updateUserRole(selectedUser.id, role, 'add')}
                                       >
                                         <SelectTrigger className="w-full">
                                           <SelectValue placeholder="Добавить роль" />

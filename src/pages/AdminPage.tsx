@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Crown, Users, BarChart3, Settings, Database, Shield } from "lucide-react";
-import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
-import CreatePartnerForm from "@/components/admin/CreatePartnerForm";
-import PartnersTable from "@/components/admin/PartnersTable";
+// Fix imports - use named imports for components without default exports
+import { ProtectedAdminRoute } from "@/components/admin/ProtectedAdminRoute";
+import { CreatePartnerForm } from "@/components/admin/CreatePartnerForm";
+import { PartnersTable } from "@/components/admin/PartnersTable";
 import AdminStats from "@/components/admin/AdminStats";
 import UsersManagement from "@/components/admin/UsersManagement";
 
