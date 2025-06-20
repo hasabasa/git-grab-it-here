@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/components/integration/useAuth";
 
 interface SubscriptionBadgeProps {
   plan?: "free" | "pro";
@@ -19,7 +20,17 @@ const SubscriptionBadge = ({
   plan = "free", 
   daysLeft = 0 
 }: SubscriptionBadgeProps) => {
+  const { isDemo } = useAuth();
+
   const getPlanDetails = () => {
+    if (isDemo) {
+      return {
+        label: "Демо",
+        color: "bg-gray-200",
+        textColor: "text-gray-700"
+      };
+    }
+    
     switch(plan) {
       case "pro":
         return {
@@ -29,14 +40,23 @@ const SubscriptionBadge = ({
         };
       default:
         return {
-          label: "Демо",
-          color: "bg-gray-200",
-          textColor: "text-gray-700"
+          label: "Free",
+          color: "bg-blue-100",
+          textColor: "text-blue-700"
         };
     }
   };
 
   const { label, color, textColor } = getPlanDetails();
+
+  const getTooltipText = () => {
+    if (isDemo) {
+      return "Демо режим - данные не сохраняются";
+    }
+    return plan === "free" ? 
+      "Подключите Pro план для полного доступа" : 
+      `Ваш тариф: ${label}. Осталось: ${daysLeft} дн.`;
+  };
 
   return (
     <TooltipProvider>
@@ -52,7 +72,7 @@ const SubscriptionBadge = ({
               <Badge className={`${color} ${textColor}`}>
                 {label}
               </Badge>
-              {plan === "pro" && daysLeft > 0 && (
+              {plan === "pro" && daysLeft > 0 && !isDemo && (
                 <span className="text-xs text-gray-500 ml-1">
                   {daysLeft} дн.
                 </span>
@@ -61,10 +81,7 @@ const SubscriptionBadge = ({
           </Link>
         </TooltipTrigger>
         <TooltipContent>
-          {plan === "free" ? 
-            "Подключите Pro план для полного доступа" : 
-            `Ваш тариф: ${label}. Осталось: ${daysLeft} дн.`
-          }
+          {getTooltipText()}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
