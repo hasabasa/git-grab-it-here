@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,14 +7,54 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { AuthComponent } from "@/components/integration/AuthComponent";
 import { Link } from "lucide-react";
+import { useStoreConnection } from "@/hooks/useStoreConnection";
+import ConnectStoreButton from "@/components/store/ConnectStoreButton";
+import LoadingScreen from "@/components/ui/loading-screen";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const NicheSearchPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
   const [productUrl, setProductUrl] = useState<string>("");
   const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Функция для анализа товара по ссылке
+  // Show loading screen while authentication or stores are loading
+  if (authLoading || storeLoading) {
+    return <LoadingScreen text="Загрузка данных..." />;
+  }
+
+  // If user is not authenticated, show auth component
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Анализ товаров</h1>
+        <p className="text-gray-600">Для использования анализа товаров необходима авторизация</p>
+        <AuthComponent />
+      </div>
+    );
+  }
+
+  // If user needs to connect a store, show connect button
+  if (needsConnection) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Анализ товаров</h1>
+          <p className="text-gray-600">
+            Анализ продаж и отзывов товаров на Kaspi по ссылке
+          </p>
+        </div>
+        
+        <ConnectStoreButton
+          title="Подключите магазин для анализа товаров"
+          description="Получите расширенную аналитику по товарам, конкурентам и нишам после подключения вашего магазина"
+        />
+      </div>
+    );
+  }
+
   const analyzeProduct = async (url: string) => {
     if (!user) {
       toast.error("Для анализа товара необходимо авторизоваться");
@@ -75,32 +114,26 @@ const NicheSearchPage = () => {
     }
   };
 
-  // Если идет загрузка аутентификации, показываем индикатор загрузки
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
-  // Если пользователь не авторизован, показываем компонент авторизации
-  if (!user) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Анализ товаров</h1>
-        <p className="text-gray-600">Для использования анализа товаров необходима авторизация</p>
-        <AuthComponent />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Анализ товаров</h1>
       <p className="text-gray-600">
         Анализ продаж и отзывов товаров на Kaspi по ссылке
       </p>
+
+      {!isConnected && (
+        <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertDescription className="text-blue-700 text-sm flex items-center justify-between">
+            <span>Подключите магазин для расширенной аналитики и персонализированных рекомендаций</span>
+            <ConnectStoreButton 
+              variant="outline"
+              size="sm"
+              className="ml-4 border-blue-300 text-blue-700 hover:bg-blue-100"
+            />
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Card>
         <CardHeader>

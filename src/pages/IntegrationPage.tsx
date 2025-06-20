@@ -3,9 +3,62 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import KaspiIntegration from "@/components/integration/KaspiIntegration";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocation } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info, CheckCircle, ArrowRight } from "lucide-react";
+import { useStoreConnection } from "@/hooks/useStoreConnection";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const IntegrationPage = () => {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { hasStores, isConnected } = useStoreConnection();
+  const fromParam = new URLSearchParams(location.search).get('from');
+
+  const getWelcomeMessage = () => {
+    if (hasStores) {
+      return {
+        title: "Управление интеграциями",
+        description: "Ваши магазины подключены. Вы можете добавить новые или управлять существующими интеграциями.",
+        variant: "success" as const
+      };
+    }
+
+    switch (fromParam) {
+      case 'price-bot':
+        return {
+          title: "Подключите магазин для работы с ботом демпинга",
+          description: "Бот демпинга требует подключения вашего магазина Kaspi.kz для анализа товаров и управления ценами.",
+          variant: "info" as const
+        };
+      case 'sales':
+        return {
+          title: "Подключите магазин для аналитики продаж",
+          description: "Для просмотра реальной статистики продаж необходимо подключить ваш магазин Kaspi.kz.",
+          variant: "info" as const
+        };
+      case 'niche-search':
+        return {
+          title: "Подключите магазин для расширенного анализа ниш",
+          description: "Получите персонализированные рекомендации по нишам на основе данных вашего магазина.",
+          variant: "info" as const
+        };
+      default:
+        return {
+          title: "Добро пожаловать! Подключите свой первый магазин",
+          description: "Для работы с платформой необходимо подключить ваш магазин Kaspi.kz. Это займет всего несколько минут.",
+          variant: "info" as const
+        };
+    }
+  };
+
+  const welcomeMessage = getWelcomeMessage();
+
+  const handleGoToDashboard = () => {
+    navigate("/dashboard/price-bot");
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6 px-4 sm:px-0">
@@ -15,6 +68,39 @@ const IntegrationPage = () => {
           Подключите внешние сервисы для расширения возможностей платформы
         </p>
       </div>
+
+      {/* Welcome/Status message */}
+      <Alert className={`${
+        welcomeMessage.variant === 'success' 
+          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+          : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+      }`}>
+        {welcomeMessage.variant === 'success' ? (
+          <CheckCircle className="h-4 w-4 text-green-500" />
+        ) : (
+          <Info className="h-4 w-4 text-blue-500" />
+        )}
+        <AlertDescription className={`${
+          welcomeMessage.variant === 'success' ? 'text-green-700' : 'text-blue-700'
+        } text-sm`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium mb-1">{welcomeMessage.title}</div>
+              <div>{welcomeMessage.description}</div>
+            </div>
+            {hasStores && (
+              <Button 
+                onClick={handleGoToDashboard}
+                size="sm"
+                className="ml-4 bg-green-600 hover:bg-green-700 text-white"
+              >
+                Перейти к работе
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            )}
+          </div>
+        </AlertDescription>
+      </Alert>
 
       <Tabs defaultValue="kaspi">
         <TabsList className="w-full sm:w-auto">
@@ -56,6 +142,15 @@ const IntegrationPage = () => {
                       <span className="leading-relaxed">Уведомления о важных изменениях в товарах</span>
                     </li>
                   </ul>
+                  
+                  {hasStores && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Магазин успешно подключен!</span>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

@@ -6,8 +6,14 @@ import UnitEconomicsResults from "@/components/unit-economics/UnitEconomicsResul
 import { KaspiCommission, DeliveryRate } from "@/types";
 import { calculateDeliveryCost, calculateCommission } from "@/lib/economicsUtils";
 import { mockGoldCommissions, mockRedKreditCommissions, mockInstallmentCommissions } from "@/data/mockData";
+import { useStoreConnection } from "@/hooks/useStoreConnection";
+import ConnectStoreButton from "@/components/store/ConnectStoreButton";
+import LoadingScreen from "@/components/ui/loading-screen";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const UnitEconomicsPage = () => {
+  const { isConnected, loading: storeLoading } = useStoreConnection();
   const [unitData, setUnitData] = useState({
     costPrice: 10000,
     sellingPrice: 15000,
@@ -55,12 +61,33 @@ const UnitEconomicsPage = () => {
     });
   }, [unitData]);
 
+  // Show loading screen while stores are loading
+  if (storeLoading) {
+    return <LoadingScreen text="Загрузка данных..." />;
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Юнит-экономика</h1>
-      <p className="text-gray-600">
-        Рассчитайте прибыль с учетом комиссий и стоимости доставки Kaspi
-      </p>
+      <div>
+        <h1 className="text-3xl font-bold">Юнит-экономика</h1>
+        <p className="text-gray-600">
+          Рассчитайте прибыль с учетом комиссий и стоимости доставки Kaspi
+        </p>
+      </div>
+
+      {!isConnected && (
+        <Alert className="bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
+          <Info className="h-4 w-4 text-orange-500" />
+          <AlertDescription className="text-orange-700 text-sm flex items-center justify-between">
+            <span>Подключите магазин для автоматического расчета с реальными данными товаров</span>
+            <ConnectStoreButton 
+              variant="outline"
+              size="sm"
+              className="ml-4 border-orange-300 text-orange-700 hover:bg-orange-100"
+            />
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
