@@ -30,9 +30,8 @@ const PartnerLoginPage = () => {
       if (result.error) {
         console.log('Login error:', result.error);
         
-        // Обработка специфичной ошибки неподтвержденного email
         if (result.error.message.includes('Email not confirmed')) {
-          setError('Ваш партнерский аккаунт ожидает подтверждения. Пожалуйста, свяжитесь с администратором для активации доступа.');
+          setError('Ваш партнерский аккаунт ожидает подтверждения email. Свяжитесь с администратором для активации доступа. Укажите ваш email при обращении: ' + email);
         } else if (result.error.message.includes('Invalid login credentials')) {
           setError('Неверный email или пароль. Проверьте правильность введенных данных.');
         } else {
@@ -111,9 +110,12 @@ const PartnerLoginPage = () => {
             <div className="flex items-start gap-2">
               <Mail className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-700">
-                <p className="font-medium">Нужна помощь с доступом?</p>
+                <p className="font-medium">Проблемы с доступом?</p>
                 <p className="mt-1">
-                  Если у вас проблемы с входом, свяжитесь с администратором для активации вашего партнерского аккаунта.
+                  Если видите ошибку "Email не подтвержден", обратитесь к администратору с указанием вашего email для активации аккаунта.
+                </p>
+                <p className="mt-2 text-xs text-blue-600">
+                  Все новые партнерские аккаунты автоматически подтверждаются при создании.
                 </p>
               </div>
             </div>
