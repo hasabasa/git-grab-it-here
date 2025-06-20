@@ -1,9 +1,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PartnerStats } from '@/components/partner/PartnerStats';
+import { PromoCodeManager } from '@/components/partner/PromoCodeManager';
 import { useAuth } from '@/components/integration/useAuth';
-import { Instagram, LogOut, ExternalLink, Copy } from 'lucide-react';
+import { Instagram, LogOut, ExternalLink, Copy, BarChart, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -106,7 +108,26 @@ const PartnerDashboardPage = () => {
             </CardContent>
           </Card>
 
-          <PartnerStats />
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="stats" className="flex items-center gap-2">
+                <BarChart className="h-4 w-4" />
+                Статистика
+              </TabsTrigger>
+              <TabsTrigger value="promo-codes" className="flex items-center gap-2">
+                <Gift className="h-4 w-4" />
+                Промокоды
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="stats" className="mt-6">
+              <PartnerStats />
+            </TabsContent>
+            
+            <TabsContent value="promo-codes" className="mt-6">
+              <PromoCodeManager />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>

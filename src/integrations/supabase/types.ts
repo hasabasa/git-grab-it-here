@@ -636,8 +636,22 @@ export type Database = {
       }
     }
     Functions: {
+      activate_promo_code: {
+        Args: { p_promo_id: string; p_partner_id: string }
+        Returns: Json
+      }
       apply_promo_code: {
         Args: { p_user_id: string; p_promo_code: string }
+        Returns: Json
+      }
+      create_partner_promo_code: {
+        Args: {
+          p_partner_id: string
+          p_code: string
+          p_bonus_days?: number
+          p_max_usage?: number
+          p_expires_at?: string
+        }
         Returns: Json
       }
       generate_partner_code: {
