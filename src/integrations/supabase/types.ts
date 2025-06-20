@@ -251,6 +251,7 @@ export type Database = {
           is_active: boolean | null
           max_usage: number | null
           partner_id: string | null
+          updated_at: string | null
           usage_count: number | null
         }
         Insert: {
@@ -262,6 +263,7 @@ export type Database = {
           is_active?: boolean | null
           max_usage?: number | null
           partner_id?: string | null
+          updated_at?: string | null
           usage_count?: number | null
         }
         Update: {
@@ -273,6 +275,7 @@ export type Database = {
           is_active?: boolean | null
           max_usage?: number | null
           partner_id?: string | null
+          updated_at?: string | null
           usage_count?: number | null
         }
         Relationships: [

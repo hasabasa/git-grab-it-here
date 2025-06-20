@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/integration/useAuth';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, CheckCircle, Clock, AlertCircle, Loader2 } from 'lucide-react';
 
 interface PromoCode {
   id: string;
@@ -22,12 +22,17 @@ interface PromoCode {
   created_at: string;
 }
 
-export const PromoCodeManager = () => {
+interface PromoCodeManagerProps {
+  onPromoCodeUpdate?: () => void;
+}
+
+export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [activating, setActivating] = useState<string | null>(null);
   const [newCode, setNewCode] = useState('');
   const bonusDays = 15; // Фиксированное значение
   const [maxUsage, setMaxUsage] = useState<number | ''>('');
@@ -100,6 +105,11 @@ export const PromoCodeManager = () => {
         setNewCode('');
         setMaxUsage('');
         loadPartnerData(); // Перезагружаем список
+        
+        // Уведомляем родительский компонент об обновлении
+        if (onPromoCodeUpdate) {
+          onPromoCodeUpdate();
+        }
       } else {
         toast({
           title: "Ошибка",
@@ -122,6 +132,7 @@ export const PromoCodeManager = () => {
   const activatePromoCode = async (promoId: string) => {
     if (!partnerId) return;
 
+    setActivating(promoId);
     try {
       const { data, error } = await supabase.rpc('activate_promo_code', {
         p_promo_id: promoId,
@@ -138,6 +149,11 @@ export const PromoCodeManager = () => {
           description: response.message
         });
         loadPartnerData(); // Перезагружаем список
+        
+        // Уведомляем родительский компонент об обновлении
+        if (onPromoCodeUpdate) {
+          onPromoCodeUpdate();
+        }
       } else {
         toast({
           title: "Ошибка",
@@ -152,6 +168,8 @@ export const PromoCodeManager = () => {
         description: "Произошла ошибка при активации промокода",
         variant: "destructive"
       });
+    } finally {
+      setActivating(null);
     }
   };
 
@@ -211,6 +229,7 @@ export const PromoCodeManager = () => {
             </div>
             
             <Button type="submit" disabled={creating || !newCode.trim()}>
+              {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {creating ? 'Создание...' : 'Создать промокод'}
             </Button>
           </form>
@@ -270,9 +289,14 @@ export const PromoCodeManager = () => {
                       onClick={() => activatePromoCode(promo.id)}
                       variant="outline"
                       size="sm"
+                      disabled={activating === promo.id}
                     >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Активировать
+                      {activating === promo.id ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                      )}
+                      {activating === promo.id ? 'Активация...' : 'Активировать'}
                     </Button>
                   )}
                 </div>

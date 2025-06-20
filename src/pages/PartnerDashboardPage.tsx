@@ -8,13 +8,57 @@ import { useAuth } from '@/components/integration/useAuth';
 import { Instagram, LogOut, ExternalLink, Copy, BarChart, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const PartnerDashboardPage = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activePromoCode, setActivePromoCode] = useState<string>('');
 
   console.log('PartnerDashboard: Rendering for user:', user?.email);
+
+  useEffect(() => {
+    if (user) {
+      loadActivePromoCode();
+    }
+  }, [user]);
+
+  const loadActivePromoCode = async () => {
+    try {
+      // Получаем ID партнера
+      const { data: partner, error: partnerError } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (partnerError) throw partnerError;
+      
+      // Загружаем активный промокод партнера
+      const { data: activeCodes, error: codesError } = await supabase
+        .from('promo_codes')
+        .select('code')
+        .eq('partner_id', partner.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (codesError) throw codesError;
+      
+      if (activeCodes && activeCodes.length > 0) {
+        setActivePromoCode(activeCodes[0].code);
+      } else {
+        // Если нет активного промокода, показываем код по умолчанию
+        setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+      }
+    } catch (error) {
+      console.error('Error loading active promo code:', error);
+      // В случае ошибки показываем код по умолчанию
+      setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -99,9 +143,9 @@ const PartnerDashboardPage = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2">Промокод</h4>
+                  <h4 className="font-medium mb-2">Активный промокод</h4>
                   <div className="px-3 py-2 bg-purple-100 rounded text-sm font-mono">
-                    PARTNER_{user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}
+                    {activePromoCode}
                   </div>
                 </div>
               </div>
@@ -125,7 +169,7 @@ const PartnerDashboardPage = () => {
             </TabsContent>
             
             <TabsContent value="promo-codes" className="mt-6">
-              <PromoCodeManager />
+              <PromoCodeManager onPromoCodeUpdate={loadActivePromoCode} />
             </TabsContent>
           </Tabs>
         </div>
