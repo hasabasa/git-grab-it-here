@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Shield, Zap, TrendingUp, Users, BarChart3, Target, UserCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import HeroSection from "@/components/welcome/HeroSection";
 import ModulesSection from "@/components/welcome/ModulesSection";
 import PricingSection from "@/components/welcome/PricingSection";
@@ -19,13 +19,6 @@ const Welcome = () => {
             Mark Bot
           </div>
           <div className="flex gap-2 sm:gap-4">
-            <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
-              <Link to="/partner/login">
-                <UserCheck className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Партнерская панель</span>
-                <span className="sm:hidden">Партнеры</span>
-              </Link>
-            </Button>
             <Button asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/auth">
                 <span className="hidden sm:inline">Начать работу</span>

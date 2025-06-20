@@ -50,8 +50,6 @@ export const usePartners = () => {
     login: string;
     password: string;
     fullName: string;
-    instagramUsername: string;
-    partnerCode: string;
   }) => {
     try {
       console.log('Creating partner with data:', { ...partnerData, password: '[HIDDEN]' });
@@ -76,7 +74,7 @@ export const usePartners = () => {
       
       toast({
         title: "Успех",
-        description: `Партнер создан успешно. Email: ${data.generatedEmail || data.email}. Данные для входа отправлены на email.`
+        description: `Партнер создан успешно. Email: ${data.generatedEmail || data.email}`
       });
 
       return { success: true };

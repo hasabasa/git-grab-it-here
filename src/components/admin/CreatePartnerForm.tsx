@@ -12,9 +12,7 @@ export const CreatePartnerForm = () => {
   const [formData, setFormData] = useState({
     login: '',
     password: '',
-    fullName: '',
-    instagramUsername: '',
-    partnerCode: ''
+    fullName: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,22 +31,13 @@ export const CreatePartnerForm = () => {
       setFormData({
         login: '',
         password: '',
-        fullName: '',
-        instagramUsername: '',
-        partnerCode: ''
+        fullName: ''
       });
     } else {
       setError(result.error?.message || 'Произошла ошибка при создании партнера');
     }
     
     setLoading(false);
-  };
-
-  const generatePartnerCode = () => {
-    if (formData.instagramUsername) {
-      const code = `PARTNER_${formData.instagramUsername.toUpperCase()}`;
-      setFormData(prev => ({ ...prev, partnerCode: code }));
-    }
   };
 
   const validateLogin = (login: string) => {
@@ -82,82 +71,53 @@ export const CreatePartnerForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="login">Логин</Label>
-              <Input
-                id="login"
-                type="text"
-                value={formData.login}
-                onChange={(e) => {
-                  const login = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
-                  setFormData(prev => ({ ...prev, login }));
-                }}
-                placeholder="astana"
-                required
-              />
-              {formData.login && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Email: <span className="font-mono">{generatedEmail}</span>
-                </p>
-              )}
-              {formData.login && !validateLogin(formData.login) && (
-                <p className="text-sm text-red-500 mt-1">
-                  Используйте только буквы, цифры и подчеркивания
-                </p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="password">Пароль</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                placeholder="Минимум 6 символов"
-                minLength={6}
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="fullName">Полное имя</Label>
-              <Input
-                id="fullName"
-                value={formData.fullName}
-                onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                placeholder="Иван Иванов"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="instagramUsername">Instagram Username</Label>
-              <Input
-                id="instagramUsername"
-                value={formData.instagramUsername}
-                onChange={(e) => setFormData(prev => ({ ...prev, instagramUsername: e.target.value }))}
-                placeholder="username (без @)"
-                required
-              />
-            </div>
+          <div>
+            <Label htmlFor="fullName">Полное имя</Label>
+            <Input
+              id="fullName"
+              value={formData.fullName}
+              onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+              placeholder="Иван Иванов"
+              required
+            />
           </div>
 
           <div>
-            <Label htmlFor="partnerCode">Код партнера</Label>
-            <div className="flex gap-2">
-              <Input
-                id="partnerCode"
-                value={formData.partnerCode}
-                onChange={(e) => setFormData(prev => ({ ...prev, partnerCode: e.target.value }))}
-                placeholder="PARTNER_USERNAME"
-                required
-              />
-              <Button type="button" variant="outline" onClick={generatePartnerCode}>
-                Генерировать
-              </Button>
-            </div>
+            <Label htmlFor="login">Логин</Label>
+            <Input
+              id="login"
+              type="text"
+              value={formData.login}
+              onChange={(e) => {
+                const login = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+                setFormData(prev => ({ ...prev, login }));
+              }}
+              placeholder="astana"
+              required
+            />
+            {formData.login && (
+              <p className="text-sm text-gray-500 mt-1">
+                Email: <span className="font-mono">{generatedEmail}</span>
+              </p>
+            )}
+            {formData.login && !validateLogin(formData.login) && (
+              <p className="text-sm text-red-500 mt-1">
+                Используйте только буквы, цифры и подчеркивания
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="password">Пароль</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              placeholder="Минимум 6 символов"
+              minLength={6}
+              required
+            />
           </div>
 
           <Button 

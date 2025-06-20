@@ -28,14 +28,14 @@ serve(async (req) => {
     const requestBody = await req.json()
     console.log('Request body received:', { ...requestBody, password: '[HIDDEN]' })
     
-    const { login, password, fullName, instagramUsername, partnerCode } = requestBody
+    const { login, password, fullName } = requestBody
 
-    if (!login || !password || !fullName || !instagramUsername || !partnerCode) {
-      console.error('Missing required fields')
+    if (!login || !password || !fullName) {
+      console.error('Missing required fields:', { login: !!login, password: !!password, fullName: !!fullName })
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Все поля обязательны для заполнения' 
+          error: 'Все поля (логин, пароль, полное имя) обязательны для заполнения' 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -66,6 +66,10 @@ serve(async (req) => {
       )
     }
 
+    // Генерируем уникальный партнерский код
+    const partnerCode = `PARTNER_${login.toUpperCase()}`
+    console.log('Generated partner code:', partnerCode)
+
     // Проверяем уникальность партнерского кода
     const { data: existingPartner } = await supabaseClient
       .from('partners')
@@ -78,7 +82,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Партнерский код "${partnerCode}" уже используется. Выберите другой код.` 
+          error: `Партнерский код "${partnerCode}" уже используется. Логин должен быть уникальным.` 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -94,8 +98,7 @@ serve(async (req) => {
       email: generatedEmail,
       password,
       user_metadata: {
-        full_name: fullName,
-        instagram_username: instagramUsername
+        full_name: fullName
       }
     })
 
@@ -142,14 +145,16 @@ serve(async (req) => {
 
     // Создаем запись партнера
     console.log('Creating partner record...')
-    const { error: partnerError } = await supabaseClient
+    const { data: partnerRecord, error: partnerError } = await supabaseClient
       .from('partners')
       .insert({
         user_id: user.user.id,
         partner_code: partnerCode,
-        instagram_username: instagramUsername,
+        instagram_username: '', // Оставляем пустым
         contact_email: generatedEmail
       })
+      .select()
+      .single()
 
     if (partnerError) {
       console.error('Partner record creation error:', partnerError)
@@ -165,30 +170,7 @@ serve(async (req) => {
       )
     }
 
-    console.log('Partner record created successfully')
-
-    // Получаем ID партнера для создания промокода
-    const { data: partnerData, error: partnerSelectError } = await supabaseClient
-      .from('partners')
-      .select('id')
-      .eq('user_id', user.user.id)
-      .single()
-
-    if (partnerSelectError) {
-      console.error('Partner select error:', partnerSelectError)
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `Ошибка получения данных партнера: ${partnerSelectError.message}` 
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400 
-        }
-      )
-    }
-
-    console.log('Partner data retrieved:', partnerData.id)
+    console.log('Partner record created successfully:', partnerRecord.id)
 
     // Создаем промокод
     console.log('Creating promo code...')
@@ -196,7 +178,7 @@ serve(async (req) => {
       .from('promo_codes')
       .insert({
         code: partnerCode,
-        partner_id: partnerData.id
+        partner_id: partnerRecord.id
       })
 
     if (promoError) {
@@ -221,6 +203,7 @@ serve(async (req) => {
         success: true, 
         message: 'Партнер создан успешно',
         generatedEmail: generatedEmail,
+        partnerCode: partnerCode,
         user: user.user 
       }),
       { 
