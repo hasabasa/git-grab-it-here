@@ -15,11 +15,90 @@ import { AuthComponent } from "@/components/integration/AuthComponent";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
 import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";
+import { supabase } from "@/integrations/supabase/client";
+import { Product } from "@/types";
 
 const PriceBotPage = () => {
   const { user, loading: authLoading, isDemo } = useAuth();
   const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  // Demo products for demonstration
+  const demoProducts: Product[] = [
+    {
+      id: 'demo-1',
+      name: 'iPhone 15 Pro Max 256GB',
+      price: 650000,
+      image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+      botActive: true,
+      minProfit: 50000,
+      maxProfit: 100000,
+      store_id: 'demo-1',
+      kaspi_product_id: 'demo-product-1',
+      category: 'Электроника',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: 'demo-2', 
+      name: 'Samsung Galaxy S24 Ultra',
+      price: 580000,
+      image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400',
+      botActive: false,
+      minProfit: 45000,
+      maxProfit: 90000,
+      store_id: 'demo-1',
+      kaspi_product_id: 'demo-product-2',
+      category: 'Электроника',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  ];
+
+  // Load products when store is selected
+  useEffect(() => {
+    if (selectedStoreId && isConnected) {
+      loadProducts();
+    }
+  }, [selectedStoreId, isConnected]);
+
+  const loadProducts = async () => {
+    if (isDemo) {
+      setProducts(demoProducts);
+      return;
+    }
+
+    if (!selectedStoreId || selectedStoreId === 'all') return;
+
+    setLoadingProducts(true);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('store_id', selectedStoreId);
+      
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const handleProductSelect = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    setSelectedProduct(product || null);
+  };
+
+  const handleSettingsSave = (settings: any) => {
+    console.log('Settings saved:', settings);
+    // Here you would save the settings to the database
+  };
 
   // Show loading screen while authentication or stores are loading
   if (authLoading || storeLoading) {
@@ -104,19 +183,50 @@ const PriceBotPage = () => {
             </TabsList>
 
             <TabsContent value="products" className="space-y-6">
-              <ProductList selectedStoreId={selectedStoreId} />
+              {loadingProducts ? (
+                <LoadingScreen text="Загрузка товаров..." />
+              ) : (
+                <ProductList 
+                  products={products}
+                  activeProductId={selectedProduct?.id || null}
+                  onProductSelect={handleProductSelect}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6">
-              <PriceBotSettings selectedStoreId={selectedStoreId} />
+              {selectedProduct ? (
+                <PriceBotSettings 
+                  product={selectedProduct}
+                  onSave={handleSettingsSave}
+                />
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  Выберите товар для настройки бота
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="activation" className="space-y-6">
-              <ActivationSection selectedStoreId={selectedStoreId} />
+              <ActivationSection 
+                isActive={selectedProduct?.botActive || false}
+                onActiveChange={(active) => {
+                  if (selectedProduct) {
+                    setSelectedProduct({...selectedProduct, botActive: active});
+                  }
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="profit" className="space-y-6">
-              <ProfitSection selectedStoreId={selectedStoreId} />
+              <ProfitSection 
+                minProfit={selectedProduct?.minProfit || 0}
+                onMinProfitChange={(profit) => {
+                  if (selectedProduct) {
+                    setSelectedProduct({...selectedProduct, minProfit: profit});
+                  }
+                }}
+              />
             </TabsContent>
           </Tabs>
         </div>
