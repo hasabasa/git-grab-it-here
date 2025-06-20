@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Store, ArrowRight, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMobileResponsive } from "@/hooks/use-mobile-responsive";
+import { cn } from "@/lib/utils";
 
 interface ConnectStoreButtonProps {
   title?: string;
@@ -20,6 +22,7 @@ const ConnectStoreButton = ({
   variant = "card"
 }: ConnectStoreButtonProps) => {
   const navigate = useNavigate();
+  const { isMobile, isIPhoneMini, getMobileSpacing, getTouchTargetSize } = useMobileResponsive();
 
   const handleConnectStore = () => {
     navigate("/dashboard/integrations");
@@ -27,25 +30,46 @@ const ConnectStoreButton = ({
 
   if (variant === "card") {
     return (
-      <Card className={`text-center bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 ${className}`}>
-        <CardHeader className="pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-            <Store className="h-8 w-8 text-white" />
+      <Card className={cn(
+        "text-center bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200",
+        getMobileSpacing(),
+        className
+      )}>
+        <CardHeader className={cn("pb-4", isMobile && "pb-3")}>
+          <div className={cn(
+            "mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center",
+            isMobile ? "w-12 h-12" : "w-16 h-16"
+          )}>
+            <Store className={cn("text-white", isMobile ? "h-6 w-6" : "h-8 w-8")} />
           </div>
-          <CardTitle className="text-xl text-blue-900">{title}</CardTitle>
-          <CardDescription className="text-blue-700 max-w-md mx-auto">
+          <CardTitle className={cn(
+            "text-blue-900",
+            isMobile ? "text-lg" : "text-xl"
+          )}>
+            {title}
+          </CardTitle>
+          <CardDescription className={cn(
+            "text-blue-700 mx-auto",
+            isMobile ? "text-sm max-w-sm" : "text-base max-w-md"
+          )}>
             {description}
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <Button 
             onClick={handleConnectStore}
-            size="lg"
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+            size={isMobile ? "default" : "lg"}
+            className={cn(
+              "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
+              isMobile && "w-full text-sm px-4",
+              getTouchTargetSize()
+            )}
           >
-            <Zap className="h-5 w-5 mr-2" />
-            Подключить магазин
-            <ArrowRight className="h-5 w-5 ml-2" />
+            <Zap className={cn(isMobile ? "h-4 w-4 mr-2" : "h-5 w-5 mr-2")} />
+            <span className={isMobile ? "text-sm" : "text-base"}>
+              Подключить магазин
+            </span>
+            <ArrowRight className={cn(isMobile ? "h-4 w-4 ml-2" : "h-5 w-5 ml-2")} />
           </Button>
         </CardContent>
       </Card>
@@ -57,11 +81,18 @@ const ConnectStoreButton = ({
       onClick={handleConnectStore}
       size={size}
       variant={variant === "outline" ? "outline" : "default"}
-      className={`${className} ${variant === "default" ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white" : ""}`}
+      className={cn(
+        className,
+        variant === "default" && "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
+        isMobile && "text-sm px-3",
+        getTouchTargetSize()
+      )}
     >
-      <Store className="h-4 w-4 mr-2" />
-      Подключить магазин
-      <ArrowRight className="h-4 w-4 ml-2" />
+      <Store className={cn(isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2")} />
+      <span className={isMobile ? "text-sm" : "text-base"}>
+        Подключить магазин
+      </span>
+      <ArrowRight className={cn(isMobile ? "h-3 w-3 ml-1" : "h-4 w-4 ml-2")} />
     </Button>
   );
 };
