@@ -1,4 +1,3 @@
-
 export interface KaspiStore {
   id: string;
   merchant_id: string;
@@ -117,4 +116,59 @@ export interface MessageTemplate {
   content: string;
   category: string;
   isDefault: boolean;
+}
+
+// Добавляем новые интерфейсы для реферальной системы
+export interface Partner {
+  id: string;
+  user_id: string;
+  partner_code: string;
+  company_name: string | null;
+  contact_email: string | null;
+  commission_rate: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  partner_id: string | null;
+  bonus_days: number;
+  is_active: boolean;
+  usage_count: number;
+  max_usage: number | null;
+  created_at: string;
+  expires_at: string | null;
+}
+
+export interface ReferralLink {
+  id: string;
+  partner_id: string;
+  visitor_ip: string | null;
+  user_agent: string | null;
+  referrer: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  created_at: string;
+}
+
+export interface ReferralConversion {
+  id: string;
+  partner_id: string;
+  user_id: string;
+  promo_code_id: string | null;
+  conversion_type: 'registration' | 'subscription' | 'payment';
+  amount: number | null;
+  commission_earned: number | null;
+  created_at: string;
+}
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role: 'admin' | 'partner' | 'user';
+  created_at: string;
 }

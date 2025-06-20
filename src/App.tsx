@@ -17,6 +17,7 @@ import PreordersPage from "./pages/PreordersPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationPage from "./pages/IntegrationPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -54,6 +55,7 @@ const App = () => {
               <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="integrations" element={<IntegrationPage />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="admin" element={<AdminPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

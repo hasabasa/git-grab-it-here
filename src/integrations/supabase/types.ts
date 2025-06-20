@@ -95,6 +95,42 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          commission_rate: number | null
+          company_name: string | null
+          contact_email: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          partner_code: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          commission_rate?: number | null
+          company_name?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          partner_code: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          commission_rate?: number | null
+          company_name?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          partner_code?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           bot_active: boolean
@@ -150,31 +186,197 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bonus_days: number | null
           company_name: string | null
           created_at: string
           full_name: string | null
           id: string
           phone: string | null
           phone_verified: boolean | null
+          referral_source: string | null
+          subscription_end_date: string | null
           updated_at: string
         }
         Insert: {
+          bonus_days?: number | null
           company_name?: string | null
           created_at?: string
           full_name?: string | null
           id: string
           phone?: string | null
           phone_verified?: boolean | null
+          referral_source?: string | null
+          subscription_end_date?: string | null
           updated_at?: string
         }
         Update: {
+          bonus_days?: number | null
           company_name?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
           phone?: string | null
           phone_verified?: boolean | null
+          referral_source?: string | null
+          subscription_end_date?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          bonus_days: number | null
+          code: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_usage: number | null
+          partner_id: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          bonus_days?: number | null
+          code: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_usage?: number | null
+          partner_id?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          bonus_days?: number | null
+          code?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_usage?: number | null
+          partner_id?: string | null
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_conversions: {
+        Row: {
+          amount: number | null
+          commission_earned: number | null
+          conversion_type: string | null
+          created_at: string | null
+          id: string
+          partner_id: string
+          promo_code_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          commission_earned?: number | null
+          conversion_type?: string | null
+          created_at?: string | null
+          id?: string
+          partner_id: string
+          promo_code_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          commission_earned?: number | null
+          conversion_type?: string | null
+          created_at?: string | null
+          id?: string
+          partner_id?: string
+          promo_code_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_conversions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_conversions_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_links: {
+        Row: {
+          created_at: string | null
+          id: string
+          partner_id: string
+          referrer: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          partner_id: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          partner_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_links_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -307,10 +509,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "partner" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -425,6 +633,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "partner", "user"],
+    },
   },
 } as const
