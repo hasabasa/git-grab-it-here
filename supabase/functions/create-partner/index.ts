@@ -28,18 +28,31 @@ serve(async (req) => {
     const requestBody = await req.json()
     console.log('Request body received:', { ...requestBody, password: '[HIDDEN]' })
     
-    const { email, password, fullName, instagramUsername, partnerCode } = requestBody
+    const { login, password, fullName, instagramUsername, partnerCode } = requestBody
 
-    if (!email || !password || !fullName || !instagramUsername || !partnerCode) {
+    if (!login || !password || !fullName || !instagramUsername || !partnerCode) {
       console.error('Missing required fields')
       throw new Error('Все поля обязательны для заполнения')
     }
 
-    console.log('Creating user with email:', email)
+    // Генерируем email из логина
+    const generatedEmail = `${login}@partners.internal`
+    console.log('Generated email:', generatedEmail)
+
+    // Проверяем уникальность email
+    const { data: existingUser } = await supabaseClient.auth.admin.listUsers()
+    const emailExists = existingUser.users.some(user => user.email === generatedEmail)
+    
+    if (emailExists) {
+      console.error('Email already exists:', generatedEmail)
+      throw new Error(`Логин "${login}" уже занят. Выберите другой логин.`)
+    }
+
+    console.log('Creating user with email:', generatedEmail)
     
     // Создаем пользователя
     const { data: user, error: userError } = await supabaseClient.auth.admin.createUser({
-      email,
+      email: generatedEmail,
       password,
       user_metadata: {
         full_name: fullName,
@@ -78,7 +91,7 @@ serve(async (req) => {
         user_id: user.user.id,
         partner_code: partnerCode,
         instagram_username: instagramUsername,
-        contact_email: email
+        contact_email: generatedEmail
       })
 
     if (partnerError) {
@@ -123,6 +136,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         message: 'Партнер создан успешно',
+        generatedEmail: generatedEmail,
         user: user.user 
       }),
       { 

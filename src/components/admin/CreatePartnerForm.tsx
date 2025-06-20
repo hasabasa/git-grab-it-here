@@ -10,7 +10,7 @@ import { Info, AlertCircle } from 'lucide-react';
 
 export const CreatePartnerForm = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    login: '',
     password: '',
     fullName: '',
     instagramUsername: '',
@@ -31,7 +31,7 @@ export const CreatePartnerForm = () => {
     
     if (result.success) {
       setFormData({
-        email: '',
+        login: '',
         password: '',
         fullName: '',
         instagramUsername: '',
@@ -51,6 +51,12 @@ export const CreatePartnerForm = () => {
     }
   };
 
+  const validateLogin = (login: string) => {
+    return /^[a-zA-Z0-9_]+$/.test(login);
+  };
+
+  const generatedEmail = formData.login ? `${formData.login}@partners.internal` : '';
+
   return (
     <Card>
       <CardHeader>
@@ -63,7 +69,7 @@ export const CreatePartnerForm = () => {
         <Alert className="mb-4">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            После создания партнер сможет войти в систему через партнерскую панель, используя указанные email и пароль.
+            После создания партнер сможет войти в систему через партнерскую панель, используя сгенерированный email и пароль.
             Доступ к панели: <strong>/partner/login</strong>
           </AlertDescription>
         </Alert>
@@ -78,15 +84,28 @@ export const CreatePartnerForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="login">Логин</Label>
               <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="partner@example.com"
+                id="login"
+                type="text"
+                value={formData.login}
+                onChange={(e) => {
+                  const login = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+                  setFormData(prev => ({ ...prev, login }));
+                }}
+                placeholder="astana"
                 required
               />
+              {formData.login && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Email: <span className="font-mono">{generatedEmail}</span>
+                </p>
+              )}
+              {formData.login && !validateLogin(formData.login) && (
+                <p className="text-sm text-red-500 mt-1">
+                  Используйте только буквы, цифры и подчеркивания
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="password">Пароль</Label>
@@ -141,7 +160,11 @@ export const CreatePartnerForm = () => {
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button 
+            type="submit" 
+            disabled={loading || !validateLogin(formData.login)} 
+            className="w-full"
+          >
             {loading ? 'Создание...' : 'Создать партнера'}
           </Button>
         </form>

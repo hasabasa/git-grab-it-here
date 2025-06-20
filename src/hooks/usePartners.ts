@@ -47,7 +47,7 @@ export const usePartners = () => {
   };
 
   const createPartner = async (partnerData: {
-    email: string;
+    login: string;
     password: string;
     fullName: string;
     instagramUsername: string;
@@ -76,7 +76,7 @@ export const usePartners = () => {
       
       toast({
         title: "Успех",
-        description: "Партнер создан успешно. Данные для входа отправлены на email."
+        description: `Партнер создан успешно. Email: ${data.generatedEmail || data.email}. Данные для входа отправлены на email.`
       });
 
       return { success: true };
