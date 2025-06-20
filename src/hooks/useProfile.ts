@@ -21,6 +21,14 @@ interface SubscriptionStatus {
   plan: 'free' | 'pro';
 }
 
+interface PromoCodeResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  bonus_days?: number;
+  new_end_date?: string;
+}
+
 export const useProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -75,7 +83,7 @@ export const useProfile = () => {
     }
   };
 
-  const applyPromoCode = async (promoCode: string) => {
+  const applyPromoCode = async (promoCode: string): Promise<PromoCodeResult> => {
     if (!user) return { success: false, error: 'Пользователь не авторизован' };
     
     try {
@@ -86,11 +94,13 @@ export const useProfile = () => {
       
       if (error) throw error;
       
-      if (data.success) {
+      const result = data as PromoCodeResult;
+      
+      if (result.success) {
         await loadProfile(); // Перезагружаем профиль после применения промокода
       }
       
-      return data;
+      return result;
     } catch (error) {
       console.error('Error applying promo code:', error);
       return { success: false, error: 'Ошибка при применении промокода' };

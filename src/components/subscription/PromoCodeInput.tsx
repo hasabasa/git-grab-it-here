@@ -23,7 +23,7 @@ const PromoCodeInput = () => {
       const result = await applyPromoCode(promoCode.trim().toUpperCase());
       
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message || "Промокод успешно применен!");
         setPromoCode("");
       } else {
         toast.error(result.error || "Ошибка при применении промокода");
