@@ -47,7 +47,7 @@ export const PromoCodeInput = () => {
         throw error;
       }
 
-      const response = data as PromoCodeResponse;
+      const response = data as unknown as PromoCodeResponse;
 
       if (response.success) {
         setSuccess(response.message || 'Промокод применен успешно');

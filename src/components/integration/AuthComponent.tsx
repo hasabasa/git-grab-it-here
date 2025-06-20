@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,7 @@ export const AuthComponent = () => {
 
     try {
       const result = await signIn(formData.email, formData.password);
-      if (result?.error) {
+      if (result.error) {
         setError(result.error.message);
       } else {
         setSuccess('Вход выполнен успешно!');
@@ -58,34 +57,30 @@ export const AuthComponent = () => {
     const referralData = getReferralData();
     
     const userData = {
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          full_name: formData.fullName,
-          company_name: formData.companyName,
-          phone: formData.phone,
-          // Добавляем реферальные данные в метаданные пользователя
-          referral_source: referralData?.partner_code || null,
-          utm_source: referralData?.utm_source || null,
-          utm_medium: referralData?.utm_medium || null,
-          utm_campaign: referralData?.utm_campaign || null,
-          utm_content: referralData?.utm_content || null,
-          utm_term: referralData?.utm_term || null,
-        }
+      data: {
+        full_name: formData.fullName,
+        company_name: formData.companyName,
+        phone: formData.phone,
+        // Добавляем реферальные данные в метаданные пользователя
+        referral_source: referralData?.partner_code || null,
+        utm_source: referralData?.utm_source || null,
+        utm_medium: referralData?.utm_medium || null,
+        utm_campaign: referralData?.utm_campaign || null,
+        utm_content: referralData?.utm_content || null,
+        utm_term: referralData?.utm_term || null,
       }
     };
 
     try {
-      const result = await signUp(userData.email, userData.password, userData.options);
+      const result = await signUp(formData.email, formData.password, userData);
       
-      if (result?.error) {
+      if (result.error) {
         setError(result.error.message);
       } else {
         setSuccess('Регистрация прошла успешно! Проверьте почту для подтверждения.');
         
         // Записываем конверсию регистрации, если есть реферальные данные
-        if (referralData && result?.data?.user?.id) {
+        if (referralData && result.data?.user?.id) {
           await recordConversion(result.data.user.id, 'registration');
         }
         

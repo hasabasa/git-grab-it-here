@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
@@ -106,27 +105,24 @@ export const useAuth = () => {
     };
   }, [isInitialized]);
 
-  const signUp = async (email: string, password: string, userData?: { fullName?: string; companyName?: string; phone?: string }) => {
+  const signUp = async (email: string, password: string, options?: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: {
-          full_name: userData?.fullName,
-          company_name: userData?.companyName,
-          phone: userData?.phone
-        }
+        data: options?.data || {}
       }
     });
-    if (error) throw error;
+    
+    return { data, error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    return { data, error };
   };
 
   const signOut = async () => {
