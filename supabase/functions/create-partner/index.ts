@@ -8,19 +8,35 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('create-partner function called with method:', req.method)
+  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    console.log('Starting partner creation process...')
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       { auth: { persistSession: false } }
     )
 
-    const { email, password, fullName, instagramUsername, partnerCode } = await req.json()
+    console.log('Supabase client created successfully')
 
+    const requestBody = await req.json()
+    console.log('Request body received:', { ...requestBody, password: '[HIDDEN]' })
+    
+    const { email, password, fullName, instagramUsername, partnerCode } = requestBody
+
+    if (!email || !password || !fullName || !instagramUsername || !partnerCode) {
+      console.error('Missing required fields')
+      throw new Error('Все поля обязательны для заполнения')
+    }
+
+    console.log('Creating user with email:', email)
+    
     // Создаем пользователя
     const { data: user, error: userError } = await supabaseClient.auth.admin.createUser({
       email,
@@ -32,10 +48,14 @@ serve(async (req) => {
     })
 
     if (userError) {
-      throw userError
+      console.error('User creation error:', userError)
+      throw new Error(`Ошибка создания пользователя: ${userError.message}`)
     }
 
+    console.log('User created successfully:', user.user.id)
+
     // Назначаем роль партнера
+    console.log('Assigning partner role...')
     const { error: roleError } = await supabaseClient
       .from('user_roles')
       .insert({
@@ -44,10 +64,14 @@ serve(async (req) => {
       })
 
     if (roleError) {
-      throw roleError
+      console.error('Role assignment error:', roleError)
+      throw new Error(`Ошибка назначения роли: ${roleError.message}`)
     }
 
+    console.log('Role assigned successfully')
+
     // Создаем запись партнера
+    console.log('Creating partner record...')
     const { error: partnerError } = await supabaseClient
       .from('partners')
       .insert({
@@ -58,27 +82,42 @@ serve(async (req) => {
       })
 
     if (partnerError) {
-      throw partnerError
+      console.error('Partner record creation error:', partnerError)
+      throw new Error(`Ошибка создания записи партнера: ${partnerError.message}`)
     }
 
+    console.log('Partner record created successfully')
+
     // Получаем ID партнера для создания промокода
-    const { data: partnerData } = await supabaseClient
+    const { data: partnerData, error: partnerSelectError } = await supabaseClient
       .from('partners')
       .select('id')
       .eq('user_id', user.user.id)
       .single()
 
+    if (partnerSelectError) {
+      console.error('Partner select error:', partnerSelectError)
+      throw new Error(`Ошибка получения данных партнера: ${partnerSelectError.message}`)
+    }
+
+    console.log('Partner data retrieved:', partnerData.id)
+
     // Создаем промокод
+    console.log('Creating promo code...')
     const { error: promoError } = await supabaseClient
       .from('promo_codes')
       .insert({
         code: partnerCode,
-        partner_id: partnerData?.id
+        partner_id: partnerData.id
       })
 
     if (promoError) {
-      throw promoError
+      console.error('Promo code creation error:', promoError)
+      throw new Error(`Ошибка создания промокода: ${promoError.message}`)
     }
+
+    console.log('Promo code created successfully')
+    console.log('Partner creation completed successfully')
 
     return new Response(
       JSON.stringify({ 
@@ -92,6 +131,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Function error:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 

@@ -54,31 +54,38 @@ export const usePartners = () => {
     partnerCode: string;
   }) => {
     try {
+      console.log('Creating partner with data:', { ...partnerData, password: '[HIDDEN]' });
+      
       const { data, error } = await supabase.functions.invoke('create-partner', {
         body: partnerData,
       });
 
+      console.log('Supabase function response:', data);
+
       if (error) {
-        throw new Error(error.message);
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Ошибка вызова функции');
       }
 
       if (!data.success) {
-        throw new Error(data.error);
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error || 'Неизвестная ошибка');
       }
 
       await loadPartners();
       
       toast({
         title: "Успех",
-        description: "Партнер создан успешно. Учетные данные отправлены на email."
+        description: "Партнер создан успешно. Данные для входа отправлены на email."
       });
 
       return { success: true };
     } catch (error) {
       console.error('Error creating partner:', error);
+      const errorMessage = error instanceof Error ? error.message : "Не удалось создать партнера";
       toast({
-        title: "Ошибка",
-        description: error instanceof Error ? error.message : "Не удалось создать партнера",
+        title: "Ошибка создания партнера",
+        description: errorMessage,
         variant: "destructive"
       });
       return { success: false, error };

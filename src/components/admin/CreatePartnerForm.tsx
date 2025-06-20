@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePartners } from '@/hooks/usePartners';
-import { Info } from 'lucide-react';
+import { Info, AlertCircle } from 'lucide-react';
 
 export const CreatePartnerForm = () => {
   const [formData, setFormData] = useState({
@@ -17,11 +17,15 @@ export const CreatePartnerForm = () => {
     partnerCode: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { createPartner } = usePartners();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    
+    console.log('Form submitted with data:', { ...formData, password: '[HIDDEN]' });
     
     const result = await createPartner(formData);
     
@@ -33,6 +37,8 @@ export const CreatePartnerForm = () => {
         instagramUsername: '',
         partnerCode: ''
       });
+    } else {
+      setError(result.error?.message || 'Произошла ошибка при создании партнера');
     }
     
     setLoading(false);
@@ -61,6 +67,13 @@ export const CreatePartnerForm = () => {
             Доступ к панели: <strong>/partner/login</strong>
           </AlertDescription>
         </Alert>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
