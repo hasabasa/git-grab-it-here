@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
+import AdminLayout from "./layouts/AdminLayout";
 import Welcome from "./pages/Welcome";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -17,9 +18,13 @@ import PreordersPage from "./pages/PreordersPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationPage from "./pages/IntegrationPage";
 import WhatsAppPage from "./pages/WhatsAppPage";
-import AdminPage from "./pages/AdminPage";
+import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminPartnersPage from "./pages/admin/AdminPartnersPage";
+import AdminSystemPage from "./pages/admin/AdminSystemPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +44,7 @@ const App = () => {
             <Route path="/" element={<Welcome />} />
             <Route path="/auth" element={<AuthPage />} />
             
+            {/* Пользовательская панель */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardLayout />
@@ -55,8 +61,20 @@ const App = () => {
               <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="integrations" element={<IntegrationPage />} />
               <Route path="profile" element={<ProfilePage />} />
-              <Route path="admin" element={<AdminPage />} />
             </Route>
+
+            {/* Админ-панель */}
+            <Route path="/admin" element={
+              <ProtectedAdminRoute>
+                <AdminLayout />
+              </ProtectedAdminRoute>
+            }>
+              <Route index element={<AdminOverviewPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="partners" element={<AdminPartnersPage />} />
+              <Route path="system" element={<AdminSystemPage />} />
+            </Route>
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
