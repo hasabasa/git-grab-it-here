@@ -29,7 +29,7 @@ export const PromoCodeManager = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newCode, setNewCode] = useState('');
-  const [bonusDays, setBonusDays] = useState(15);
+  const bonusDays = 15; // Фиксированное значение
   const [maxUsage, setMaxUsage] = useState<number | ''>('');
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
@@ -98,7 +98,6 @@ export const PromoCodeManager = () => {
         });
         
         setNewCode('');
-        setBonusDays(15);
         setMaxUsage('');
         loadPartnerData(); // Перезагружаем список
       } else {
@@ -191,12 +190,10 @@ export const PromoCodeManager = () => {
                   id="bonus"
                   type="number"
                   value={bonusDays}
-                  onChange={(e) => setBonusDays(Number(e.target.value))}
-                  min="1"
-                  max="365"
-                  required
-                  disabled={creating}
+                  disabled
+                  className="bg-gray-50 text-gray-600"
                 />
+                <p className="text-xs text-gray-500">Фиксированное значение</p>
               </div>
               
               <div className="space-y-2">
