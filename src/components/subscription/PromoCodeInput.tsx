@@ -1,78 +1,129 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { useProfile } from "@/hooks/useProfile";
-import { Gift, Loader2 } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/components/integration/useAuth';
+import { useReferralConversion } from '@/hooks/useReferralConversion';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { Gift, AlertCircle, CheckCircle } from 'lucide-react';
 
-const PromoCodeInput = () => {
-  const [promoCode, setPromoCode] = useState("");
-  const [isApplying, setIsApplying] = useState(false);
-  const { applyPromoCode } = useProfile();
+export const PromoCodeInput = () => {
+  const [promoCode, setPromoCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { recordConversion } = useReferralConversion();
+  const { toast } = useToast();
 
-  const handleApplyPromoCode = async () => {
-    if (!promoCode.trim()) {
-      toast.error("Введите промокод");
-      return;
-    }
+  const handleApplyPromoCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !promoCode.trim()) return;
 
-    setIsApplying(true);
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
     try {
-      const result = await applyPromoCode(promoCode.trim().toUpperCase());
-      
-      if (result.success) {
-        toast.success(result.message || "Промокод успешно применен!");
-        setPromoCode("");
+      // Вызываем функцию применения промокода
+      const { data, error } = await supabase.rpc('apply_promo_code', {
+        p_user_id: user.id,
+        p_promo_code: promoCode.trim().toUpperCase()
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.success) {
+        setSuccess(data.message);
+        setPromoCode('');
+        
+        // Записываем конверсию использования промокода
+        await recordConversion(user.id, 'promo_code_usage', 0);
+        
+        toast({
+          title: "Промокод применен",
+          description: data.message,
+        });
       } else {
-        toast.error(result.error || "Ошибка при применении промокода");
+        setError(data.error);
+        toast({
+          title: "Ошибка",
+          description: data.error,
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      toast.error("Произошла ошибка при применении промокода");
+      console.error('Error applying promo code:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка';
+      setError(errorMessage);
+      toast({
+        title: "Ошибка",
+        description: errorMessage,
+        variant: "destructive"
+      });
     } finally {
-      setIsApplying(false);
+      setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleApplyPromoCode();
-    }
-  };
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="promoCode" className="flex items-center gap-2">
-          <Gift className="h-4 w-4" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Gift className="h-5 w-5" />
           Промокод
-        </Label>
-        <div className="flex gap-2">
-          <Input
-            id="promoCode"
-            placeholder="Введите промокод"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-            onKeyPress={handleKeyPress}
-            disabled={isApplying}
-            className="flex-1"
-          />
+        </CardTitle>
+        <CardDescription>
+          Введите промокод для получения дополнительных дней подписки
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleApplyPromoCode} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="promo-code">Промокод</Label>
+            <Input
+              id="promo-code"
+              type="text"
+              placeholder="Введите промокод"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+              disabled={loading}
+            />
+          </div>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert>
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+
           <Button 
-            onClick={handleApplyPromoCode}
-            disabled={isApplying || !promoCode.trim()}
-            className="px-6"
+            type="submit" 
+            disabled={loading || !promoCode.trim()}
+            className="w-full"
           >
-            {isApplying ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Применить"
-            )}
+            {loading ? 'Применение...' : 'Применить промокод'}
           </Button>
-        </div>
-      </div>
-    </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
-
-export default PromoCodeInput;

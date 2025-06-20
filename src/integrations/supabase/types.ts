@@ -199,6 +199,11 @@ export type Database = {
           referral_source: string | null
           subscription_end_date: string | null
           updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           bonus_days?: number | null
@@ -211,6 +216,11 @@ export type Database = {
           referral_source?: string | null
           subscription_end_date?: string | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           bonus_days?: number | null
@@ -223,6 +233,11 @@ export type Database = {
           referral_source?: string | null
           subscription_end_date?: string | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -277,6 +292,66 @@ export type Database = {
           },
         ]
       }
+      referral_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          page_url: string | null
+          partner_id: string
+          referrer: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          visitor_ip: unknown | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_url?: string | null
+          partner_id: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_ip?: unknown | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_url?: string | null
+          partner_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_ip?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_clicks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_stats"
+            referencedColumns: ["partner_id"]
+          },
+          {
+            foreignKeyName: "referral_clicks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_conversions: {
         Row: {
           amount: number | null
@@ -284,8 +359,11 @@ export type Database = {
           conversion_type: string | null
           created_at: string | null
           id: string
+          notes: string | null
           partner_id: string
           promo_code_id: string | null
+          referral_click_id: string | null
+          status: string | null
           user_id: string
         }
         Insert: {
@@ -294,8 +372,11 @@ export type Database = {
           conversion_type?: string | null
           created_at?: string | null
           id?: string
+          notes?: string | null
           partner_id: string
           promo_code_id?: string | null
+          referral_click_id?: string | null
+          status?: string | null
           user_id: string
         }
         Update: {
@@ -304,8 +385,11 @@ export type Database = {
           conversion_type?: string | null
           created_at?: string | null
           id?: string
+          notes?: string | null
           partner_id?: string
           promo_code_id?: string | null
+          referral_click_id?: string | null
+          status?: string | null
           user_id?: string
         }
         Relationships: [
@@ -328,6 +412,13 @@ export type Database = {
             columns: ["promo_code_id"]
             isOneToOne: false
             referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_conversions_referral_click_id_fkey"
+            columns: ["referral_click_id"]
+            isOneToOne: false
+            referencedRelation: "referral_clicks"
             referencedColumns: ["id"]
           },
         ]

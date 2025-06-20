@@ -8,8 +8,12 @@ import ModulesSection from "@/components/welcome/ModulesSection";
 import PricingSection from "@/components/welcome/PricingSection";
 import GrowthSection from "@/components/welcome/GrowthSection";
 import Footer from "@/components/layout/Footer";
+import { useReferralTracking } from "@/hooks/useReferralTracking";
 
 const Welcome = () => {
+  // Инициализируем трекинг реферальных переходов
+  useReferralTracking();
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Navigation */}
