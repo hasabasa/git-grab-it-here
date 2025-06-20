@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { usePartners } from '@/hooks/usePartners';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, Instagram } from 'lucide-react';
 
 export const PartnersTable = () => {
   const { partners, loading, updatePartner } = usePartners();
@@ -33,6 +33,10 @@ export const PartnersTable = () => {
                   <Badge variant={partner.is_active ? "default" : "secondary"}>
                     {partner.is_active ? 'Активен' : 'Неактивен'}
                   </Badge>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <Instagram className="h-4 w-4 text-pink-500" />
+                  <span className="text-sm font-medium">@{partner.instagram_username}</span>
                 </div>
                 <p className="text-sm text-muted-foreground">{partner.contact_email}</p>
                 <p className="text-sm font-mono">{partner.partner_code}</p>

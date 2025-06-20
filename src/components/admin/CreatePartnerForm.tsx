@@ -11,7 +11,7 @@ export const CreatePartnerForm = () => {
     email: '',
     password: '',
     fullName: '',
-    companyName: '',
+    instagramUsername: '',
     partnerCode: ''
   });
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export const CreatePartnerForm = () => {
         email: '',
         password: '',
         fullName: '',
-        companyName: '',
+        instagramUsername: '',
         partnerCode: ''
       });
     }
@@ -37,8 +37,10 @@ export const CreatePartnerForm = () => {
   };
 
   const generatePartnerCode = () => {
-    const code = `PARTNER_${Date.now().toString(36).toUpperCase()}`;
-    setFormData(prev => ({ ...prev, partnerCode: code }));
+    if (formData.instagramUsername) {
+      const code = `PARTNER_${formData.instagramUsername.toUpperCase()}`;
+      setFormData(prev => ({ ...prev, partnerCode: code }));
+    }
   };
 
   return (
@@ -85,11 +87,13 @@ export const CreatePartnerForm = () => {
               />
             </div>
             <div>
-              <Label htmlFor="companyName">Название компании</Label>
+              <Label htmlFor="instagramUsername">Instagram Username</Label>
               <Input
-                id="companyName"
-                value={formData.companyName}
-                onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                id="instagramUsername"
+                value={formData.instagramUsername}
+                onChange={(e) => setFormData(prev => ({ ...prev, instagramUsername: e.target.value }))}
+                placeholder="username"
+                required
               />
             </div>
           </div>

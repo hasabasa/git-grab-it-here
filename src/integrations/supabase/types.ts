@@ -102,6 +102,7 @@ export type Database = {
           contact_email: string | null
           created_at: string | null
           id: string
+          instagram_username: string
           is_active: boolean | null
           partner_code: string
           updated_at: string | null
@@ -113,6 +114,7 @@ export type Database = {
           contact_email?: string | null
           created_at?: string | null
           id?: string
+          instagram_username: string
           is_active?: boolean | null
           partner_code: string
           updated_at?: string | null
@@ -124,6 +126,7 @@ export type Database = {
           contact_email?: string | null
           created_at?: string | null
           id?: string
+          instagram_username?: string
           is_active?: boolean | null
           partner_code?: string
           updated_at?: string | null
@@ -262,6 +265,13 @@ export type Database = {
             foreignKeyName: "promo_codes_partner_id_fkey"
             columns: ["partner_id"]
             isOneToOne: false
+            referencedRelation: "partner_stats"
+            referencedColumns: ["partner_id"]
+          },
+          {
+            foreignKeyName: "promo_codes_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
             referencedRelation: "partners"
             referencedColumns: ["id"]
           },
@@ -299,6 +309,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "referral_conversions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_stats"
+            referencedColumns: ["partner_id"]
+          },
           {
             foreignKeyName: "referral_conversions_partner_id_fkey"
             columns: ["partner_id"]
@@ -350,6 +367,13 @@ export type Database = {
           visitor_ip?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "referral_links_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_stats"
+            referencedColumns: ["partner_id"]
+          },
           {
             foreignKeyName: "referral_links_partner_id_fkey"
             columns: ["partner_id"]
@@ -506,12 +530,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      partner_stats: {
+        Row: {
+          instagram_username: string | null
+          paid_conversions: number | null
+          partner_code: string | null
+          partner_id: string | null
+          promo_usage: number | null
+          registrations: number | null
+          total_clicks: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       apply_promo_code: {
         Args: { p_user_id: string; p_promo_code: string }
         Returns: Json
+      }
+      generate_partner_code: {
+        Args: { instagram_name: string }
+        Returns: string
       }
       has_role: {
         Args: {

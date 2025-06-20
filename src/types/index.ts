@@ -119,10 +119,12 @@ export interface MessageTemplate {
 }
 
 // Добавляем новые интерфейсы для реферальной системы
+// Обновляем интерфейс Partner для поддержки Instagram username
 export interface Partner {
   id: string;
   user_id: string;
   partner_code: string;
+  instagram_username: string;
   company_name: string | null;
   contact_email: string | null;
   commission_rate: number;

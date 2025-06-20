@@ -22,6 +22,8 @@ import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminPartnersPage from "./pages/admin/AdminPartnersPage";
 import AdminSystemPage from "./pages/admin/AdminSystemPage";
+import PartnerLoginPage from "./pages/PartnerLoginPage";
+import PartnerDashboardPage from "./pages/PartnerDashboardPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
@@ -43,6 +45,10 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Партнерские маршруты */}
+            <Route path="/partner/login" element={<PartnerLoginPage />} />
+            <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
             
             {/* Пользовательская панель */}
             <Route path="/dashboard" element={

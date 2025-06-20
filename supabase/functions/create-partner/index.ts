@@ -19,7 +19,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     )
 
-    const { email, password, fullName, companyName, partnerCode } = await req.json()
+    const { email, password, fullName, instagramUsername, partnerCode } = await req.json()
 
     // Создаем пользователя
     const { data: user, error: userError } = await supabaseClient.auth.admin.createUser({
@@ -27,7 +27,7 @@ serve(async (req) => {
       password,
       user_metadata: {
         full_name: fullName,
-        company_name: companyName
+        instagram_username: instagramUsername
       }
     })
 
@@ -53,7 +53,7 @@ serve(async (req) => {
       .insert({
         user_id: user.user.id,
         partner_code: partnerCode,
-        company_name: companyName,
+        instagram_username: instagramUsername,
         contact_email: email
       })
 
@@ -61,16 +61,19 @@ serve(async (req) => {
       throw partnerError
     }
 
+    // Получаем ID партнера для создания промокода
+    const { data: partnerData } = await supabaseClient
+      .from('partners')
+      .select('id')
+      .eq('user_id', user.user.id)
+      .single()
+
     // Создаем промокод
     const { error: promoError } = await supabaseClient
       .from('promo_codes')
       .insert({
         code: partnerCode,
-        partner_id: (await supabaseClient
-          .from('partners')
-          .select('id')
-          .eq('user_id', user.user.id)
-          .single()).data?.id
+        partner_id: partnerData?.id
       })
 
     if (promoError) {

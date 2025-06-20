@@ -7,6 +7,7 @@ interface Partner {
   id: string;
   user_id: string;
   partner_code: string;
+  instagram_username: string;
   company_name: string | null;
   contact_email: string | null;
   commission_rate: number;
@@ -49,7 +50,7 @@ export const usePartners = () => {
     email: string;
     password: string;
     fullName: string;
-    companyName: string;
+    instagramUsername: string;
     partnerCode: string;
   }) => {
     try {
