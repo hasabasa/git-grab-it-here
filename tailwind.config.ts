@@ -19,7 +19,10 @@ export default {
 			}
 		},
 		screens: {
-			'xs': '475px',
+			'xs': '375px',        // iPhone base size
+			'iphone': '375px',    // iPhone 11, 12 mini, 13 mini
+			'iphone-plus': '414px', // iPhone 11 Pro, 12, 13, 14
+			'iphone-pro-max': '430px', // iPhone 14 Pro Max, 15 Pro Max, 16 Pro Max
 			'sm': '640px',
 			'md': '768px',
 			'lg': '1024px',
@@ -82,6 +85,19 @@ export default {
 				'safe-bottom': 'env(safe-area-inset-bottom)',
 				'safe-left': 'env(safe-area-inset-left)',
 				'safe-right': 'env(safe-area-inset-right)',
+				'touch-target': '44px', // Minimum touch target size for iOS
+			},
+			minHeight: {
+				'touch-target': '44px',
+			},
+			minWidth: {
+				'touch-target': '44px',
+			},
+			fontSize: {
+				'mobile-sm': ['14px', '20px'],
+				'mobile-base': ['16px', '24px'],
+				'mobile-lg': ['18px', '28px'],
+				'mobile-xl': ['20px', '32px'],
 			},
 			keyframes: {
 				'accordion-down': {
