@@ -5,28 +5,20 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Package, Clock, TrendingUp } from "lucide-react";
 import PreordersComingSoonModal from "@/components/preorders/PreordersComingSoonModal";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
-import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
 import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";
 
 const PreordersPage = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
+  const { isConnected, needsConnection, loading } = useStoreConnection();
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
   const handleFeatureClick = () => {
     setShowComingSoonModal(true);
   };
 
-  // Show loading screen while checking auth and store connection
-  if (authLoading || storeLoading) {
+  // Show loading screen while checking store connection
+  if (loading) {
     return <LoadingScreen text="Загрузка модуля предзаказов..." />;
-  }
-
-  // Show auth component if not authenticated
-  if (!isAuthenticated) {
-    return <AuthComponent />;
   }
 
   // Show store connection if needed

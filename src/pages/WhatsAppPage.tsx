@@ -15,8 +15,6 @@ import WhatsAppComingSoonModal from "@/components/whatsapp/WhatsAppComingSoonMod
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
-import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
 import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";
 
@@ -58,8 +56,7 @@ const demoContacts: WhatsAppContact[] = [
 ];
 
 const WhatsAppPage = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
+  const { isConnected, needsConnection, loading } = useStoreConnection();
   
   const [contacts, setContacts] = useState<WhatsAppContact[]>(demoContacts);
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,7 +66,7 @@ const WhatsAppPage = () => {
   const {
     session,
     messages,
-    loading,
+    loading: whatsappLoading,
     qrCode,
     showComingSoonModal,
     setShowComingSoonModal,
@@ -77,14 +74,9 @@ const WhatsAppPage = () => {
     sendMessage,
   } = useWhatsAppConnection();
 
-  // Show loading screen while checking auth and store connection
-  if (authLoading || storeLoading) {
+  // Show loading screen while checking store connection
+  if (loading) {
     return <LoadingScreen text="Загрузка модуля WhatsApp..." />;
-  }
-
-  // Show auth component if not authenticated
-  if (!isAuthenticated) {
-    return <AuthComponent />;
   }
 
   // Show store connection if needed
@@ -200,7 +192,7 @@ const WhatsAppPage = () => {
                 qrCode={qrCode}
                 isConnected={session?.is_connected || false}
                 onCreateSession={createSession}
-                loading={loading}
+                loading={whatsappLoading}
               />
               
               {session?.is_connected && (
