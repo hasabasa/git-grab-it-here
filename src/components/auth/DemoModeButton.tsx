@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,22 +18,8 @@ const DemoModeButton = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Сразу входим в демо режим без формы
-    try {
-      console.log("DemoModeButton: Прямой вход в демо режим...");
-      
-      // Входим в демо режим и ждем завершения
-      await enterDemoMode();
-      
-      console.log("DemoModeButton: Демо режим активирован, переходим на dashboard");
-      
-      // Принудительная навигация
-      window.location.href = "/dashboard";
-      
-      console.log("DemoModeButton: Навигация завершена");
-    } catch (error) {
-      console.error("DemoModeButton: Ошибка при входе в демо режим:", error);
-    }
+    // Показываем форму для ввода контактов
+    setShowContactForm(true);
   };
 
   const handleDirectDemoEntry = async () => {
