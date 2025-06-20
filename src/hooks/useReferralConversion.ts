@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -12,57 +11,85 @@ export const useReferralConversion = () => {
     promoCodeId?: string
   ) => {
     try {
-      // Получаем данные реферала из localStorage
-      const referralData = localStorage.getItem('referral_data');
-      if (!referralData) {
-        console.log('No referral data found');
+      console.log('Recording conversion:', { userId, conversionType, amount, promoCodeId });
+
+      // Get referral data from localStorage
+      const referralDataStr = localStorage.getItem('referral_data');
+      if (!referralDataStr) {
+        console.log('No referral data found in localStorage');
         return;
       }
 
-      const parsed = JSON.parse(referralData);
-      console.log('Recording conversion:', { conversionType, userId, referralData: parsed });
+      const referralData = JSON.parse(referralDataStr);
+      console.log('Using referral data:', referralData);
 
-      // Находим партнера по коду
+      if (!referralData.partner_code) {
+        console.log('No partner code in referral data');
+        return;
+      }
+
+      // Find partner by code
       const { data: partner, error: partnerError } = await supabase
         .from('partners')
         .select('id, commission_rate')
-        .eq('partner_code', parsed.partner_code)
+        .eq('partner_code', referralData.partner_code)
         .single();
 
       if (partnerError || !partner) {
-        console.error('Partner not found:', partnerError);
+        console.error('Partner not found for conversion:', partnerError);
         return;
       }
 
-      // Вычисляем комиссию
+      console.log('Found partner for conversion:', partner);
+
+      // Calculate commission
       const commissionRate = partner.commission_rate || 10;
       const commissionEarned = amount ? (amount * commissionRate / 100) : 0;
 
-      // Записываем конверсию
-      const { error: conversionError } = await supabase
+      console.log('Commission calculation:', { amount, commissionRate, commissionEarned });
+
+      // Record conversion
+      const conversionData = {
+        partner_id: partner.id,
+        user_id: userId,
+        promo_code_id: promoCodeId || null,
+        referral_click_id: referralData.click_id || null,
+        conversion_type: conversionType,
+        amount: amount || 0,
+        commission_earned: commissionEarned,
+        status: 'confirmed',
+        notes: `Conversion from ${referralData.utm_source || 'unknown source'} - ${conversionType}`
+      };
+
+      console.log('Inserting conversion:', conversionData);
+
+      const { data: insertedData, error: conversionError } = await supabase
         .from('referral_conversions')
-        .insert({
-          partner_id: partner.id,
-          user_id: userId,
-          promo_code_id: promoCodeId,
-          referral_click_id: parsed.click_id,
-          conversion_type: conversionType,
-          amount: amount || 0,
-          commission_earned: commissionEarned,
-          status: 'confirmed',
-          notes: `Conversion from ${parsed.utm_source || 'unknown source'}`
-        });
+        .insert(conversionData)
+        .select()
+        .single();
 
       if (conversionError) {
         console.error('Error recording conversion:', conversionError);
+        throw conversionError;
       } else {
-        console.log('Conversion recorded successfully');
+        console.log('Conversion recorded successfully:', insertedData);
         
-        // Очищаем данные реферала только после успешной записи
+        // Show success toast for important conversions
         if (conversionType === 'registration') {
-          // Не очищаем данные после регистрации, так как могут быть дополнительные конверсии
-          console.log('Registration conversion recorded, keeping referral data for future conversions');
+          toast({
+            title: "Добро пожаловать!",
+            description: "Регистрация завершена через партнерскую ссылку"
+          });
+        } else if (conversionType === 'subscription_payment') {
+          toast({
+            title: "Оплата прошла успешно",
+            description: "Спасибо за подписку!"
+          });
         }
+
+        // Don't clear referral data immediately - keep it for potential future conversions
+        console.log('Keeping referral data for potential future conversions');
       }
     } catch (error) {
       console.error('Error in recordConversion:', error);

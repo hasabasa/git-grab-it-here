@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,7 @@ export const AuthComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Очищаем сообщения при смене вкладки
+  // Clear messages when switching tabs
   useEffect(() => {
     setError(null);
     setSuccess(null);
@@ -37,13 +38,17 @@ export const AuthComponent = () => {
     setSuccess(null);
 
     try {
+      console.log('Attempting sign in for:', formData.email);
       const result = await signIn(formData.email, formData.password);
       if (result.error) {
+        console.error('Sign in error:', result.error);
         setError(result.error.message);
       } else {
+        console.log('Sign in successful');
         setSuccess('Вход выполнен успешно!');
       }
     } catch (err) {
+      console.error('Sign in exception:', err);
       setError('Произошла ошибка при входе');
     }
   };
@@ -53,15 +58,18 @@ export const AuthComponent = () => {
     setError(null);
     setSuccess(null);
 
-    // Получаем данные реферала для передачи в метаданные пользователя
+    console.log('Starting registration process');
+
+    // Get referral data for user metadata
     const referralData = getReferralData();
+    console.log('Referral data for registration:', referralData);
     
     const userData = {
       data: {
         full_name: formData.fullName,
         company_name: formData.companyName,
         phone: formData.phone,
-        // Добавляем реферальные данные в метаданные пользователя
+        // Add referral data to user metadata
         referral_source: referralData?.partner_code || null,
         utm_source: referralData?.utm_source || null,
         utm_medium: referralData?.utm_medium || null,
@@ -71,20 +79,33 @@ export const AuthComponent = () => {
       }
     };
 
+    console.log('User data for registration:', userData);
+
     try {
       const result = await signUp(formData.email, formData.password, userData);
       
       if (result.error) {
+        console.error('Registration error:', result.error);
         setError(result.error.message);
       } else {
+        console.log('Registration successful:', result.data);
         setSuccess('Регистрация прошла успешно! Проверьте почту для подтверждения.');
         
-        // Записываем конверсию регистрации, если есть реферальные данные
+        // Record registration conversion if referral data exists
         if (referralData && result.data?.user?.id) {
-          await recordConversion(result.data.user.id, 'registration');
+          console.log('Recording registration conversion for user:', result.data.user.id);
+          try {
+            await recordConversion(result.data.user.id, 'registration');
+            console.log('Registration conversion recorded successfully');
+          } catch (conversionError) {
+            console.error('Error recording registration conversion:', conversionError);
+            // Don't fail the registration if conversion recording fails
+          }
+        } else {
+          console.log('No referral data or user ID for conversion recording');
         }
         
-        // Очищаем форму
+        // Clear form
         setFormData({
           email: '',
           password: '',
@@ -94,6 +115,7 @@ export const AuthComponent = () => {
         });
       }
     } catch (err) {
+      console.error('Registration exception:', err);
       setError('Произошла ошибка при регистрации');
     }
   };
