@@ -11,15 +11,15 @@ import { useToast } from '@/components/ui/use-toast';
 
 const PartnerDashboardPage = () => {
   const { user, signOut } = useAuth();
-  const { role, loading } = useUserRole();
+  const { isPartner, loading } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && (!user || role !== 'partner')) {
+    if (!loading && (!user || !isPartner)) {
       navigate('/partner/login');
     }
-  }, [user, role, loading, navigate]);
+  }, [user, isPartner, loading, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -43,7 +43,7 @@ const PartnerDashboardPage = () => {
     return <div className="min-h-screen flex items-center justify-center">Загрузка...</div>;
   }
 
-  if (!user || role !== 'partner') {
+  if (!user || !isPartner) {
     return null;
   }
 
