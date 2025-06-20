@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/components/integration/useAuth';
 import { useToast } from '@/components/ui/use-toast';
-import { Instagram, LogIn, AlertCircle, Mail } from 'lucide-react';
+import { Instagram, LogIn, AlertCircle } from 'lucide-react';
 
 const PartnerLoginPage = () => {
   const [email, setEmail] = useState('');
@@ -30,9 +30,7 @@ const PartnerLoginPage = () => {
       if (result.error) {
         console.log('Login error:', result.error);
         
-        if (result.error.message.includes('Email not confirmed')) {
-          setError('Ваш партнерский аккаунт ожидает подтверждения email. Свяжитесь с администратором для активации доступа. Укажите ваш email при обращении: ' + email);
-        } else if (result.error.message.includes('Invalid login credentials')) {
+        if (result.error.message.includes('Invalid login credentials')) {
           setError('Неверный email или пароль. Проверьте правильность введенных данных.');
         } else {
           setError(`Ошибка входа: ${result.error.message}`);
@@ -105,21 +103,6 @@ const PartnerLoginPage = () => {
               {loading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Mail className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-700">
-                <p className="font-medium">Проблемы с доступом?</p>
-                <p className="mt-1">
-                  Если видите ошибку "Email не подтвержден", обратитесь к администратору с указанием вашего email для активации аккаунта.
-                </p>
-                <p className="mt-2 text-xs text-blue-600">
-                  Все новые партнерские аккаунты автоматически подтверждаются при создании.
-                </p>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

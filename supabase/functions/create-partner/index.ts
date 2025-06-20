@@ -93,11 +93,10 @@ serve(async (req) => {
 
     console.log('Creating user with email:', generatedEmail)
     
-    // Создаем пользователя с ПРИНУДИТЕЛЬНЫМ подтверждением email
+    // Создаем пользователя (без email_confirm так как подтверждение отключено глобально)
     const { data: user, error: userError } = await supabaseClient.auth.admin.createUser({
       email: generatedEmail,
       password,
-      email_confirm: true, // Принудительно подтверждаем email
       user_metadata: {
         full_name: fullName
       }
@@ -118,23 +117,6 @@ serve(async (req) => {
     }
 
     console.log('User created successfully:', user.user.id)
-
-    // Дополнительно подтверждаем email пользователя через admin API
-    console.log('Confirming user email...')
-    const { error: confirmError } = await supabaseClient.auth.admin.updateUserById(
-      user.user.id,
-      { 
-        email_confirm: true,
-        email_confirmed_at: new Date().toISOString()
-      }
-    )
-
-    if (confirmError) {
-      console.error('Email confirmation error:', confirmError)
-      // Продолжаем, так как пользователь уже создан
-    } else {
-      console.log('Email confirmed successfully')
-    }
 
     // Назначаем роль партнера
     console.log('Assigning partner role...')
@@ -219,7 +201,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Партнер создан успешно и готов к использованию. Email подтвержден автоматически.',
+        message: 'Партнер создан успешно и готов к использованию.',
         generatedEmail: generatedEmail,
         partnerCode: partnerCode,
         user: user.user 
