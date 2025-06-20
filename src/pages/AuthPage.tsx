@@ -316,19 +316,6 @@ const AuthPage = () => {
       </div>
     </div>
   );
-
-  const handleDemoMode = async () => {
-    setLoading(true);
-    try {
-      await enterDemoMode();
-      toast.success('Демо режим активирован');
-      navigate('/dashboard', { replace: true });
-    } catch (error) {
-      toast.error('Ошибка активации демо режима');
-    } finally {
-      setLoading(false);
-    }
-  };
 };
 
 export default AuthPage;
