@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Store, ArrowRight, Zap } from "lucide-react";
@@ -61,15 +60,15 @@ const ConnectStoreButton = ({
             size={isMobile ? "default" : "lg"}
             className={cn(
               "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
-              isMobile && "w-full text-sm px-4",
+              isMobile && "w-full text-xs px-3",
               getTouchTargetSize()
             )}
           >
-            <Zap className={cn(isMobile ? "h-4 w-4 mr-2" : "h-5 w-5 mr-2")} />
-            <span className={isMobile ? "text-sm" : "text-base"}>
-              Подключить магазин
+            <Zap className={cn(isMobile ? "h-3 w-3 mr-1" : "h-5 w-5 mr-2")} />
+            <span className={isMobile ? "text-xs" : "text-base"}>
+              {isMobile ? "Подключить" : "Подключить магазин"}
             </span>
-            <ArrowRight className={cn(isMobile ? "h-4 w-4 ml-2" : "h-5 w-5 ml-2")} />
+            <ArrowRight className={cn(isMobile ? "h-3 w-3 ml-1" : "h-5 w-5 ml-2")} />
           </Button>
         </CardContent>
       </Card>
@@ -84,13 +83,13 @@ const ConnectStoreButton = ({
       className={cn(
         className,
         variant === "default" && "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white",
-        isMobile && "text-sm px-3",
+        isMobile && "text-xs px-2",
         getTouchTargetSize()
       )}
     >
       <Store className={cn(isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2")} />
-      <span className={isMobile ? "text-sm" : "text-base"}>
-        Подключить магазин
+      <span className={isMobile ? "text-xs" : "text-base"}>
+        {isMobile ? "Подключить" : "Подключить магазин"}
       </span>
       <ArrowRight className={cn(isMobile ? "h-3 w-3 ml-1" : "h-4 w-4 ml-2")} />
     </Button>
