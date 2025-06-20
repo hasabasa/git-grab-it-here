@@ -54,25 +54,23 @@ export const usePartners = () => {
     partnerCode: string;
   }) => {
     try {
-      const response = await fetch('/api/create-partner', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(partnerData),
+      const { data, error } = await supabase.functions.invoke('create-partner', {
+        body: partnerData,
       });
 
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error);
       }
 
       await loadPartners();
       
       toast({
         title: "Успех",
-        description: "Партнер создан успешно"
+        description: "Партнер создан успешно. Учетные данные отправлены на email."
       });
 
       return { success: true };
@@ -80,7 +78,7 @@ export const usePartners = () => {
       console.error('Error creating partner:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось создать партнера",
+        description: error instanceof Error ? error.message : "Не удалось создать партнера",
         variant: "destructive"
       });
       return { success: false, error };

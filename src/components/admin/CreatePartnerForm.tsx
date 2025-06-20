@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePartners } from '@/hooks/usePartners';
+import { Info } from 'lucide-react';
 
 export const CreatePartnerForm = () => {
   const [formData, setFormData] = useState({
@@ -52,6 +54,14 @@ export const CreatePartnerForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            После создания партнер сможет войти в систему через партнерскую панель, используя указанные email и пароль.
+            Доступ к панели: <strong>/partner/login</strong>
+          </AlertDescription>
+        </Alert>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -61,6 +71,7 @@ export const CreatePartnerForm = () => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="partner@example.com"
                 required
               />
             </div>
@@ -71,6 +82,8 @@ export const CreatePartnerForm = () => {
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                placeholder="Минимум 6 символов"
+                minLength={6}
                 required
               />
             </div>
@@ -83,6 +96,7 @@ export const CreatePartnerForm = () => {
                 id="fullName"
                 value={formData.fullName}
                 onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                placeholder="Иван Иванов"
                 required
               />
             </div>
@@ -92,7 +106,7 @@ export const CreatePartnerForm = () => {
                 id="instagramUsername"
                 value={formData.instagramUsername}
                 onChange={(e) => setFormData(prev => ({ ...prev, instagramUsername: e.target.value }))}
-                placeholder="username"
+                placeholder="username (без @)"
                 required
               />
             </div>
@@ -105,6 +119,7 @@ export const CreatePartnerForm = () => {
                 id="partnerCode"
                 value={formData.partnerCode}
                 onChange={(e) => setFormData(prev => ({ ...prev, partnerCode: e.target.value }))}
+                placeholder="PARTNER_USERNAME"
                 required
               />
               <Button type="button" variant="outline" onClick={generatePartnerCode}>

@@ -1,14 +1,17 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Shield, Zap, TrendingUp, Users, BarChart3, Target } from "lucide-react";
+import { ArrowRight, Shield, Zap, TrendingUp, Users, BarChart3, Target, UserCheck } from "lucide-react";
 import HeroSection from "@/components/welcome/HeroSection";
 import ModulesSection from "@/components/welcome/ModulesSection";
 import PricingSection from "@/components/welcome/PricingSection";
 import GrowthSection from "@/components/welcome/GrowthSection";
 import Footer from "@/components/layout/Footer";
+
 const Welcome = () => {
-  return <div className="min-h-screen bg-white overflow-x-hidden">
+  return (
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
@@ -17,7 +20,11 @@ const Welcome = () => {
           </div>
           <div className="flex gap-2 sm:gap-4">
             <Button variant="outline" asChild size="sm" className="text-xs sm:text-sm">
-              
+              <Link to="/partner/login">
+                <UserCheck className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Партнерская панель</span>
+                <span className="sm:hidden">Партнеры</span>
+              </Link>
             </Button>
             <Button asChild size="sm" className="text-xs sm:text-sm">
               <Link to="/auth">
@@ -40,6 +47,8 @@ const Welcome = () => {
 
       {/* Footer */}
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Welcome;
