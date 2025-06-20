@@ -94,7 +94,7 @@ export const useProfile = () => {
       
       if (error) throw error;
       
-      const result = data as PromoCodeResult;
+      const result = data as unknown as PromoCodeResult;
       
       if (result.success) {
         await loadProfile(); // Перезагружаем профиль после применения промокода
