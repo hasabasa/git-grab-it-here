@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/integration/useAuth";
 import { ArrowLeft, Mail, Lock, User, Building, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -55,6 +56,44 @@ const AuthPage = () => {
     return cleaned.length >= 10;
   };
 
+  const checkUserRoleAndRedirect = async (userId: string) => {
+    try {
+      console.log('AuthPage: Checking user roles for:', userId);
+      
+      // Получаем роли пользователя
+      const { data: roles, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error('AuthPage: Error fetching roles:', error);
+        // Если ошибка при получении ролей, направляем в обычную панель
+        navigate(from, { replace: true });
+        return;
+      }
+      
+      const userRoles = roles?.map(r => r.role) || [];
+      console.log('AuthPage: User roles:', userRoles);
+      
+      // Проверяем роли в порядке приоритета
+      if (userRoles.includes('admin')) {
+        console.log('AuthPage: Redirecting admin to admin panel');
+        navigate('/admin', { replace: true });
+      } else if (userRoles.includes('partner')) {
+        console.log('AuthPage: Redirecting partner to partner dashboard');
+        navigate('/partner/dashboard', { replace: true });
+      } else {
+        console.log('AuthPage: Redirecting regular user to dashboard');
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      console.error('AuthPage: Error in role check:', error);
+      // В случае ошибки направляем в обычную панель
+      navigate(from, { replace: true });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -89,19 +128,41 @@ const AuthPage = () => {
           phone: formattedPhone
         };
 
-        // Регистрируем пользователя - Supabase автоматически войдет в систему
-        await signUp(formData.email, formData.password, userData);
+        // Регистрируем пользователя
+        const result = await signUp(formData.email, formData.password, userData);
+        
+        if (result.error) {
+          throw result.error;
+        }
         
         toast.success('Регистрация успешна! Перенаправляем в систему...');
         
-        // Небольшая задержка для показа сообщения, затем автоматическое перенаправление через useAuth
-        setTimeout(() => {
-          navigate(from, { replace: true });
-        }, 1000);
+        // После регистрации проверяем роли и перенаправляем
+        if (result.data?.user?.id) {
+          setTimeout(() => {
+            checkUserRoleAndRedirect(result.data.user.id);
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            navigate(from, { replace: true });
+          }, 1000);
+        }
       } else {
-        await signIn(formData.email, formData.password);
+        // Вход в систему
+        const result = await signIn(formData.email, formData.password);
+        
+        if (result.error) {
+          throw result.error;
+        }
+        
         toast.success('Добро пожаловать!');
-        navigate(from, { replace: true });
+        
+        // После входа проверяем роли и перенаправляем
+        if (result.data?.user?.id) {
+          await checkUserRoleAndRedirect(result.data.user.id);
+        } else {
+          navigate(from, { replace: true });
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +22,6 @@ import AdminOverviewPage from "./pages/admin/AdminOverviewPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminPartnersPage from "./pages/admin/AdminPartnersPage";
 import AdminSystemPage from "./pages/admin/AdminSystemPage";
-import PartnerLoginPage from "./pages/PartnerLoginPage";
 import PartnerDashboardPage from "./pages/PartnerDashboardPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -46,8 +46,7 @@ const App = () => {
             <Route path="/" element={<Welcome />} />
             <Route path="/auth" element={<AuthPage />} />
             
-            {/* Партнерские маршруты */}
-            <Route path="/partner/login" element={<PartnerLoginPage />} />
+            {/* Партнерская панель */}
             <Route path="/partner/dashboard" element={
               <ProtectedPartnerRoute>
                 <PartnerDashboardPage />

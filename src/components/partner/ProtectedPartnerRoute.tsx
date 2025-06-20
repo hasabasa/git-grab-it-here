@@ -32,11 +32,11 @@ export const ProtectedPartnerRoute = ({ children }: ProtectedPartnerRouteProps) 
       return;
     }
 
-    // Если нет пользователя, перенаправляем на логин
+    // Если нет пользователя, перенаправляем на общую страницу авторизации
     if (!user) {
-      console.log('ProtectedPartnerRoute: No user, redirecting to partner login');
+      console.log('ProtectedPartnerRoute: No user, redirecting to auth');
       setShouldRedirect(true);
-      navigate('/partner/login', { replace: true });
+      navigate('/auth', { replace: true });
       return;
     }
 
@@ -47,7 +47,7 @@ export const ProtectedPartnerRoute = ({ children }: ProtectedPartnerRouteProps) 
         if (!isPartner) {
           console.log('ProtectedPartnerRoute: After retry timeout, user is not a partner, redirecting');
           setShouldRedirect(true);
-          navigate('/partner/login', { replace: true });
+          navigate('/auth', { replace: true });
         }
       }, 2000);
       return;
@@ -59,7 +59,7 @@ export const ProtectedPartnerRoute = ({ children }: ProtectedPartnerRouteProps) 
       checkTimeoutRef.current = setTimeout(() => {
         console.log('ProtectedPartnerRoute: Timeout reached, user still not a partner, redirecting');
         setShouldRedirect(true);
-        navigate('/partner/login', { replace: true });
+        navigate('/auth', { replace: true });
       }, 1500);
     } else {
       console.log('ProtectedPartnerRoute: User is a partner, access granted');
