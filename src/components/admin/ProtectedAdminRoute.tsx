@@ -1,6 +1,6 @@
 
 import { useUserRole } from '@/hooks/useUserRole';
-import { LoadingScreen } from '@/components/ui/loading-screen';
+import LoadingScreen from '@/components/ui/loading-screen';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ShieldX } from 'lucide-react';
 
