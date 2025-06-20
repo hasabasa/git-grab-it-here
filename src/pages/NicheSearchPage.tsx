@@ -1,66 +1,79 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import NicheChart from "@/components/niche-search/NicheChart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockNiches, mockGoldCommissions } from "@/data/mockData";
-import NicheProductsList from "@/components/niche-search/NicheProductsList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
 import { AuthComponent } from "@/components/integration/AuthComponent";
-
-// Получаем уникальные категории из комиссий Kaspi
-const categories = [...new Set(mockGoldCommissions.map(commission => commission.category))];
+import { Link } from "lucide-react";
 
 const NicheSearchPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || "");
-  const [products, setProducts] = useState<any[] | null>(null);
+  const [productUrl, setProductUrl] = useState<string>("");
+  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("products");
 
-  // Функция для поиска ниш с использованием API
-  const fetchNiches = async (category: string) => {
+  // Функция для анализа товара по ссылке
+  const analyzeProduct = async (url: string) => {
     if (!user) {
-      toast.error("Для поиска ниш необходимо авторизоваться");
+      toast.error("Для анализа товара необходимо авторизоваться");
+      return;
+    }
+
+    if (!url.trim()) {
+      toast.error("Введите ссылку на товар Kaspi");
+      return;
+    }
+
+    // Проверяем, что это ссылка на Kaspi
+    if (!url.includes('kaspi.kz')) {
+      toast.error("Введите корректную ссылку на товар с Kaspi.kz");
       return;
     }
     
     setIsLoading(true);
     
     try {
-      // Вызываем Edge Function для поиска ниш
-      const { data, error } = await supabase.functions.invoke('search-niches', {
-        body: { category, userId: user.id }
-      });
+      // Имитируем анализ товара (в реальном приложении здесь будет API вызов)
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Имитация загрузки
       
-      if (error) throw error;
+      // Генерируем случайные данные для демонстрации
+      const mockAnalysis = {
+        productName: "Мышь Hoco GM21 черный",
+        totalReviews: Math.floor(Math.random() * 50) + 5,
+        estimatedSales: Math.floor(Math.random() * 200) + 50,
+        periods: {
+          month1: {
+            reviews: Math.floor(Math.random() * 5) + 1,
+            sales: Math.floor(Math.random() * 20) + 5
+          },
+          month3: {
+            reviews: Math.floor(Math.random() * 10) + 3,
+            sales: Math.floor(Math.random() * 60) + 30
+          },
+          month6: {
+            reviews: Math.floor(Math.random() * 15) + 7,
+            sales: Math.floor(Math.random() * 100) + 60
+          },
+          year1: {
+            reviews: Math.floor(Math.random() * 20) + 10,
+            sales: Math.floor(Math.random() * 150) + 80
+          }
+        }
+      };
       
-      setProducts(data.data || []);
-      
-      if (data.data.length === 0) {
-        toast.info("В выбранной категории не найдено товаров");
-      } else {
-        toast.success(`Найдено ${data.data.length} товаров`);
-      }
+      setAnalysisResult(mockAnalysis);
+      toast.success("Анализ товара завершен");
     } catch (error: any) {
-      console.error("Error fetching niches:", error);
-      toast.error("Ошибка при поиске ниш: " + (error.message || ''));
-      setProducts([]);
+      console.error("Error analyzing product:", error);
+      toast.error("Ошибка при анализе товара: " + (error.message || ''));
+      setAnalysisResult(null);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Получаем товары по категории при первой загрузке или смене категории
-  useEffect(() => {
-    if (user && selectedCategory) {
-      fetchNiches(selectedCategory);
-    }
-  }, [user, selectedCategory]);
 
   // Если идет загрузка аутентификации, показываем индикатор загрузки
   if (authLoading) {
@@ -75,8 +88,8 @@ const NicheSearchPage = () => {
   if (!user) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Поиск ниш</h1>
-        <p className="text-gray-600">Для использования поиска ниш необходима авторизация</p>
+        <h1 className="text-3xl font-bold">Анализ товаров</h1>
+        <p className="text-gray-600">Для использования анализа товаров необходима авторизация</p>
         <AuthComponent />
       </div>
     );
@@ -84,76 +97,85 @@ const NicheSearchPage = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Поиск ниш</h1>
+      <h1 className="text-3xl font-bold">Анализ товаров</h1>
       <p className="text-gray-600">
-        Анализ продаж товаров на Kaspi
+        Анализ продаж и отзывов товаров на Kaspi по ссылке
       </p>
       
       <Card>
         <CardHeader>
-          <CardTitle>Выбор категории товаров</CardTitle>
-          <CardDescription>Выберите категорию для анализа продаж</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Link className="h-5 w-5" />
+            Ссылка на товар Kaspi
+          </CardTitle>
+          <CardDescription>Вставьте ссылку на товар для анализа продаж и отзывов</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="flex gap-4">
-              <Select 
-                value={selectedCategory} 
-                onValueChange={setSelectedCategory}
+              <Input
+                placeholder="https://kaspi.kz/shop/p/..."
+                value={productUrl}
+                onChange={(e) => setProductUrl(e.target.value)}
                 disabled={isLoading}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Выберите категорию" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                className="flex-1"
+              />
               
               <Button 
-                onClick={() => fetchNiches(selectedCategory)} 
-                disabled={isLoading || !selectedCategory}
+                onClick={() => analyzeProduct(productUrl)} 
+                disabled={isLoading || !productUrl.trim()}
               >
-                {isLoading ? "Загрузка..." : "Обновить"}
+                {isLoading ? "Анализируем..." : "Анализ"}
               </Button>
             </div>
             
-            {isLoading ? (
+            {isLoading && (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
-            ) : products && products.length > 0 ? (
-              <div className="space-y-4">
-                <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="products">Товары</TabsTrigger>
-                    <TabsTrigger value="chart">График продаж</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="products">
-                    <NicheProductsList products={products} />
-                  </TabsContent>
-                  <TabsContent value="chart">
-                    {products[0] && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>График продаж в категории {selectedCategory}</CardTitle>
-                          <CardDescription>Динамика продаж за последние 6 месяцев</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[400px]">
-                          <NicheChart data={products[0].chartData} />
-                        </CardContent>
-                      </Card>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </div>
-            ) : (
+            )}
+
+            {analysisResult && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>📊 Статистика по товару: {analysisResult.productName}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">🔹 Всего отзывов: <span className="font-bold">{analysisResult.totalReviews}</span></p>
+                      <p className="text-sm font-medium">🔹 Примерно продаж: <span className="font-bold">{analysisResult.estimatedSales}</span></p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-4">📅 По периодам:</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium">▪️ 1 мес:</span>
+                        <span>{analysisResult.periods.month1.reviews} (~{analysisResult.periods.month1.sales} продаж)</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium">▪️ 3 мес:</span>
+                        <span>{analysisResult.periods.month3.reviews} (~{analysisResult.periods.month3.sales} продаж)</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium">▪️ 6 мес:</span>
+                        <span>{analysisResult.periods.month6.reviews} (~{analysisResult.periods.month6.sales} продаж)</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium">▪️ 1 год:</span>
+                        <span>{analysisResult.periods.year1.reviews} (~{analysisResult.periods.year1.sales} продаж)</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {!analysisResult && !isLoading && (
               <div className="text-center p-10">
-                <p className="text-gray-500">В выбранной категории товары не найдены.</p>
+                <p className="text-gray-500">Введите ссылку на товар Kaspi для начала анализа</p>
               </div>
             )}
           </div>
