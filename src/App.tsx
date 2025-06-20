@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import PartnerDashboardPage from "./pages/PartnerDashboardPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ProtectedAdminRoute } from "./components/admin/ProtectedAdminRoute";
+import { ProtectedPartnerRoute } from "./components/partner/ProtectedPartnerRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,7 +48,11 @@ const App = () => {
             
             {/* Партнерские маршруты */}
             <Route path="/partner/login" element={<PartnerLoginPage />} />
-            <Route path="/partner/dashboard" element={<PartnerDashboardPage />} />
+            <Route path="/partner/dashboard" element={
+              <ProtectedPartnerRoute>
+                <PartnerDashboardPage />
+              </ProtectedPartnerRoute>
+            } />
             
             {/* Пользовательская панель */}
             <Route path="/dashboard" element={

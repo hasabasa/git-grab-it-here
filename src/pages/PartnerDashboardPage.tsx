@@ -1,33 +1,18 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PartnerStats } from '@/components/partner/PartnerStats';
 import { useAuth } from '@/components/integration/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { Instagram, LogOut, ExternalLink, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const PartnerDashboardPage = () => {
-  const { user, signOut, loading: authLoading } = useAuth();
-  const { isPartner, loading: roleLoading } = useUserRole();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log('PartnerDashboard: Auth state - user:', user?.email, 'authLoading:', authLoading, 'isPartner:', isPartner, 'roleLoading:', roleLoading);
-    
-    if (!authLoading && !roleLoading) {
-      if (!user) {
-        console.log('PartnerDashboard: No user, redirecting to login');
-        navigate('/partner/login');
-      } else if (!isPartner) {
-        console.log('PartnerDashboard: User is not a partner, redirecting to login');
-        navigate('/partner/login');
-      }
-    }
-  }, [user, isPartner, authLoading, roleLoading, navigate]);
+  console.log('PartnerDashboard: Rendering for user:', user?.email);
 
   const handleSignOut = async () => {
     try {
@@ -48,25 +33,6 @@ const PartnerDashboardPage = () => {
     });
   };
 
-  if (authLoading || roleLoading) {
-    console.log('PartnerDashboard: Still loading...');
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user || !isPartner) {
-    console.log('PartnerDashboard: Access denied, redirecting...');
-    return null;
-  }
-
-  console.log('PartnerDashboard: Rendering dashboard for user:', user.email);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
@@ -80,7 +46,7 @@ const PartnerDashboardPage = () => {
                 Партнерская панель
               </h1>
               <p className="text-sm text-gray-500">
-                Добро пожаловать, {user.user_metadata?.full_name || user.email}
+                Добро пожаловать, {user?.user_metadata?.full_name || user?.email}
               </p>
             </div>
           </div>
@@ -130,7 +96,7 @@ const PartnerDashboardPage = () => {
                 <div>
                   <h4 className="font-medium mb-2">Промокод</h4>
                   <div className="px-3 py-2 bg-purple-100 rounded text-sm font-mono">
-                    PARTNER_{user.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}
+                    PARTNER_{user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}
                   </div>
                 </div>
               </div>

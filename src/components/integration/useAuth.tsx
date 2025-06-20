@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -7,17 +7,17 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     // Prevent double initialization
-    if (isInitialized) {
+    if (isInitialized.current) {
       console.log("useAuth: Already initialized, skipping");
       return;
     }
 
     console.log("useAuth: Starting initialization");
-    setIsInitialized(true);
+    isInitialized.current = true;
     
     // Check demo mode from localStorage immediately
     const checkDemoMode = () => {
@@ -103,7 +103,7 @@ export const useAuth = () => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [isInitialized]);
+  }, []);
 
   const signUp = async (email: string, password: string, options?: any) => {
     const redirectUrl = `${window.location.origin}/`;
