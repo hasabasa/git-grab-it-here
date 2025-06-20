@@ -34,6 +34,34 @@ const SubscriptionPage = () => {
     });
   };
 
+  const getButtonText = () => {
+    if (isDemo) return "Недоступно в демо режиме";
+    
+    if (subscriptionStatus.isActive) {
+      return "Управление подпиской";
+    }
+    
+    if (subscriptionStatus.status === 'expired' && profile?.subscription_end_date) {
+      return "Продлить Pro план";
+    }
+    
+    return "Начать с 3 бесплатных дней";
+  };
+
+  const getButtonDescription = () => {
+    if (isDemo) return "Зарегистрируйтесь для получения 3 бесплатных дней Pro плана";
+    
+    if (subscriptionStatus.isActive) {
+      return "Изменить план или способ оплаты";
+    }
+    
+    if (subscriptionStatus.status === 'expired' && profile?.subscription_end_date) {
+      return "Ваш пробный период истек. Подключите Pro план для продолжения работы";
+    }
+    
+    return "Отменить подписку можно в любое время";
+  };
+
   const allFeatures = [
     "Бот демпинга (без ограничений)",
     "Полная аналитика продаж",
@@ -120,7 +148,7 @@ const SubscriptionPage = () => {
       )}
 
       {/* Промокод */}
-      {!isDemo && (
+      {!isDemo && subscriptionStatus.status !== 'expired' && (
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
@@ -160,11 +188,13 @@ const SubscriptionPage = () => {
                 <span className="text-4xl font-bold">10 990 ₸</span>
                 <span className="text-gray-500">/месяц</span>
               </div>
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <Badge variant="success" className="text-sm">
-                  3 дня бесплатно
-                </Badge>
-              </div>
+              {!subscriptionStatus.isActive && !isDemo && subscriptionStatus.status !== 'expired' && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Badge variant="success" className="text-sm">
+                    3 дня бесплатно
+                  </Badge>
+                </div>
+              )}
             </div>
           </CardHeader>
 
@@ -197,10 +227,10 @@ const SubscriptionPage = () => {
                 size="lg"
                 disabled={isDemo}
               >
-                {isDemo ? "Недоступно в демо режиме" : "Начать с 3 бесплатных дней"}
+                {getButtonText()}
               </Button>
               <p className="text-center text-sm text-gray-500">
-                Отменить подписку можно в любое время
+                {getButtonDescription()}
               </p>
             </div>
           </CardFooter>
@@ -215,7 +245,7 @@ const SubscriptionPage = () => {
               </span>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              Зарегистрируйтесь для получения 3 бесплатных дней Pro плана
+              {getButtonDescription()}
             </p>
           </div>
         )}
