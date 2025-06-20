@@ -16,11 +16,14 @@ const PartnerDashboardPage = () => {
 
   const handleSignOut = async () => {
     try {
-      console.log('PartnerDashboard: Signing out');
+      console.log('PartnerDashboard: Starting partner sign out process');
       await signOut();
-      navigate('/partner/login');
+      console.log('PartnerDashboard: Partner signed out successfully, navigating to partner login');
+      navigate('/partner/login', { replace: true });
     } catch (error) {
       console.error('PartnerDashboard: Error signing out:', error);
+      // Even if sign out fails, navigate to partner login page
+      navigate('/partner/login', { replace: true });
     }
   };
 

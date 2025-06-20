@@ -1,4 +1,3 @@
-
 import { MenuIcon, LogIn, LogOut, User, Menu, Settings, HelpCircle, Bell, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -51,12 +50,25 @@ const Header = ({
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    if (isDemo) {
-      exitDemoMode();
-      navigate("/auth");
-    } else {
-      await signOut();
-      navigate("/auth");
+    try {
+      console.log('Header: Starting sign out process');
+      
+      if (isDemo) {
+        console.log('Header: Exiting demo mode');
+        exitDemoMode();
+      } else {
+        console.log('Header: Signing out authenticated user');
+        await signOut();
+      }
+      
+      // Navigate to auth page after successful sign out
+      console.log('Header: Navigating to auth page');
+      navigate("/auth", { replace: true });
+      
+    } catch (error) {
+      console.error('Header: Error during sign out:', error);
+      // Even if sign out fails, navigate to auth page
+      navigate("/auth", { replace: true });
     }
   };
 

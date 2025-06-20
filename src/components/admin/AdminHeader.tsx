@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/integration/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Crown, Shield, LogOut, Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AdminHeaderProps {
   toggleSidebar: () => void;
@@ -13,12 +14,18 @@ interface AdminHeaderProps {
 const AdminHeader = ({ toggleSidebar, isMobile }: AdminHeaderProps) => {
   const { signOut } = useAuth();
   const { profile } = useProfile();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
+      console.log('AdminHeader: Starting admin sign out process');
       await signOut();
+      console.log('AdminHeader: Admin signed out successfully, navigating to auth');
+      navigate('/auth', { replace: true });
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('AdminHeader: Error signing out:', error);
+      // Even if sign out fails, navigate to auth page
+      navigate('/auth', { replace: true });
     }
   };
 

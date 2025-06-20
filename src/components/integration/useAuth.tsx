@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
@@ -126,11 +127,30 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    console.log("useAuth: Signing out and clearing demo mode");
-    localStorage.removeItem('kaspi-demo-mode');
-    setIsDemo(false);
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    console.log("useAuth: Starting sign out process");
+    
+    try {
+      // Clear demo mode first
+      localStorage.removeItem('kaspi-demo-mode');
+      setIsDemo(false);
+      
+      // Clear auth state immediately
+      setUser(null);
+      setSession(null);
+      
+      // Then call Supabase signOut
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("useAuth: Error during sign out:", error);
+        throw error;
+      }
+      
+      console.log("useAuth: Sign out completed successfully");
+    } catch (error) {
+      console.error("useAuth: Sign out failed:", error);
+      throw error;
+    }
   };
 
   const enterDemoMode = () => {
