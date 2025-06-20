@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePartners } from '@/hooks/usePartners';
-import { Info, AlertCircle } from 'lucide-react';
+import { Info, AlertCircle, CheckCircle } from 'lucide-react';
 
 export const CreatePartnerForm = () => {
   const [formData, setFormData] = useState({
@@ -16,12 +16,14 @@ export const CreatePartnerForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { createPartner } = usePartners();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
     
     console.log('Form submitted with data:', { ...formData, password: '[HIDDEN]' });
     
@@ -33,6 +35,7 @@ export const CreatePartnerForm = () => {
         password: '',
         fullName: ''
       });
+      setSuccess('Партнер успешно создан и может сразу войти в систему!');
     } else {
       setError(result.error?.message || 'Произошла ошибка при создании партнера');
     }
@@ -58,7 +61,7 @@ export const CreatePartnerForm = () => {
         <Alert className="mb-4">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            После создания партнер сможет войти в систему через партнерскую панель, используя сгенерированный email и пароль.
+            После создания партнер сможет <strong>сразу войти</strong> в систему через партнерскую панель, используя сгенерированный email и пароль.
             Доступ к панели: <strong>/partner/login</strong>
           </AlertDescription>
         </Alert>
@@ -67,6 +70,13 @@ export const CreatePartnerForm = () => {
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert className="mb-4">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
 

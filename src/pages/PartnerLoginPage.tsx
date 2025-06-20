@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/components/integration/useAuth';
 import { useToast } from '@/components/ui/use-toast';
-import { Instagram, LogIn } from 'lucide-react';
+import { Instagram, LogIn, AlertCircle, Mail } from 'lucide-react';
 
 const PartnerLoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -20,20 +22,32 @@ const PartnerLoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      await signIn(email, password);
-      navigate('/partner/dashboard');
-      toast({
-        title: "Добро пожаловать!",
-        description: "Вы успешно вошли в партнерскую панель"
-      });
+      const result = await signIn(email, password);
+      
+      if (result.error) {
+        console.log('Login error:', result.error);
+        
+        // Обработка специфичной ошибки неподтвержденного email
+        if (result.error.message.includes('Email not confirmed')) {
+          setError('Ваш партнерский аккаунт ожидает подтверждения. Пожалуйста, свяжитесь с администратором для активации доступа.');
+        } else if (result.error.message.includes('Invalid login credentials')) {
+          setError('Неверный email или пароль. Проверьте правильность введенных данных.');
+        } else {
+          setError(`Ошибка входа: ${result.error.message}`);
+        }
+      } else {
+        navigate('/partner/dashboard');
+        toast({
+          title: "Добро пожаловать!",
+          description: "Вы успешно вошли в партнерскую панель"
+        });
+      }
     } catch (error) {
-      toast({
-        title: "Ошибка входа",
-        description: "Неверный email или пароль",
-        variant: "destructive"
-      });
+      console.error('Login error:', error);
+      setError('Произошла неожиданная ошибка при входе');
     } finally {
       setLoading(false);
     }
@@ -64,7 +78,7 @@ const PartnerLoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="partner@example.com"
+                placeholder="partner@partners.internal"
                 required
               />
             </div>
@@ -79,11 +93,31 @@ const PartnerLoginPage = () => {
                 required
               />
             </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <Button type="submit" disabled={loading} className="w-full">
               <LogIn className="h-4 w-4 mr-2" />
               {loading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
+
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Mail className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-700">
+                <p className="font-medium">Нужна помощь с доступом?</p>
+                <p className="mt-1">
+                  Если у вас проблемы с входом, свяжитесь с администратором для активации вашего партнерского аккаунта.
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

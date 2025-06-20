@@ -93,10 +93,11 @@ serve(async (req) => {
 
     console.log('Creating user with email:', generatedEmail)
     
-    // Создаем пользователя
+    // Создаем пользователя с автоматическим подтверждением email
     const { data: user, error: userError } = await supabaseClient.auth.admin.createUser({
       email: generatedEmail,
       password,
+      email_confirm: true, // Автоматически подтверждаем email
       user_metadata: {
         full_name: fullName
       }
@@ -201,7 +202,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Партнер создан успешно',
+        message: 'Партнер создан успешно и готов к использованию',
         generatedEmail: generatedEmail,
         partnerCode: partnerCode,
         user: user.user 
