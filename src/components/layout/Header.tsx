@@ -1,7 +1,7 @@
 
 import { MenuIcon, LogIn, LogOut, User, Menu, Settings, HelpCircle, Bell, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SubscriptionBadge from "@/components/subscription/SubscriptionBadge";
 import { useAuth } from "@/components/integration/useAuth";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,23 @@ interface HeaderProps {
   sidebarOpen?: boolean;
 }
 
+const getModuleName = (pathname: string): string => {
+  const moduleNames: Record<string, string> = {
+    '/dashboard/price-bot': 'Бот демпинга',
+    '/dashboard/sales': 'Мои продажи',
+    '/dashboard/unit-economics': 'Юнит-экономика',
+    '/dashboard/whatsapp': 'WhatsApp бот',
+    '/dashboard/niche-search': 'Поиск ниш',
+    '/dashboard/preorders': 'Предзаказы',
+    '/dashboard/crm': 'CRM система',
+    '/dashboard/subscription': 'Подписка',
+    '/dashboard/integrations': 'Интеграции',
+    '/dashboard': 'Панель управления'
+  };
+  
+  return moduleNames[pathname] || 'Панель управления';
+};
+
 const Header = ({
   toggleSidebar,
   isMobile = false,
@@ -30,6 +47,7 @@ const Header = ({
 }: HeaderProps) => {
   const { user, signOut, loading, isDemo, exitDemoMode } = useAuth();
   const { isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
+  const location = useLocation();
 
   const handleSignOut = () => {
     if (isDemo) {
@@ -42,6 +60,7 @@ const Header = ({
 
   const headerHeight = isExtraLargeDesktop ? "h-24" : isLargeDesktop ? "h-20" : "h-16";
   const headerPadding = isExtraLargeDesktop ? "px-8" : isLargeDesktop ? "px-6" : "px-4";
+  const currentModuleName = getModuleName(location.pathname);
 
   return (
     <header className={cn(
@@ -83,7 +102,7 @@ const Header = ({
           <div className="hidden lg:flex items-center gap-2 text-sm text-gray-500">
             <span>Панель управления</span>
             <span>/</span>
-            <span className="text-gray-900 font-medium">Мои продажи</span>
+            <span className="text-gray-900 font-medium">{currentModuleName}</span>
           </div>
         )}
       </div>
