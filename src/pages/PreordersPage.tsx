@@ -4,13 +4,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Package, Clock, TrendingUp } from "lucide-react";
 import PreordersComingSoonModal from "@/components/preorders/PreordersComingSoonModal";
+import { useStoreConnection } from "@/hooks/useStoreConnection";
+import { useAuth } from "@/components/integration/useAuth";
+import AuthComponent from "@/components/integration/AuthComponent";
+import ConnectStoreButton from "@/components/store/ConnectStoreButton";
+import LoadingScreen from "@/components/ui/loading-screen";
 
 const PreordersPage = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
   const handleFeatureClick = () => {
     setShowComingSoonModal(true);
   };
+
+  // Show loading screen while checking auth and store connection
+  if (authLoading || storeLoading) {
+    return <LoadingScreen text="Загрузка модуля предзаказов..." />;
+  }
+
+  // Show auth component if not authenticated
+  if (!isAuthenticated) {
+    return <AuthComponent />;
+  }
+
+  // Show store connection if needed
+  if (needsConnection) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <ConnectStoreButton 
+          title="Подключите магазин для предзаказов"
+          description="Для работы с модулем предзаказов необходимо подключить ваш магазин Kaspi.kz. Это позволит создавать карточки товаров для предзаказа и управлять поставками."
+          variant="card"
+          className="max-w-md w-full"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -20,7 +51,6 @@ const PreordersPage = () => {
         onClose={() => setShowComingSoonModal(false)} 
       />
 
-      {/* Заголовок */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Предзаказы</h1>
         <p className="text-muted-foreground">
@@ -28,7 +58,6 @@ const PreordersPage = () => {
         </p>
       </div>
 
-      {/* Статистика */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -75,7 +104,6 @@ const PreordersPage = () => {
         </Card>
       </div>
 
-      {/* Основной блок с информацией о функции */}
       <Card>
         <CardHeader>
           <CardTitle>Система предзаказов</CardTitle>
@@ -85,7 +113,6 @@ const PreordersPage = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Левая колонка - функции */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Возможности системы:</h3>
               <ul className="space-y-3">
@@ -109,7 +136,6 @@ const PreordersPage = () => {
               </ul>
             </div>
 
-            {/* Правая колонка - действия */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Начать работу:</h3>
               <div className="space-y-3">
@@ -129,7 +155,6 @@ const PreordersPage = () => {
             </div>
           </div>
 
-          {/* Информационный блок */}
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 text-center">
             <div className="flex justify-center mb-4">
               <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-bounce">

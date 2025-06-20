@@ -14,6 +14,11 @@ import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import WhatsAppComingSoonModal from "@/components/whatsapp/WhatsAppComingSoonModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
+import { useStoreConnection } from "@/hooks/useStoreConnection";
+import { useAuth } from "@/components/integration/useAuth";
+import AuthComponent from "@/components/integration/AuthComponent";
+import ConnectStoreButton from "@/components/store/ConnectStoreButton";
+import LoadingScreen from "@/components/ui/loading-screen";
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -53,6 +58,9 @@ const demoContacts: WhatsAppContact[] = [
 ];
 
 const WhatsAppPage = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isConnected, needsConnection, loading: storeLoading } = useStoreConnection();
+  
   const [contacts, setContacts] = useState<WhatsAppContact[]>(demoContacts);
   const [searchTerm, setSearchTerm] = useState("");
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
@@ -69,7 +77,30 @@ const WhatsAppPage = () => {
     sendMessage,
   } = useWhatsAppConnection();
 
-  // Фильтрация контактов по поисковому запросу
+  // Show loading screen while checking auth and store connection
+  if (authLoading || storeLoading) {
+    return <LoadingScreen text="Загрузка модуля WhatsApp..." />;
+  }
+
+  // Show auth component if not authenticated
+  if (!isAuthenticated) {
+    return <AuthComponent />;
+  }
+
+  // Show store connection if needed
+  if (needsConnection) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <ConnectStoreButton 
+          title="Подключите магазин для WhatsApp"
+          description="Для работы с модулем WhatsApp необходимо подключить ваш магазин Kaspi.kz. Это позволит автоматизировать общение с клиентами и управлять заказами."
+          variant="card"
+          className="max-w-md w-full"
+        />
+      </div>
+    );
+  }
+
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.phone.includes(searchTerm) ||
@@ -104,13 +135,11 @@ const WhatsAppPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Модальное окно */}
       <WhatsAppComingSoonModal 
         isOpen={showComingSoonModal}
         onClose={() => setShowComingSoonModal(false)}
       />
 
-      {/* Заголовок и статистика */}
       <div>
         <h1 className="text-3xl font-bold mb-2">WhatsApp интеграция</h1>
         <p className="text-muted-foreground">
@@ -118,7 +147,6 @@ const WhatsAppPage = () => {
         </p>
       </div>
 
-      {/* Статистика */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -158,7 +186,6 @@ const WhatsAppPage = () => {
         </Card>
       </div>
 
-      {/* Основной контент */}
       <Tabs defaultValue="chat" className="space-y-4">
         <TabsList>
           <TabsTrigger value="chat">Чат WhatsApp</TabsTrigger>
@@ -168,7 +195,6 @@ const WhatsAppPage = () => {
 
         <TabsContent value="chat" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Левая колонка - Подключение */}
             <div>
               <QRCodeAuth
                 qrCode={qrCode}
@@ -202,7 +228,6 @@ const WhatsAppPage = () => {
               )}
             </div>
 
-            {/* Правая колонка - Чат */}
             <div>
               {session?.is_connected ? (
                 <WhatsAppChat
@@ -236,7 +261,6 @@ const WhatsAppPage = () => {
         </TabsContent>
 
         <TabsContent value="contacts" className="space-y-4">
-          {/* Поиск и добавление контактов */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -263,7 +287,6 @@ const WhatsAppPage = () => {
             </Dialog>
           </div>
 
-          {/* Список контактов с кнопкой выбора для чата */}
           <div className="grid gap-4">
             {filteredContacts.map((contact) => (
               <Card key={contact.id} className="hover:shadow-md transition-shadow">
