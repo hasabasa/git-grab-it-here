@@ -21,29 +21,39 @@ const PartnerLoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('PartnerLogin: Starting login process with email:', email);
     setLoading(true);
     setError(null);
 
     try {
       const result = await signIn(email, password);
+      console.log('PartnerLogin: SignIn result:', result);
       
       if (result.error) {
-        console.log('Login error:', result.error);
+        console.log('PartnerLogin: Login error:', result.error);
         
         if (result.error.message.includes('Invalid login credentials')) {
           setError('Неверный email или пароль. Проверьте правильность введенных данных.');
         } else {
           setError(`Ошибка входа: ${result.error.message}`);
         }
-      } else {
-        navigate('/partner/dashboard');
+      } else if (result.data?.user) {
+        console.log('PartnerLogin: Login successful, user:', result.data.user.email);
+        
         toast({
           title: "Добро пожаловать!",
           description: "Вы успешно вошли в партнерскую панель"
         });
+        
+        // Принудительная навигация на панель партнера
+        console.log('PartnerLogin: Navigating to partner dashboard');
+        navigate('/partner/dashboard', { replace: true });
+      } else {
+        console.log('PartnerLogin: No user data received');
+        setError('Не удалось получить данные пользователя');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('PartnerLogin: Unexpected error:', error);
       setError('Произошла неожиданная ошибка при входе');
     } finally {
       setLoading(false);
@@ -77,6 +87,7 @@ const PartnerLoginPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="partner@partners.internal"
                 required
+                disabled={loading}
               />
             </div>
             <div>
@@ -88,6 +99,7 @@ const PartnerLoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                disabled={loading}
               />
             </div>
 

@@ -10,23 +10,32 @@ import { Instagram, LogOut, ExternalLink, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const PartnerDashboardPage = () => {
-  const { user, signOut } = useAuth();
-  const { isPartner, loading } = useUserRole();
+  const { user, signOut, loading: authLoading } = useAuth();
+  const { isPartner, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && (!user || !isPartner)) {
-      navigate('/partner/login');
+    console.log('PartnerDashboard: Auth state - user:', user?.email, 'authLoading:', authLoading, 'isPartner:', isPartner, 'roleLoading:', roleLoading);
+    
+    if (!authLoading && !roleLoading) {
+      if (!user) {
+        console.log('PartnerDashboard: No user, redirecting to login');
+        navigate('/partner/login');
+      } else if (!isPartner) {
+        console.log('PartnerDashboard: User is not a partner, redirecting to login');
+        navigate('/partner/login');
+      }
     }
-  }, [user, isPartner, loading, navigate]);
+  }, [user, isPartner, authLoading, roleLoading, navigate]);
 
   const handleSignOut = async () => {
     try {
+      console.log('PartnerDashboard: Signing out');
       await signOut();
       navigate('/partner/login');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('PartnerDashboard: Error signing out:', error);
     }
   };
 
@@ -39,13 +48,24 @@ const PartnerDashboardPage = () => {
     });
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Загрузка...</div>;
+  if (authLoading || roleLoading) {
+    console.log('PartnerDashboard: Still loading...');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user || !isPartner) {
+    console.log('PartnerDashboard: Access denied, redirecting...');
     return null;
   }
+
+  console.log('PartnerDashboard: Rendering dashboard for user:', user.email);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
@@ -60,7 +80,7 @@ const PartnerDashboardPage = () => {
                 Партнерская панель
               </h1>
               <p className="text-sm text-gray-500">
-                Добро пожаловать, {user.user_metadata?.full_name || 'Партнер'}
+                Добро пожаловать, {user.user_metadata?.full_name || user.email}
               </p>
             </div>
           </div>
