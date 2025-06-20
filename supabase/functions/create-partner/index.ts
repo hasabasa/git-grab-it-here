@@ -32,7 +32,16 @@ serve(async (req) => {
 
     if (!login || !password || !fullName || !instagramUsername || !partnerCode) {
       console.error('Missing required fields')
-      throw new Error('Все поля обязательны для заполнения')
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Все поля обязательны для заполнения' 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     // Генерируем email из логина
@@ -45,7 +54,37 @@ serve(async (req) => {
     
     if (emailExists) {
       console.error('Email already exists:', generatedEmail)
-      throw new Error(`Логин "${login}" уже занят. Выберите другой логин.`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Логин "${login}" уже занят. Выберите другой логин.` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
+    }
+
+    // Проверяем уникальность партнерского кода
+    const { data: existingPartner } = await supabaseClient
+      .from('partners')
+      .select('partner_code')
+      .eq('partner_code', partnerCode)
+      .single()
+
+    if (existingPartner) {
+      console.error('Partner code already exists:', partnerCode)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Партнерский код "${partnerCode}" уже используется. Выберите другой код.` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('Creating user with email:', generatedEmail)
@@ -62,7 +101,16 @@ serve(async (req) => {
 
     if (userError) {
       console.error('User creation error:', userError)
-      throw new Error(`Ошибка создания пользователя: ${userError.message}`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Ошибка создания пользователя: ${userError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('User created successfully:', user.user.id)
@@ -78,7 +126,16 @@ serve(async (req) => {
 
     if (roleError) {
       console.error('Role assignment error:', roleError)
-      throw new Error(`Ошибка назначения роли: ${roleError.message}`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Ошибка назначения роли: ${roleError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('Role assigned successfully')
@@ -96,7 +153,16 @@ serve(async (req) => {
 
     if (partnerError) {
       console.error('Partner record creation error:', partnerError)
-      throw new Error(`Ошибка создания записи партнера: ${partnerError.message}`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Ошибка создания записи партнера: ${partnerError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('Partner record created successfully')
@@ -110,7 +176,16 @@ serve(async (req) => {
 
     if (partnerSelectError) {
       console.error('Partner select error:', partnerSelectError)
-      throw new Error(`Ошибка получения данных партнера: ${partnerSelectError.message}`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Ошибка получения данных партнера: ${partnerSelectError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('Partner data retrieved:', partnerData.id)
@@ -126,7 +201,16 @@ serve(async (req) => {
 
     if (promoError) {
       console.error('Promo code creation error:', promoError)
-      throw new Error(`Ошибка создания промокода: ${promoError.message}`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Ошибка создания промокода: ${promoError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log('Promo code created successfully')
@@ -149,11 +233,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error.message || 'Произошла неизвестная ошибка' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
+        status: 500 
       }
     )
   }
