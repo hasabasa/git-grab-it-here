@@ -89,8 +89,14 @@ const AuthPage = () => {
           phone: formattedPhone
         };
 
+        // Регистрируем пользователя
         await signUp(formData.email, formData.password, userData);
-        toast.success('Регистрация успешна! Проверьте email для подтверждения.');
+        
+        // Сразу после регистрации входим в систему
+        await signIn(formData.email, formData.password);
+        
+        toast.success('Регистрация успешна! Добро пожаловать!');
+        navigate(from, { replace: true });
       } else {
         await signIn(formData.email, formData.password);
         toast.success('Добро пожаловать!');
@@ -98,7 +104,21 @@ const AuthPage = () => {
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast.error(error.message || 'Ошибка аутентификации');
+      
+      // Более дружелюбная обработка ошибок
+      if (error.message?.includes('Invalid login credentials')) {
+        toast.error('Неверный email или пароль');
+      } else if (error.message?.includes('User already registered')) {
+        toast.error('Пользователь с таким email уже зарегистрирован');
+      } else if (error.message?.includes('Password should be at least 6 characters')) {
+        toast.error('Пароль должен содержать минимум 6 символов');
+      } else if (error.message?.includes('Invalid email')) {
+        toast.error('Введите корректный email адрес');
+      } else if (error.message?.includes('Email not confirmed')) {
+        toast.error('Необходимо подтвердить email адрес. Проверьте почту.');
+      } else {
+        toast.error(error.message || 'Ошибка аутентификации');
+      }
     } finally {
       setLoading(false);
     }
@@ -287,6 +307,13 @@ const AuthPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {isSignUp && (
+          <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+            <p className="font-medium text-blue-800 mb-1">💡 Совет:</p>
+            <p>После регистрации вы автоматически войдете в систему без подтверждения email</p>
+          </div>
+        )}
       </div>
     </div>
   );
