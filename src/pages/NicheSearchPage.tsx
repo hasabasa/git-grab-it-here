@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/integration/useAuth";
-import AuthComponent from "@/components/integration/AuthComponent";
+import { AuthComponent } from "@/components/integration/AuthComponent";
 
 // Получаем уникальные категории из комиссий Kaspi
 const categories = [...new Set(mockGoldCommissions.map(commission => commission.category))];

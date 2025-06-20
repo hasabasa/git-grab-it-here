@@ -37,11 +37,15 @@ export const AuthComponent = () => {
     setError(null);
     setSuccess(null);
 
-    const result = await signIn(formData.email, formData.password);
-    if (result.error) {
-      setError(result.error.message);
-    } else {
-      setSuccess('Вход выполнен успешно!');
+    try {
+      const result = await signIn(formData.email, formData.password);
+      if (result?.error) {
+        setError(result.error.message);
+      } else {
+        setSuccess('Вход выполнен успешно!');
+      }
+    } catch (err) {
+      setError('Произошла ошибка при входе');
     }
   };
 
@@ -72,26 +76,30 @@ export const AuthComponent = () => {
       }
     };
 
-    const result = await signUp(userData.email, userData.password, userData.options);
-    
-    if (result.error) {
-      setError(result.error.message);
-    } else {
-      setSuccess('Регистрация прошла успешно! Проверьте почту для подтверждения.');
+    try {
+      const result = await signUp(userData.email, userData.password, userData.options);
       
-      // Записываем конверсию регистрации, если есть реферальные данные
-      if (referralData && result.data?.user?.id) {
-        await recordConversion(result.data.user.id, 'registration');
+      if (result?.error) {
+        setError(result.error.message);
+      } else {
+        setSuccess('Регистрация прошла успешно! Проверьте почту для подтверждения.');
+        
+        // Записываем конверсию регистрации, если есть реферальные данные
+        if (referralData && result?.data?.user?.id) {
+          await recordConversion(result.data.user.id, 'registration');
+        }
+        
+        // Очищаем форму
+        setFormData({
+          email: '',
+          password: '',
+          fullName: '',
+          companyName: '',
+          phone: ''
+        });
       }
-      
-      // Очищаем форму
-      setFormData({
-        email: '',
-        password: '',
-        fullName: '',
-        companyName: '',
-        phone: ''
-      });
+    } catch (err) {
+      setError('Произошла ошибка при регистрации');
     }
   };
 
@@ -294,3 +302,5 @@ export const AuthComponent = () => {
     </div>
   );
 };
+
+export default AuthComponent;

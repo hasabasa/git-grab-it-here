@@ -11,6 +11,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Gift, AlertCircle, CheckCircle } from 'lucide-react';
 
+interface PromoCodeResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  bonus_days?: number;
+  new_end_date?: string;
+}
+
 export const PromoCodeInput = () => {
   const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,8 +47,10 @@ export const PromoCodeInput = () => {
         throw error;
       }
 
-      if (data.success) {
-        setSuccess(data.message);
+      const response = data as PromoCodeResponse;
+
+      if (response.success) {
+        setSuccess(response.message || 'Промокод применен успешно');
         setPromoCode('');
         
         // Записываем конверсию использования промокода
@@ -48,13 +58,13 @@ export const PromoCodeInput = () => {
         
         toast({
           title: "Промокод применен",
-          description: data.message,
+          description: response.message || 'Промокод применен успешно',
         });
       } else {
-        setError(data.error);
+        setError(response.error || 'Ошибка применения промокода');
         toast({
           title: "Ошибка",
-          description: data.error,
+          description: response.error || 'Ошибка применения промокода',
           variant: "destructive"
         });
       }
@@ -127,3 +137,5 @@ export const PromoCodeInput = () => {
     </Card>
   );
 };
+
+export default PromoCodeInput;
