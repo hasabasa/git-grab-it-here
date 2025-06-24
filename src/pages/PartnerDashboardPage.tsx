@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -56,8 +55,8 @@ const PartnerDashboardPage = () => {
       if (activeCodes && activeCodes.length > 0) {
         setActivePromoCode(activeCodes[0].code);
       } else {
-        // Если нет активного промокода, показываем код по умолчанию
-        setActivePromoCode(partner.partner_code);
+        // Если нет активного промокода, оставляем пустым
+        setActivePromoCode('');
       }
     } catch (error) {
       console.error('Error loading partner data:', error);
@@ -68,7 +67,7 @@ const PartnerDashboardPage = () => {
       });
       // В случае ошибки используем fallback
       setPartnerCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
-      setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+      setActivePromoCode('');
     } finally {
       setLoading(false);
     }
@@ -99,13 +98,13 @@ const PartnerDashboardPage = () => {
       if (activeCodes && activeCodes.length > 0) {
         setActivePromoCode(activeCodes[0].code);
       } else {
-        // Если нет активного промокода, показываем partner_code
-        setActivePromoCode(partnerCode);
+        // Если нет активного промокода, оставляем пустым
+        setActivePromoCode('');
       }
     } catch (error) {
       console.error('Error loading active promo code:', error);
-      // В случае ошибки показываем partner_code
-      setActivePromoCode(partnerCode);
+      // В случае ошибки очищаем промокод
+      setActivePromoCode('');
     }
   };
 
@@ -202,7 +201,7 @@ const PartnerDashboardPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">Реферальная ссылка</h4>
                   <div className="flex gap-2">
@@ -224,9 +223,15 @@ const PartnerDashboardPage = () => {
                   </div>
                 </div>
                 <div>
+                  <h4 className="font-medium mb-2">Партнерский код</h4>
+                  <div className="px-3 py-2 bg-blue-100 rounded text-sm font-mono">
+                    {loading ? 'Загрузка...' : partnerCode}
+                  </div>
+                </div>
+                <div>
                   <h4 className="font-medium mb-2">Активный промокод</h4>
                   <div className="px-3 py-2 bg-purple-100 rounded text-sm font-mono">
-                    {loading ? 'Загрузка...' : activePromoCode}
+                    {loading ? 'Загрузка...' : (activePromoCode || 'Нет активного промокода')}
                   </div>
                 </div>
               </div>
