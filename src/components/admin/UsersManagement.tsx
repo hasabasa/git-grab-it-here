@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { User, Settings, Crown, Calendar, Trash2, RefreshCw } from 'lucide-react';
+import { User, Settings, Crown, Trash2, RefreshCw } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -84,7 +84,7 @@ const UsersManagement = () => {
 
       console.log('Loading users...');
       
-      // Загружаем профили пользователей
+      // Загружаем профили пользователей с более подробной информацией
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -95,7 +95,19 @@ const UsersManagement = () => {
         throw profilesError;
       }
 
-      console.log('Loaded profiles:', profiles?.length);
+      console.log('Loaded profiles:', profiles?.length, profiles);
+
+      // Загружаем всех пользователей из auth.users для сравнения
+      const { data: authUsers, error: authError } = await supabase
+        .from('auth.users')
+        .select('id, email, created_at')
+        .order('created_at', { ascending: false });
+
+      if (authError) {
+        console.log('Note: Could not load auth users (expected in some cases):', authError);
+      } else {
+        console.log('Auth users found:', authUsers?.length);
+      }
 
       // Загружаем роли для каждого пользователя
       const { data: userRoles, error: rolesError } = await supabase
@@ -117,9 +129,13 @@ const UsersManagement = () => {
 
       console.log('Users with roles:', usersWithRoles.length);
       setUsers(usersWithRoles);
+      
+      if (!silent) {
+        toast.success(`Загружено ${usersWithRoles.length} пользователей`);
+      }
     } catch (error) {
       console.error('Error loading users:', error);
-      toast.error('Ошибка загрузки пользователей');
+      toast.error('Ошибка загрузки пользователей: ' + (error as Error).message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -127,6 +143,7 @@ const UsersManagement = () => {
   };
 
   const handleRefresh = () => {
+    console.log('Manual refresh triggered');
     loadUsers();
   };
 
@@ -299,185 +316,200 @@ const UsersManagement = () => {
             </div>
           </div>
 
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Имя</TableHead>
-                  <TableHead>Компания</TableHead>
-                  <TableHead>Телефон</TableHead>
-                  <TableHead>Роли</TableHead>
-                  <TableHead>Подписка</TableHead>
-                  <TableHead>Дата регистрации</TableHead>
-                  <TableHead>Действия</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.full_name || 'Не указано'}
-                    </TableCell>
-                    <TableCell>{user.company_name || '-'}</TableCell>
-                    <TableCell>{user.phone || '-'}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {user.roles.map((role) => (
-                          <Badge key={role} variant={role === 'admin' ? 'destructive' : 'secondary'}>
-                            {role === 'admin' && <Crown className="h-3 w-3 mr-1" />}
-                            {role}
-                          </Badge>
-                        ))}
-                        {user.roles.length === 0 && (
-                          <Badge variant="outline">user</Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Badge 
-                          variant={isSubscriptionActive(user.subscription_end_date) ? 'default' : 'destructive'}
-                        >
-                          {isSubscriptionActive(user.subscription_end_date) ? 'Активна' : 'Истекла'}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          до {formatDate(user.subscription_end_date)}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(user.created_at)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedUser(user)}
-                            >
-                              <Settings className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Управление пользователем</DialogTitle>
-                            </DialogHeader>
-                            {selectedUser && (
-                              <div className="space-y-4">
-                                <div>
-                                  <h4 className="font-medium mb-2">Роли</h4>
-                                  <div className="space-y-2">
-                                    <div className="flex gap-2">
-                                      <Select
-                                        onValueChange={(role: UserRole) => updateUserRole(selectedUser.id, role, 'add')}
-                                      >
-                                        <SelectTrigger className="w-full">
-                                          <SelectValue placeholder="Добавить роль" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="admin">Администратор</SelectItem>
-                                          <SelectItem value="partner">Партнер</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    <div className="flex gap-1 flex-wrap">
-                                      {selectedUser.roles.map((role) => (
-                                        <Badge key={role} variant="secondary">
-                                          {role}
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-4 w-4 p-0 ml-1"
-                                            onClick={() => updateUserRole(selectedUser.id, role, 'remove')}
-                                          >
-                                            <Trash2 className="h-3 w-3" />
-                                          </Button>
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <h4 className="font-medium mb-2">Подписка</h4>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => extendSubscription(selectedUser.id, 7)}
-                                    >
-                                      +7 дней
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => extendSubscription(selectedUser.id, 30)}
-                                    >
-                                      +30 дней
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => extendSubscription(selectedUser.id, 365)}
-                                    >
-                                      +1 год
-                                    </Button>
-                                  </div>
-                                </div>
-
-                                <Button
-                                  variant="outline"
-                                  className="w-full"
-                                  onClick={() => {
-                                    setEditingUser(selectedUser);
-                                    setSelectedUser(null);
-                                  }}
-                                >
-                                  Редактировать профиль
-                                </Button>
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              disabled={deletingUser === user.id}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Это действие нельзя отменить. Пользователь "{user.full_name || user.id}" 
-                                и все связанные с ним данные будут удалены навсегда.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Отмена</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteUser(user.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Удалить
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
+          {users.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Пользователи не найдены</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh}
+                className="mt-2"
+              >
+                Обновить список
+              </Button>
+            </div>
+          ) : (
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Имя</TableHead>
+                    <TableHead>Компания</TableHead>
+                    <TableHead>Телефон</TableHead>
+                    <TableHead>Роли</TableHead>
+                    <TableHead>Подписка</TableHead>
+                    <TableHead>Дата регистрации</TableHead>
+                    <TableHead>Действия</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">
+                        {user.full_name || 'Не указано'}
+                      </TableCell>
+                      <TableCell>{user.company_name || '-'}</TableCell>
+                      <TableCell>{user.phone || '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 flex-wrap">
+                          {user.roles.map((role) => (
+                            <Badge key={role} variant={role === 'admin' ? 'destructive' : 'secondary'}>
+                              {role === 'admin' && <Crown className="h-3 w-3 mr-1" />}
+                              {role}
+                            </Badge>
+                          ))}
+                          {user.roles.length === 0 && (
+                            <Badge variant="outline">user</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Badge 
+                            variant={isSubscriptionActive(user.subscription_end_date) ? 'default' : 'destructive'}
+                          >
+                            {isSubscriptionActive(user.subscription_end_date) ? 'Активна' : 'Истекла'}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            до {formatDate(user.subscription_end_date)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(user.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedUser(user)}
+                              >
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Управление пользователем</DialogTitle>
+                              </DialogHeader>
+                              {selectedUser && (
+                                <div className="space-y-4">
+                                  <div>
+                                    <h4 className="font-medium mb-2">Роли</h4>
+                                    <div className="space-y-2">
+                                      <div className="flex gap-2">
+                                        <Select
+                                          onValueChange={(role: UserRole) => updateUserRole(selectedUser.id, role, 'add')}
+                                        >
+                                          <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Добавить роль" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="admin">Администратор</SelectItem>
+                                            <SelectItem value="partner">Партнер</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="flex gap-1 flex-wrap">
+                                        {selectedUser.roles.map((role) => (
+                                          <Badge key={role} variant="secondary">
+                                            {role}
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-4 w-4 p-0 ml-1"
+                                              onClick={() => updateUserRole(selectedUser.id, role, 'remove')}
+                                            >
+                                              <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <h4 className="font-medium mb-2">Подписка</h4>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => extendSubscription(selectedUser.id, 7)}
+                                      >
+                                        +7 дней
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => extendSubscription(selectedUser.id, 30)}
+                                      >
+                                        +30 дней
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => extendSubscription(selectedUser.id, 365)}
+                                      >
+                                        +1 год
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => {
+                                      setEditingUser(selectedUser);
+                                      setSelectedUser(null);
+                                    }}
+                                  >
+                                    Редактировать профиль
+                                  </Button>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={deletingUser === user.id}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Это действие нельзя отменить. Пользователь "{user.full_name || user.id}" 
+                                  и все связанные с ним данные будут удалены навсегда.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteUser(user.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Удалить
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
