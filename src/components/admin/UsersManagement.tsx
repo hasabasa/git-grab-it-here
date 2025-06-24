@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { User, Settings, Crown, Calendar, Trash2 } from 'lucide-react';
+import { User, Settings, Crown, Calendar, Trash2, RefreshCw } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -58,6 +57,7 @@ type UserRole = 'admin' | 'partner' | 'user';
 const UsersManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
@@ -65,24 +65,49 @@ const UsersManagement = () => {
 
   useEffect(() => {
     loadUsers();
+    
+    // Настраиваем автоматическое обновление каждые 30 секунд
+    const interval = setInterval(() => {
+      loadUsers(true);
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (silent = false) => {
     try {
+      if (!silent) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+
+      console.log('Loading users...');
+      
       // Загружаем профили пользователей
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error loading profiles:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Loaded profiles:', profiles?.length);
 
       // Загружаем роли для каждого пользователя
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        console.error('Error loading roles:', rolesError);
+        throw rolesError;
+      }
+
+      console.log('Loaded roles:', userRoles?.length);
 
       // Объединяем данные
       const usersWithRoles = profiles?.map(profile => ({
@@ -90,13 +115,19 @@ const UsersManagement = () => {
         roles: userRoles?.filter(role => role.user_id === profile.id).map(role => role.role) || []
       })) || [];
 
+      console.log('Users with roles:', usersWithRoles.length);
       setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error loading users:', error);
       toast.error('Ошибка загрузки пользователей');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    loadUsers();
   };
 
   const updateUserRole = async (userId: string, role: string, action: 'add' | 'remove') => {
@@ -251,9 +282,21 @@ const UsersManagement = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-md"
             />
-            <Badge variant="secondary">
-              Всего пользователей: {users.length}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Обновить
+              </Button>
+              <Badge variant="secondary">
+                Всего пользователей: {users.length}
+              </Badge>
+            </div>
           </div>
 
           <div className="border rounded-md">
