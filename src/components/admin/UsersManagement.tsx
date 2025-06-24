@@ -22,6 +22,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -50,6 +61,7 @@ const UsersManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -135,6 +147,31 @@ const UsersManagement = () => {
     } catch (error) {
       console.error('Error updating user profile:', error);
       toast.error('Ошибка обновления профиля');
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    setDeletingUser(userId);
+    try {
+      const { data, error } = await supabase.rpc('delete_user_account', {
+        target_user_id: userId
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; message?: string };
+
+      if (result.success) {
+        toast.success(result.message || 'Пользователь успешно удален');
+        loadUsers();
+      } else {
+        toast.error(result.error || 'Ошибка удаления пользователя');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Произошла ошибка при удалении пользователя');
+    } finally {
+      setDeletingUser(null);
     }
   };
 
@@ -361,6 +398,36 @@ const UsersManagement = () => {
                             )}
                           </DialogContent>
                         </Dialog>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deletingUser === user.id}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Это действие нельзя отменить. Пользователь "{user.full_name || user.id}" 
+                                и все связанные с ним данные будут удалены навсегда.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Отмена</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteUser(user.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Удалить
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -657,6 +657,10 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_user_account: {
+        Args: { target_user_id: string }
+        Returns: Json
+      }
       generate_partner_code: {
         Args: { instagram_name: string }
         Returns: string
