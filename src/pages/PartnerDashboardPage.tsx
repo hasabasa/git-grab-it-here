@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -194,46 +195,29 @@ const PartnerDashboardPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ExternalLink className="h-5 w-5" />
-                Ваши партнерские материалы
+                Ваша реферальная ссылка
               </CardTitle>
               <CardDescription>
-                Используйте эти материалы для привлечения новых пользователей
+                Используйте эту ссылку для привлечения новых пользователей
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2">Реферальная ссылка</h4>
-                  <div className="flex gap-2">
-                    <code className="flex-1 px-3 py-2 bg-gray-100 rounded text-sm">
-                      {getReferralLink()}
-                    </code>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={copyReferralLink}
-                      disabled={loading || !partnerCode}
-                    >
-                      {loading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Партнерский код</h4>
-                  <div className="px-3 py-2 bg-blue-100 rounded text-sm font-mono">
-                    {loading ? 'Загрузка...' : partnerCode}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Активный промокод</h4>
-                  <div className="px-3 py-2 bg-purple-100 rounded text-sm font-mono">
-                    {loading ? 'Загрузка...' : (activePromoCode || 'Нет активного промокода')}
-                  </div>
-                </div>
+              <div className="flex gap-2">
+                <code className="flex-1 px-3 py-2 bg-gray-100 rounded text-sm">
+                  {getReferralLink()}
+                </code>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={copyReferralLink}
+                  disabled={loading || !partnerCode}
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>
