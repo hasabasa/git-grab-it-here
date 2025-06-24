@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PartnerStats } from '@/components/partner/PartnerStats';
 import { PromoCodeManager } from '@/components/partner/PromoCodeManager';
 import { useAuth } from '@/components/integration/useAuth';
-import { Instagram, LogOut, ExternalLink, Copy, BarChart, Gift } from 'lucide-react';
+import { Instagram, LogOut, ExternalLink, Copy, BarChart, Gift, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -16,14 +16,63 @@ const PartnerDashboardPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [activePromoCode, setActivePromoCode] = useState<string>('');
+  const [partnerCode, setPartnerCode] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   console.log('PartnerDashboard: Rendering for user:', user?.email);
 
   useEffect(() => {
     if (user) {
-      loadActivePromoCode();
+      loadPartnerData();
     }
   }, [user]);
+
+  const loadPartnerData = async () => {
+    setLoading(true);
+    try {
+      // Получаем данные партнера включая partner_code
+      const { data: partner, error: partnerError } = await supabase
+        .from('partners')
+        .select('id, partner_code')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (partnerError) throw partnerError;
+      
+      console.log('Loaded partner data:', partner);
+      setPartnerCode(partner.partner_code);
+      
+      // Загружаем активный промокод партнера
+      const { data: activeCodes, error: codesError } = await supabase
+        .from('promo_codes')
+        .select('code')
+        .eq('partner_id', partner.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (codesError) throw codesError;
+      
+      if (activeCodes && activeCodes.length > 0) {
+        setActivePromoCode(activeCodes[0].code);
+      } else {
+        // Если нет активного промокода, показываем код по умолчанию
+        setActivePromoCode(partner.partner_code);
+      }
+    } catch (error) {
+      console.error('Error loading partner data:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить данные партнера",
+        variant: "destructive"
+      });
+      // В случае ошибки используем fallback
+      setPartnerCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+      setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadActivePromoCode = async () => {
     try {
@@ -50,13 +99,13 @@ const PartnerDashboardPage = () => {
       if (activeCodes && activeCodes.length > 0) {
         setActivePromoCode(activeCodes[0].code);
       } else {
-        // Если нет активного промокода, показываем код по умолчанию
-        setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+        // Если нет активного промокода, показываем partner_code
+        setActivePromoCode(partnerCode);
       }
     } catch (error) {
       console.error('Error loading active promo code:', error);
-      // В случае ошибки показываем код по умолчанию
-      setActivePromoCode(`PARTNER_${user?.user_metadata?.instagram_username?.toUpperCase() || 'USERNAME'}`);
+      // В случае ошибки показываем partner_code
+      setActivePromoCode(partnerCode);
     }
   };
 
@@ -74,12 +123,26 @@ const PartnerDashboardPage = () => {
   };
 
   const copyReferralLink = () => {
-    const referralLink = `${window.location.origin}/?ref=partner&utm_source=instagram`;
+    if (!partnerCode) {
+      toast({
+        title: "Ошибка",
+        description: "Код партнера еще загружается, попробуйте снова",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const referralLink = `${window.location.origin}/?ref=${partnerCode}`;
     navigator.clipboard.writeText(referralLink);
     toast({
       title: "Ссылка скопирована",
       description: "Реферальная ссылка скопирована в буфер обмена"
     });
+  };
+
+  const getReferralLink = () => {
+    if (!partnerCode) return 'Загрузка...';
+    return `${window.location.origin}/?ref=${partnerCode}`;
   };
 
   return (
@@ -101,8 +164,17 @@ const PartnerDashboardPage = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={copyReferralLink} className="flex items-center gap-2">
-              <Copy className="h-4 w-4" />
+            <Button 
+              variant="outline" 
+              onClick={copyReferralLink} 
+              className="flex items-center gap-2"
+              disabled={loading || !partnerCode}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               Скопировать ссылку
             </Button>
             <Button
@@ -135,17 +207,26 @@ const PartnerDashboardPage = () => {
                   <h4 className="font-medium mb-2">Реферальная ссылка</h4>
                   <div className="flex gap-2">
                     <code className="flex-1 px-3 py-2 bg-gray-100 rounded text-sm">
-                      {window.location.origin}/?ref=partner&utm_source=instagram
+                      {getReferralLink()}
                     </code>
-                    <Button variant="outline" size="sm" onClick={copyReferralLink}>
-                      <Copy className="h-4 w-4" />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={copyReferralLink}
+                      disabled={loading || !partnerCode}
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">Активный промокод</h4>
                   <div className="px-3 py-2 bg-purple-100 rounded text-sm font-mono">
-                    {activePromoCode}
+                    {loading ? 'Загрузка...' : activePromoCode}
                   </div>
                 </div>
               </div>
