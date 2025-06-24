@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,30 +28,6 @@ const SalesPage = () => {
   const { isMobile, isDesktop, isLargeDesktop, isExtraLargeDesktop } = useScreenSize();
   const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
   const [timeFrame, setTimeFrame] = useState("daily");
-
-  // Show loading screen while authentication or stores are loading
-  if (authLoading || storeLoading) {
-    return <LoadingScreen text="Загрузка данных продаж..." />;
-  }
-
-  // If user needs to connect a store, show connect button
-  if (needsConnection) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Мои продажи</h1>
-          <p className="text-gray-600">
-            Полная аналитика продаж по всем магазинам на Kaspi.kz
-          </p>
-        </div>
-        
-        <ConnectStoreButton
-          title="Подключите магазин для аналитики продаж"
-          description="Получите детальную статистику продаж, топ товары и динамику роста после подключения вашего магазина"
-        />
-      </div>
-    );
-  }
 
   const fetchSalesData = async () => {
     if (isDemo) {
@@ -102,6 +79,33 @@ const SalesPage = () => {
       refetch();
     }
   }, [selectedStoreId, refetch, authLoading, isDemo, user]);
+
+  // Все хуки должны быть вызваны ДО любых условных возвратов
+  // Теперь можем безопасно использовать условный рендеринг
+
+  // Show loading screen while authentication or stores are loading
+  if (authLoading || storeLoading) {
+    return <LoadingScreen text="Загрузка данных продаж..." />;
+  }
+
+  // If user needs to connect a store, show connect button
+  if (needsConnection) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Мои продажи</h1>
+          <p className="text-gray-600">
+            Полная аналитика продаж по всем магазинам на Kaspi.kz
+          </p>
+        </div>
+        
+        <ConnectStoreButton
+          title="Подключите магазин для аналитики продаж"
+          description="Получите детальную статистику продаж, топ товары и динамику роста после подключения вашего магазина"
+        />
+      </div>
+    );
+  }
 
   const handleExport = (format: "excel" | "csv") => {
     const storeInfo = selectedStoreId && selectedStoreId !== 'all' 
