@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +30,14 @@ const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSe
         offset: 16,
         preferredPlacement: 'right'
       });
-      setPosition(newPosition);
+      
+      // Поднимаем popover выше на 60 пикселей
+      const adjustedPosition = {
+        ...newPosition,
+        top: Math.max(20, newPosition.top - 60)
+      };
+      
+      setPosition(adjustedPosition);
     };
 
     updatePosition();
@@ -79,10 +87,10 @@ const PopoverSettings = ({ product, onSave, onClose, triggerElement }: PopoverSe
     >
       {/* Стрелка, указывающая на товар */}
       {position.placement === 'right' && (
-        <div className="absolute left-0 top-4 -translate-x-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-white"></div>
+        <div className="absolute left-0 top-16 -translate-x-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-white"></div>
       )}
       {position.placement === 'left' && (
-        <div className="absolute right-0 top-4 translate-x-2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-white"></div>
+        <div className="absolute right-0 top-16 translate-x-2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-white"></div>
       )}
       
       <Card className="shadow-lg border-2">
