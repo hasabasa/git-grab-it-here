@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Check, Crown, Calendar, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,11 +44,11 @@ const SubscriptionPage = () => {
       return "Продлить Pro план";
     }
     
-    return "Начать с 3 бесплатных дней";
+    return "Начать с 5 бесплатных дней";
   };
 
   const getButtonDescription = () => {
-    if (isDemo) return "Зарегистрируйтесь для получения 3 бесплатных дней Pro плана";
+    if (isDemo) return "Зарегистрируйтесь для получения 5 бесплатных дней Pro плана";
     
     if (subscriptionStatus.isActive) {
       return "Изменить план или способ оплаты";
@@ -191,7 +190,7 @@ const SubscriptionPage = () => {
               {!subscriptionStatus.isActive && !isDemo && subscriptionStatus.status !== 'expired' && (
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <Badge variant="success" className="text-sm">
-                    3 дня бесплатно
+                    5 дней бесплатно
                   </Badge>
                 </div>
               )}
