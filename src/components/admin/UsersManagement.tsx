@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,7 +85,7 @@ const UsersManagement = () => {
 
       console.log('Loading users...');
       
-      // Загружаем профили пользователей с более подробной информацией
+      // Загружаем профили пользователей
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -96,18 +97,6 @@ const UsersManagement = () => {
       }
 
       console.log('Loaded profiles:', profiles?.length, profiles);
-
-      // Загружаем всех пользователей из auth.users для сравнения
-      const { data: authUsers, error: authError } = await supabase
-        .from('auth.users')
-        .select('id, email, created_at')
-        .order('created_at', { ascending: false });
-
-      if (authError) {
-        console.log('Note: Could not load auth users (expected in some cases):', authError);
-      } else {
-        console.log('Auth users found:', authUsers?.length);
-      }
 
       // Загружаем роли для каждого пользователя
       const { data: userRoles, error: rolesError } = await supabase
