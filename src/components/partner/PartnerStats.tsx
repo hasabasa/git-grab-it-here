@@ -1,11 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Users, UserPlus, Gift, CreditCard, TrendingUp } from 'lucide-react';
-
 interface PartnerStatsData {
   partner_id: string;
   instagram_username: string;
@@ -15,37 +13,33 @@ interface PartnerStatsData {
   promo_usage: number;
   paid_conversions: number;
 }
-
 export const PartnerStats = () => {
   const [stats, setStats] = useState<PartnerStatsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     loadPartnerStats();
   }, []);
-
   const loadPartnerStats = async () => {
     try {
-      const { data: user } = await supabase.auth.getUser();
+      const {
+        data: user
+      } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Пользователь не авторизован');
 
       // Получаем ID партнера по user_id
-      const { data: partner } = await supabase
-        .from('partners')
-        .select('id')
-        .eq('user_id', user.user.id)
-        .single();
-
+      const {
+        data: partner
+      } = await supabase.from('partners').select('id').eq('user_id', user.user.id).single();
       if (!partner) throw new Error('Партнер не найден');
 
       // Получаем статистику из представления
-      const { data: statsData, error } = await supabase
-        .from('partner_stats')
-        .select('*')
-        .eq('partner_id', partner.id)
-        .single();
-
+      const {
+        data: statsData,
+        error
+      } = await supabase.from('partner_stats').select('*').eq('partner_id', partner.id).single();
       if (error) throw error;
       setStats(statsData);
     } catch (error) {
@@ -59,25 +53,15 @@ export const PartnerStats = () => {
       setLoading(false);
     }
   };
-
   if (loading) {
     return <div className="text-center py-8">Загрузка статистики...</div>;
   }
-
   if (!stats) {
     return <div className="text-center py-8">Статистика недоступна</div>;
   }
-
-  const conversionRate = stats.total_clicks > 0 
-    ? ((stats.registrations / stats.total_clicks) * 100).toFixed(1)
-    : '0';
-
-  const paymentRate = stats.registrations > 0 
-    ? ((stats.paid_conversions / stats.registrations) * 100).toFixed(1)
-    : '0';
-
-  return (
-    <div className="space-y-6">
+  const conversionRate = stats.total_clicks > 0 ? (stats.registrations / stats.total_clicks * 100).toFixed(1) : '0';
+  const paymentRate = stats.registrations > 0 ? (stats.paid_conversions / stats.registrations * 100).toFixed(1) : '0';
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">@{stats.instagram_username}</h2>
@@ -91,7 +75,7 @@ export const PartnerStats = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Переходы по ссылке</CardTitle>
+            <CardTitle className="text-sm font-medium">Регистрации</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -102,18 +86,7 @@ export const PartnerStats = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Регистрации</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.registrations}</div>
-            <p className="text-xs text-muted-foreground">
-              Конверсия: {conversionRate}%
-            </p>
-          </CardContent>
-        </Card>
+        
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -161,13 +134,12 @@ export const PartnerStats = () => {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">
-                {stats.total_clicks > 0 ? ((stats.paid_conversions / stats.total_clicks) * 100).toFixed(1) : '0'}%
+                {stats.total_clicks > 0 ? (stats.paid_conversions / stats.total_clicks * 100).toFixed(1) : '0'}%
               </div>
               <p className="text-sm text-muted-foreground">Общая конверсия</p>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
