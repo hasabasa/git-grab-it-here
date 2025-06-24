@@ -101,6 +101,22 @@ const PriceBotPage = () => {
   const handleSettingsSave = (settings: any) => {
     console.log('Settings saved:', settings);
     // Here you would save the settings to the database
+    
+    // Update the product in state
+    if (settings.productId) {
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.id === settings.productId 
+            ? { ...product, botActive: settings.isActive, minProfit: settings.minProfit }
+            : product
+        )
+      );
+      
+      // Update selected product if it's the same
+      if (selectedProduct?.id === settings.productId) {
+        setSelectedProduct(prev => prev ? { ...prev, botActive: settings.isActive, minProfit: settings.minProfit } : null);
+      }
+    }
   };
 
   // Show loading screen while authentication or stores are loading
@@ -169,60 +185,17 @@ const PriceBotPage = () => {
         </div>
         
         <div className={cn("space-y-4 md:space-y-6", isMobile ? "order-1" : "lg:col-span-3")}>
-          <Tabs defaultValue="products" className="w-full">
-            <TabsList className={cn(
-              "grid w-full",
-              isMobile ? "grid-cols-2 h-auto" : "grid-cols-4",
-              getTouchTargetSize()
-            )}>
-              <TabsTrigger 
-                value="products" 
-                className={cn("flex items-center gap-1 md:gap-2", isMobile && "flex-col py-2 px-1 text-xs")}
-              >
-                <Bot className="h-3 w-3 md:h-4 md:w-4" />
-                <span>Товары</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className={cn("flex items-center gap-1 md:gap-2", isMobile && "flex-col py-2 px-1 text-xs")}
-              >
-                <Settings className="h-3 w-3 md:h-4 md:w-4" />
-                <span>Настройки</span>
-              </TabsTrigger>
-              {!isMobile && (
-                <>
-                  <TabsTrigger value="activation" className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Активация
-                  </TabsTrigger>
-                  <TabsTrigger value="profit" className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Прибыль
-                  </TabsTrigger>
-                </>
-              )}
-            </TabsList>
-
-            {isMobile && (
-              <div className="mt-2 flex gap-2">
-                <TabsTrigger 
-                  value="activation" 
-                  className="flex-1 flex items-center justify-center gap-1 py-2 text-xs"
-                >
-                  <TrendingUp className="h-3 w-3" />
-                  <span>Активация</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="profit" 
-                  className="flex-1 flex items-center justify-center gap-1 py-2 text-xs"
-                >
-                  <DollarSign className="h-3 w-3" />
-                  <span>Прибыль</span>
-                </TabsTrigger>
-              </div>
-            )}
-
-            <TabsContent value="products" className="space-y-4 md:space-y-6 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                Товары с ботом демпинга
+              </CardTitle>
+              <CardDescription>
+                Нажмите на товар для настройки бота демпинга
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               {loadingProducts ? (
                 <LoadingScreen text="Загрузка товаров..." />
               ) : (
@@ -230,45 +203,11 @@ const PriceBotPage = () => {
                   products={products}
                   activeProductId={selectedProduct?.id || null}
                   onProductSelect={handleProductSelect}
+                  onSettingsSave={handleSettingsSave}
                 />
               )}
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-4 md:space-y-6 mt-4">
-              {selectedProduct ? (
-                <PriceBotSettings 
-                  product={selectedProduct}
-                  onSave={handleSettingsSave}
-                />
-              ) : (
-                <div className="text-center py-6 md:py-8 text-gray-500 text-sm md:text-base">
-                  Выберите товар для настройки бота
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="activation" className="space-y-4 md:space-y-6 mt-4">
-              <ActivationSection 
-                isActive={selectedProduct?.botActive || false}
-                onActiveChange={(active) => {
-                  if (selectedProduct) {
-                    setSelectedProduct({...selectedProduct, botActive: active});
-                  }
-                }}
-              />
-            </TabsContent>
-
-            <TabsContent value="profit" className="space-y-4 md:space-y-6 mt-4">
-              <ProfitSection 
-                minProfit={selectedProduct?.minProfit || 0}
-                onMinProfitChange={(profit) => {
-                  if (selectedProduct) {
-                    setSelectedProduct({...selectedProduct, minProfit: profit});
-                  }
-                }}
-              />
-            </TabsContent>
-          </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
