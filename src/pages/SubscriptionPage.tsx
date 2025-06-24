@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Check, Crown, Calendar, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -146,8 +147,8 @@ const SubscriptionPage = () => {
         </div>
       )}
 
-      {/* Промокод */}
-      {!isDemo && subscriptionStatus.status !== 'expired' && (
+      {/* Промокод - теперь доступен всегда для авторизованных пользователей */}
+      {!isDemo && (
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
