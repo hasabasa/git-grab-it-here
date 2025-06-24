@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -122,9 +121,24 @@ const AuthComponent = () => {
 
       if (data.user) {
         console.log('User registered successfully:', data.user.id);
+        console.log('User metadata:', data.user.user_metadata);
         
-        // Record referral conversion for registration
-        await recordConversion(data.user.id, 'registration');
+        // Wait a moment for the profile to be created by the trigger
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Record referral conversion for registration if there's referral data
+        if (parsedReferralData?.partner_code) {
+          console.log('Recording registration conversion for partner:', parsedReferralData.partner_code);
+          try {
+            const conversionResult = await recordConversion(data.user.id, 'registration');
+            console.log('Registration conversion result:', conversionResult);
+          } catch (conversionError) {
+            console.error('Failed to record registration conversion:', conversionError);
+            // Don't block the registration process if conversion recording fails
+          }
+        } else {
+          console.log('No referral data found, skipping conversion recording');
+        }
         
         toast({
           title: "Регистрация успешна!",

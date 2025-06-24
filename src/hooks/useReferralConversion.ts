@@ -28,15 +28,22 @@ export const useReferralConversion = () => {
         return;
       }
 
-      // Find partner by code
+      // Find partner by code with detailed logging
+      console.log('Looking for partner with code:', referralData.partner_code);
       const { data: partner, error: partnerError } = await supabase
         .from('partners')
-        .select('id, commission_rate')
+        .select('id, commission_rate, partner_code, is_active')
         .eq('partner_code', referralData.partner_code)
+        .eq('is_active', true)
         .single();
 
-      if (partnerError || !partner) {
-        console.error('Partner not found for conversion:', partnerError);
+      if (partnerError) {
+        console.error('Partner query error:', partnerError);
+        return;
+      }
+
+      if (!partner) {
+        console.error('Partner not found for code:', referralData.partner_code);
         return;
       }
 
@@ -48,7 +55,7 @@ export const useReferralConversion = () => {
 
       console.log('Commission calculation:', { amount, commissionRate, commissionEarned });
 
-      // Record conversion
+      // Record conversion with explicit status
       const conversionData = {
         partner_id: partner.id,
         user_id: userId,
@@ -58,10 +65,10 @@ export const useReferralConversion = () => {
         amount: amount || 0,
         commission_earned: commissionEarned,
         status: 'confirmed',
-        notes: `Conversion from ${referralData.utm_source || 'unknown source'} - ${conversionType}`
+        notes: `Conversion from ${referralData.utm_source || 'unknown source'} - ${conversionType} - Partner: ${partner.partner_code}`
       };
 
-      console.log('Inserting conversion:', conversionData);
+      console.log('Inserting conversion with data:', conversionData);
 
       const { data: insertedData, error: conversionError } = await supabase
         .from('referral_conversions')
@@ -72,27 +79,31 @@ export const useReferralConversion = () => {
       if (conversionError) {
         console.error('Error recording conversion:', conversionError);
         throw conversionError;
-      } else {
-        console.log('Conversion recorded successfully:', insertedData);
-        
-        // Show success toast for important conversions
-        if (conversionType === 'registration') {
-          toast({
-            title: "Добро пожаловать!",
-            description: "Регистрация завершена через партнерскую ссылку"
-          });
-        } else if (conversionType === 'subscription_payment') {
-          toast({
-            title: "Оплата прошла успешно",
-            description: "Спасибо за подписку!"
-          });
-        }
-
-        // Don't clear referral data immediately - keep it for potential future conversions
-        console.log('Keeping referral data for potential future conversions');
       }
+
+      console.log('Conversion recorded successfully:', insertedData);
+      
+      // Show success toast for important conversions
+      if (conversionType === 'registration') {
+        console.log('Registration conversion recorded for partner:', partner.partner_code);
+        toast({
+          title: "Добро пожаловать!",
+          description: "Регистрация завершена через партнерскую ссылку"
+        });
+      } else if (conversionType === 'subscription_payment') {
+        toast({
+          title: "Оплата прошла успешно",
+          description: "Спасибо за подписку!"
+        });
+      }
+
+      // Don't clear referral data immediately - keep it for potential future conversions
+      console.log('Keeping referral data for potential future conversions');
+      
+      return insertedData;
     } catch (error) {
       console.error('Error in recordConversion:', error);
+      throw error;
     }
   };
 
