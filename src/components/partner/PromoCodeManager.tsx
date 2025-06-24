@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/integration/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { Plus, CheckCircle, Clock, AlertCircle, Loader2, Info } from 'lucide-react';
+import { useMobileResponsive } from '@/hooks/use-mobile-responsive';
 
 interface PromoCode {
   id: string;
@@ -29,6 +29,7 @@ interface PromoCodeManagerProps {
 export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isMobile, isTablet, getMobileSpacing } = useMobileResponsive();
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -178,11 +179,11 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Информационное уведомление */}
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertDescription>
+        <AlertDescription className={isMobile ? "text-sm" : undefined}>
           При создании нового промокода все ваши старые активные промокоды будут автоматически отключены. 
           Новый промокод создается в неактивном состоянии - не забудьте его активировать.
         </AlertDescription>
@@ -190,17 +191,25 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
 
       {/* Форма создания нового промокода */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
+        <CardHeader className={isMobile ? "pb-3" : undefined}>
+          <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-lg' : ''}`}>
+            <Plus className="h-4 w-4 md:h-5 md:w-5" />
             Создать новый промокод
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "pt-0" : undefined}>
           <form onSubmit={createPromoCode} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className={`grid gap-4 ${
+              isMobile 
+                ? 'grid-cols-1' 
+                : isTablet 
+                  ? 'grid-cols-2' 
+                  : 'grid-cols-1 md:grid-cols-3'
+            }`}>
               <div className="space-y-2">
-                <Label htmlFor="code">Код промокода</Label>
+                <Label htmlFor="code" className={isMobile ? "text-sm" : undefined}>
+                  Код промокода
+                </Label>
                 <Input
                   id="code"
                   value={newCode}
@@ -208,23 +217,30 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
                   placeholder="PROMO2024"
                   required
                   disabled={creating}
+                  className={isMobile ? "h-11" : undefined}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="bonus">Бонусные дни</Label>
+                <Label htmlFor="bonus" className={isMobile ? "text-sm" : undefined}>
+                  Бонусные дни
+                </Label>
                 <Input
                   id="bonus"
                   type="number"
                   value={bonusDays}
                   disabled
-                  className="bg-gray-50 text-gray-600"
+                  className={`bg-gray-50 text-gray-600 ${isMobile ? "h-11" : ""}`}
                 />
-                <p className="text-xs text-gray-500">Фиксированное значение</p>
+                <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-xs'}`}>
+                  Фиксированное значение
+                </p>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="max-usage">Макс. использований</Label>
+                <Label htmlFor="max-usage" className={isMobile ? "text-sm" : undefined}>
+                  Макс. использований
+                </Label>
                 <Input
                   id="max-usage"
                   type="number"
@@ -233,11 +249,17 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
                   placeholder="Без ограничений"
                   min="1"
                   disabled={creating}
+                  className={isMobile ? "h-11" : undefined}
                 />
               </div>
             </div>
             
-            <Button type="submit" disabled={creating || !newCode.trim()}>
+            <Button 
+              type="submit" 
+              disabled={creating || !newCode.trim()}
+              className={isMobile ? "w-full h-11" : undefined}
+              size={isMobile ? "default" : "default"}
+            >
               {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {creating ? 'Создание...' : 'Создать промокод'}
             </Button>
@@ -247,27 +269,35 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
 
       {/* Список промокодов */}
       <Card>
-        <CardHeader>
-          <CardTitle>Мои промокоды</CardTitle>
+        <CardHeader className={isMobile ? "pb-3" : undefined}>
+          <CardTitle className={isMobile ? "text-lg" : undefined}>
+            Мои промокоды
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "pt-0" : undefined}>
           {promoCodes.length === 0 ? (
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
+              <AlertDescription className={isMobile ? "text-sm" : undefined}>
                 У вас пока нет созданных промокодов
               </AlertDescription>
             </Alert>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {promoCodes.map((promo) => (
                 <div
                   key={promo.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className={`border rounded-lg ${
+                    isMobile 
+                      ? 'p-3 space-y-3' 
+                      : 'p-4 flex items-center justify-between'
+                  }`}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <code className="text-lg font-mono font-bold">{promo.code}</code>
+                  <div className={isMobile ? "space-y-2" : "flex-1"}>
+                    <div className={`flex items-center gap-3 ${isMobile ? 'flex-wrap' : 'mb-2'}`}>
+                      <code className={`font-mono font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>
+                        {promo.code}
+                      </code>
                       <Badge variant={promo.is_active ? "default" : "secondary"}>
                         {promo.is_active ? (
                           <>
@@ -283,7 +313,7 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-muted-foreground space-y-1">
+                    <div className={`text-muted-foreground space-y-1 ${isMobile ? 'text-sm' : 'text-sm'}`}>
                       <div>Бонусные дни: {promo.bonus_days}</div>
                       <div>
                         Использований: {promo.usage_count}
@@ -294,19 +324,22 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
                   </div>
                   
                   {!promo.is_active && (
-                    <Button
-                      onClick={() => activatePromoCode(promo.id)}
-                      variant="outline"
-                      size="sm"
-                      disabled={activating === promo.id}
-                    >
-                      {activating === promo.id ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                      )}
-                      {activating === promo.id ? 'Активация...' : 'Активировать'}
-                    </Button>
+                    <div className={isMobile ? "w-full" : "flex-shrink-0"}>
+                      <Button
+                        onClick={() => activatePromoCode(promo.id)}
+                        variant="outline"
+                        size={isMobile ? "default" : "sm"}
+                        disabled={activating === promo.id}
+                        className={isMobile ? "w-full h-11" : undefined}
+                      >
+                        {activating === promo.id ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                        )}
+                        {activating === promo.id ? 'Активация...' : 'Активировать'}
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}
