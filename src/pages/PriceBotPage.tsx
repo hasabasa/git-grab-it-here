@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import PriceBotSettings from "@/components/price-bot/PriceBotSettings";
 import ActivationSection from "@/components/price-bot/ActivationSection";
 import ProfitSection from "@/components/price-bot/ProfitSection";
 import { useAuth } from "@/components/integration/useAuth";
-import { AuthComponent } from "@/components/integration/AuthComponent";
+import AuthComponent from "@/components/integration/AuthComponent";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
 import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";

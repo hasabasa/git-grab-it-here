@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/components/integration/useAuth";
-import { PromoCodeInput } from "@/components/subscription/PromoCodeInput";
+import PromoCodeInput from "@/components/subscription/PromoCodeInput";
 
 const SubscriptionPage = () => {
   const { isDemo } = useAuth();
