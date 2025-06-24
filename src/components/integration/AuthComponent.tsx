@@ -1,21 +1,25 @@
 
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useReferralTracking } from '@/hooks/useReferralTracking';
 import { useReferralConversion } from '@/hooks/useReferralConversion';
-import { Mail, Lock, User, Building, Phone, AlertCircle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, User, Building2, Phone, Mail, Lock } from 'lucide-react';
 
-export const AuthComponent = () => {
-  const { user, signIn, signUp, loading } = useAuth();
-  const { getReferralData } = useReferralTracking();
+const AuthComponent = () => {
+  const { user, loading } = useAuth();
   const { recordConversion } = useReferralConversion();
-  const [activeTab, setActiveTab] = useState('signin');
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,299 +27,336 @@ export const AuthComponent = () => {
     companyName: '',
     phone: ''
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  // Clear messages when switching tabs
   useEffect(() => {
-    setError(null);
-    setSuccess(null);
-  }, [activeTab]);
+    if (user && !loading) {
+      // Check user role to redirect appropriately
+      checkUserRole();
+    }
+  }, [user, loading]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
+  const checkUserRole = async () => {
+    if (!user) return;
 
     try {
-      console.log('Attempting sign in for:', formData.email);
-      const result = await signIn(formData.email, formData.password);
-      if (result.error) {
-        console.error('Sign in error:', result.error);
-        setError(result.error.message);
-      } else {
-        console.log('Sign in successful');
-        setSuccess('Вход выполнен успешно!');
+      // Check if user is admin
+      const { data: adminRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+
+      if (adminRole) {
+        navigate('/admin', { replace: true });
+        return;
       }
-    } catch (err) {
-      console.error('Sign in exception:', err);
-      setError('Произошла ошибка при входе');
+
+      // Check if user is partner
+      const { data: partner } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (partner) {
+        navigate('/partner/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error);
+      navigate('/', { replace: true });
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    console.log('Starting registration process');
-
-    // Get referral data for user metadata
-    const referralData = getReferralData();
-    console.log('Referral data for registration:', referralData);
-    
-    const userData = {
-      data: {
-        full_name: formData.fullName,
-        company_name: formData.companyName,
-        phone: formData.phone,
-        // Add referral data to user metadata
-        referral_source: referralData?.partner_code || null,
-        utm_source: referralData?.utm_source || null,
-        utm_medium: referralData?.utm_medium || null,
-        utm_campaign: referralData?.utm_campaign || null,
-        utm_content: referralData?.utm_content || null,
-        utm_term: referralData?.utm_term || null,
-      }
-    };
-
-    console.log('User data for registration:', userData);
+    setIsLoading(true);
 
     try {
-      const result = await signUp(formData.email, formData.password, userData);
+      // Get referral data for signup
+      const referralData = localStorage.getItem('referral_data');
+      let parsedReferralData = null;
       
-      if (result.error) {
-        console.error('Registration error:', result.error);
-        setError(result.error.message);
-      } else {
-        console.log('Registration successful:', result.data);
-        setSuccess('Регистрация прошла успешно! Проверьте почту для подтверждения.');
-        
-        // Record registration conversion if referral data exists
-        if (referralData && result.data?.user?.id) {
-          console.log('Recording registration conversion for user:', result.data.user.id);
-          try {
-            await recordConversion(result.data.user.id, 'registration');
-            console.log('Registration conversion recorded successfully');
-          } catch (conversionError) {
-            console.error('Error recording registration conversion:', conversionError);
-            // Don't fail the registration if conversion recording fails
-          }
-        } else {
-          console.log('No referral data or user ID for conversion recording');
+      if (referralData) {
+        try {
+          parsedReferralData = JSON.parse(referralData);
+          console.log('Using referral data for signup:', parsedReferralData);
+        } catch (error) {
+          console.error('Error parsing referral data:', error);
         }
+      }
+
+      const signUpData = {
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            company_name: formData.companyName,
+            phone: formData.phone,
+            referral_source: parsedReferralData?.partner_code || null,
+            utm_source: parsedReferralData?.utm_source || null,
+            utm_medium: parsedReferralData?.utm_medium || null,
+            utm_campaign: parsedReferralData?.utm_campaign || null,
+            utm_content: parsedReferralData?.utm_content || null,
+            utm_term: parsedReferralData?.utm_term || null,
+          }
+        }
+      };
+
+      console.log('Signing up with data:', signUpData);
+
+      const { data, error } = await supabase.auth.signUp(signUpData);
+
+      if (error) throw error;
+
+      if (data.user) {
+        console.log('User registered successfully:', data.user.id);
         
-        // Clear form
-        setFormData({
-          email: '',
-          password: '',
-          fullName: '',
-          companyName: '',
-          phone: ''
+        // Record referral conversion for registration
+        await recordConversion(data.user.id, 'registration');
+        
+        toast({
+          title: "Регистрация успешна!",
+          description: "Добро пожаловать! Вы получили 3 дня бесплатного доступа.",
         });
       }
-    } catch (err) {
-      console.error('Registration exception:', err);
-      setError('Произошла ошибка при регистрации');
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Ошибка регистрации",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Вход выполнен успешно",
+        description: "Добро пожаловать обратно!",
+      });
+    } catch (error: any) {
+      console.error('Signin error:', error);
+      toast({
+        title: "Ошибка входа",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (user) {
     return (
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Добро пожаловать!</h2>
-        <p className="text-gray-600">Вы успешно авторизованы.</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Перенаправление...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="signin">Вход</TabsTrigger>
-          <TabsTrigger value="signup">Регистрация</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="signin">
-          <Card>
-            <CardHeader>
-              <CardTitle>Войти в систему</CardTitle>
-              <CardDescription>
-                Введите свои учетные данные для входа
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">
+            Добро пожаловать
+          </CardTitle>
+          <CardDescription className="text-center">
+            Войдите в свой аккаунт или создайте новый
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Вход</TabsTrigger>
+              <TabsTrigger value="signup">Регистрация</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signin-email"
+                      name="email"
                       type="email"
-                      placeholder="your@email.com"
                       value={formData.email}
-                      onChange={(e) => updateFormData('email', e.target.value)}
+                      onChange={handleInputChange}
+                      placeholder="your@email.com"
                       className="pl-10"
                       required
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Пароль</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signin-password"
-                      type="password"
-                      placeholder="Ваш пароль"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
                       value={formData.password}
-                      onChange={(e) => updateFormData('password', e.target.value)}
-                      className="pl-10"
+                      onChange={handleInputChange}
+                      placeholder="Введите пароль"
+                      className="pl-10 pr-10"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
-
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                {success && (
-                  <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>{success}</AlertDescription>
-                  </Alert>
-                )}
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Вход...' : 'Войти'}
+                
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Вход..." : "Войти"}
                 </Button>
               </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="signup">
-          <Card>
-            <CardHeader>
-              <CardTitle>Создать аккаунт</CardTitle>
-              <CardDescription>
-                Заполните форму для регистрации
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            </TabsContent>
+            
+            <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-fullname">Полное имя</Label>
+                  <Label htmlFor="signup-fullName">Полное имя</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="signup-fullname"
-                      type="text"
-                      placeholder="Иван Иванов"
+                      id="signup-fullName"
+                      name="fullName"
                       value={formData.fullName}
-                      onChange={(e) => updateFormData('fullName', e.target.value)}
+                      onChange={handleInputChange}
+                      placeholder="Ваше полное имя"
                       className="pl-10"
                       required
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
-                  <Label htmlFor="signup-company">Компания</Label>
+                  <Label htmlFor="signup-companyName">Название компании</Label>
                   <div className="relative">
-                    <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="signup-company"
-                      type="text"
-                      placeholder="Название компании"
+                      id="signup-companyName"
+                      name="companyName"
                       value={formData.companyName}
-                      onChange={(e) => updateFormData('companyName', e.target.value)}
+                      onChange={handleInputChange}
+                      placeholder="Название вашей компании"
                       className="pl-10"
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="signup-phone">Телефон</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signup-phone"
-                      type="tel"
-                      placeholder="+7 (700) 123-45-67"
+                      name="phone"
                       value={formData.phone}
-                      onChange={(e) => updateFormData('phone', e.target.value)}
+                      onChange={handleInputChange}
+                      placeholder="+7 (xxx) xxx-xx-xx"
                       className="pl-10"
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signup-email"
+                      name="email"
                       type="email"
-                      placeholder="your@email.com"
                       value={formData.email}
-                      onChange={(e) => updateFormData('email', e.target.value)}
+                      onChange={handleInputChange}
+                      placeholder="your@email.com"
                       className="pl-10"
                       required
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Пароль</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signup-password"
-                      type="password"
-                      placeholder="Минимум 6 символов"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
                       value={formData.password}
-                      onChange={(e) => updateFormData('password', e.target.value)}
-                      className="pl-10"
-                      minLength={6}
+                      onChange={handleInputChange}
+                      placeholder="Создайте пароль"
+                      className="pl-10 pr-10"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
-
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                {success && (
-                  <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>{success}</AlertDescription>
-                  </Alert>
-                )}
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+                
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Регистрация..." : "Создать аккаунт"}
                 </Button>
               </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

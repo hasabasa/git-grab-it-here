@@ -1,125 +1,136 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/integration/useAuth';
 import { useReferralConversion } from '@/hooks/useReferralConversion';
-import { useToast } from '@/components/ui/use-toast';
-import { Gift, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Gift, Loader2 } from 'lucide-react';
 
-export const PromoCodeInput = () => {
+const PromoCodeInput = () => {
   const { user } = useAuth();
   const { recordConversion } = useReferralConversion();
   const { toast } = useToast();
   const [promoCode, setPromoCode] = useState('');
   const [isApplying, setIsApplying] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const applyPromoCode = async (e: React.FormEvent) => {
+  const handleApplyPromoCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !promoCode.trim()) return;
+    
+    if (!user) {
+      toast({
+        title: "Ошибка",
+        description: "Необходимо войти в систему для применения промокода",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!promoCode.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Введите промокод",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsApplying(true);
-    setMessage(null);
 
     try {
-      console.log('Applying promo code:', promoCode);
-
+      console.log('Applying promo code:', promoCode.trim().toUpperCase());
+      
       const { data, error } = await supabase.rpc('apply_promo_code', {
         p_user_id: user.id,
         p_promo_code: promoCode.trim().toUpperCase()
       });
+
+      console.log('Promo code application result:', data, error);
 
       if (error) {
         console.error('Error applying promo code:', error);
         throw error;
       }
 
-      const result = data as { success: boolean; error?: string; message?: string; bonus_days?: number };
+      const response = data as { success: boolean; error?: string; message?: string; bonus_days?: number };
 
-      if (result.success) {
-        console.log('Promo code applied successfully:', result);
-        
-        setMessage({ type: 'success', text: result.message || 'Промокод успешно применен!' });
-        
-        toast({
-          title: "Промокод применен!",
-          description: `Добавлено ${result.bonus_days} дней к подписке`
-        });
+      if (response.success) {
+        // Get the promo code details for conversion tracking
+        const { data: promoCodeData } = await supabase
+          .from('promo_codes')
+          .select('id, partner_id')
+          .eq('code', promoCode.trim().toUpperCase())
+          .single();
 
-        // Record promo code usage conversion
-        try {
-          // Get promo code ID for conversion tracking
-          const { data: promoData } = await supabase
-            .from('promo_codes')
-            .select('id, partner_id')
-            .eq('code', promoCode.trim().toUpperCase())
-            .single();
-
-          if (promoData) {
-            console.log('Recording promo code conversion:', promoData);
-            await recordConversion(user.id, 'promo_code_usage', 0, promoData.id);
-            console.log('Promo code conversion recorded successfully');
-          }
-        } catch (conversionError) {
-          console.error('Error recording promo code conversion:', conversionError);
-          // Don't fail the promo code application if conversion recording fails
+        // Record conversion for promo code usage
+        if (promoCodeData?.id) {
+          await recordConversion(user.id, 'promo_code_usage', 0, promoCodeData.id);
         }
 
+        toast({
+          title: "Промокод применен!",
+          description: response.message || `Добавлено ${response.bonus_days || 0} дней к подписке`
+        });
+        
         setPromoCode('');
+        
+        // Reload the page to refresh subscription status
+        window.location.reload();
       } else {
-        console.error('Promo code application failed:', result.error);
-        setMessage({ type: 'error', text: result.error || 'Не удалось применить промокод' });
+        toast({
+          title: "Ошибка применения промокода",
+          description: response.error || 'Промокод недействителен',
+          variant: "destructive"
+        });
       }
-    } catch (error) {
-      console.error('Error in applyPromoCode:', error);
-      setMessage({ type: 'error', text: 'Произошла ошибка при применении промокода' });
+    } catch (error: any) {
+      console.error('Error applying promo code:', error);
+      toast({
+        title: "Ошибка",
+        description: error.message || 'Произошла ошибка при применении промокода',
+        variant: "destructive"
+      });
     } finally {
       setIsApplying(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-lg font-semibold">
-        <Gift className="h-5 w-5 text-purple-600" />
-        Промокод
-      </div>
-      
-      <form onSubmit={applyPromoCode} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="promo-code">Введите промокод</Label>
-          <div className="flex gap-2">
-            <Input
-              id="promo-code"
-              type="text"
-              placeholder="PROMO2024"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-              disabled={isApplying}
-              className="flex-1"
-            />
-            <Button type="submit" disabled={isApplying || !promoCode.trim()}>
-              {isApplying && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {isApplying ? 'Применение...' : 'Применить'}
-            </Button>
-          </div>
-        </div>
-
-        {message && (
-          <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
-            {message.type === 'error' ? (
-              <AlertCircle className="h-4 w-4" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Gift className="h-5 w-5" />
+          Промокод
+        </CardTitle>
+        <CardDescription>
+          Введите промокод для получения дополнительных дней подписки
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleApplyPromoCode} className="flex gap-2">
+          <Input
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+            placeholder="ВВЕДИТЕ ПРОМОКОД"
+            className="uppercase"
+            disabled={isApplying}
+          />
+          <Button type="submit" disabled={isApplying || !promoCode.trim()}>
+            {isApplying ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Применение...
+              </>
             ) : (
-              <CheckCircle className="h-4 w-4" />
+              'Применить'
             )}
-            <AlertDescription>{message.text}</AlertDescription>
-          </Alert>
-        )}
-      </form>
-    </div>
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
+
+export default PromoCodeInput;
