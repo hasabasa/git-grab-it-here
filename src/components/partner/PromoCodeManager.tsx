@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/integration/useAuth';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, CheckCircle, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, CheckCircle, Clock, AlertCircle, Loader2, Info } from 'lucide-react';
 
 interface PromoCode {
   id: string;
@@ -34,7 +34,7 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
   const [creating, setCreating] = useState(false);
   const [activating, setActivating] = useState<string | null>(null);
   const [newCode, setNewCode] = useState('');
-  const bonusDays = 15; // Фиксированное значение
+  const bonusDays = 10; // Обновлено значение с 15 на 10
   const [maxUsage, setMaxUsage] = useState<number | ''>('');
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
@@ -179,6 +179,15 @@ export const PromoCodeManager = ({ onPromoCodeUpdate }: PromoCodeManagerProps) =
 
   return (
     <div className="space-y-6">
+      {/* Информационное уведомление */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          При создании нового промокода все ваши старые активные промокоды будут автоматически отключены. 
+          Новый промокод создается в неактивном состоянии - не забудьте его активировать.
+        </AlertDescription>
+      </Alert>
+
       {/* Форма создания нового промокода */}
       <Card>
         <CardHeader>
