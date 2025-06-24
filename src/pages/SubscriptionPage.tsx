@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Check, Crown, Calendar, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -147,21 +148,32 @@ const SubscriptionPage = () => {
         </div>
       )}
 
-      {/* Промокод - теперь доступен всегда для авторизованных пользователей */}
-      {!isDemo && (
+      {/* Промокод - только для пользователей с оплаченной подпиской */}
+      {!isDemo && subscriptionStatus.hasPaidSubscription && (
         <div className="max-w-2xl mx-auto">
-          <Card>
+          <PromoCodeInput />
+        </div>
+      )}
+
+      {/* Информация о промокоде для пользователей без оплаты */}
+      {!isDemo && !subscriptionStatus.hasPaidSubscription && (
+        <div className="max-w-2xl mx-auto">
+          <Card className="border-amber-200 bg-amber-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-amber-800">
                 <Gift className="h-5 w-5" />
-                Есть промокод?
+                Промокод
               </CardTitle>
-              <CardDescription>
-                Введите промокод для получения дополнительных дней бесплатного использования
+              <CardDescription className="text-amber-700">
+                Возможность использования промокодов станет доступна после оплаты ежемесячного тарифа
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <PromoCodeInput />
+              <div className="p-3 bg-amber-100 border border-amber-200 rounded-lg">
+                <p className="text-amber-800 text-sm">
+                  💡 После оплаты Pro плана вы сможете использовать промокоды для получения дополнительных дней подписки
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -215,6 +227,7 @@ const SubscriptionPage = () => {
                 <li>• Неограниченное количество товаров и магазинов</li>
                 <li>• Приоритетная техническая поддержка</li>
                 <li>• Регулярные обновления и новые функции</li>
+                <li>• Возможность использования промокодов</li>
               </ul>
             </div>
           </CardContent>

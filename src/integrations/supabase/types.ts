@@ -193,6 +193,7 @@ export type Database = {
           company_name: string | null
           created_at: string
           full_name: string | null
+          has_paid_subscription: boolean | null
           id: string
           phone: string | null
           phone_verified: boolean | null
@@ -210,6 +211,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           full_name?: string | null
+          has_paid_subscription?: boolean | null
           id: string
           phone?: string | null
           phone_verified?: boolean | null
@@ -227,6 +229,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           full_name?: string | null
+          has_paid_subscription?: boolean | null
           id?: string
           phone?: string | null
           phone_verified?: boolean | null

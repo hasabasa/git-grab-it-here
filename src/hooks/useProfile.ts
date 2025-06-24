@@ -10,6 +10,7 @@ interface UserProfile {
   phone: string | null;
   subscription_end_date: string | null;
   bonus_days: number;
+  has_paid_subscription: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +20,7 @@ interface SubscriptionStatus {
   daysLeft: number;
   status: 'active' | 'expired' | 'trial';
   plan: 'free' | 'pro';
+  hasPaidSubscription: boolean;
 }
 
 interface PromoCodeResult {
@@ -113,7 +115,8 @@ export const useProfile = () => {
         isActive: false,
         daysLeft: 0,
         status: 'expired',
-        plan: 'free'
+        plan: 'free',
+        hasPaidSubscription: !!profile?.has_paid_subscription
       };
     }
 
@@ -128,7 +131,8 @@ export const useProfile = () => {
       isActive,
       daysLeft: Math.max(0, daysLeft),
       status: isActive ? 'trial' : 'expired',
-      plan: 'free' // В данный момент у нас только бесплатный план с пробным периодом
+      plan: 'free', // В данный момент у нас только бесплатный план с пробным периодом
+      hasPaidSubscription: !!profile.has_paid_subscription
     };
   };
 
