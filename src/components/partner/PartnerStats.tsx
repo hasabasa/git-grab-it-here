@@ -97,7 +97,7 @@ export const PartnerStats = () => {
           <CardContent>
             <div className="text-2xl font-bold">{stats.registrations}</div>
             <p className="text-xs text-muted-foreground">
-              Конверсия: {conversionRate}%
+              Переходы по ссылке: {stats.total_clicks}
             </p>
           </CardContent>
         </Card>
