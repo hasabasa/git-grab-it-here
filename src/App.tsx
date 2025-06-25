@@ -8,6 +8,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import Welcome from "./pages/Welcome";
 import AuthPage from "./pages/AuthPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import PriceBotPage from "./pages/PriceBotPage";
 import SalesPage from "./pages/SalesPage";
@@ -45,6 +46,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             
             {/* Партнерская панель */}
             <Route path="/partner/dashboard" element={
