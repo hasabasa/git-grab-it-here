@@ -8,6 +8,7 @@ interface UserProfile {
   full_name: string | null;
   company_name: string | null;
   phone: string | null;
+  avatar_url: string | null;
   subscription_end_date: string | null;
   bonus_days: number;
   has_paid_subscription: boolean | null;
