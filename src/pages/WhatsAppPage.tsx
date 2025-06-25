@@ -9,14 +9,13 @@ import { WhatsAppContact } from "@/types";
 import ContactsList from "@/components/whatsapp/ContactsList";
 import ContactForm from "@/components/whatsapp/ContactForm";
 import ChatsList from "@/components/whatsapp/ChatsList";
-import QRCodeAuth from "@/components/whatsapp/QRCodeAuth";
+import WhatsAppConnect from "@/components/whatsapp/WhatsAppConnect";
 import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import WhatsAppComingSoonModal from "@/components/whatsapp/WhatsAppComingSoonModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
-import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";
+import { sendWhatsAppMessage } from "@/components/whatsapp/whatsappUtils";
 
 // Демо данные для контактов
 const demoContacts: WhatsAppContact[] = [
@@ -62,17 +61,7 @@ const WhatsAppPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<{ phone: string; name: string } | undefined>();
-
-  const {
-    session,
-    messages,
-    loading: whatsappLoading,
-    qrCode,
-    showComingSoonModal,
-    setShowComingSoonModal,
-    createSession,
-    sendMessage,
-  } = useWhatsAppConnection();
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
   // Show loading screen while checking store connection
   if (loading) {
@@ -100,6 +89,10 @@ const WhatsAppPage = () => {
       phone: contact.phone,
       name: contact.name
     });
+  };
+
+  const handleSendMessage = async (phone: string, message: string) => {
+    await sendWhatsAppMessage(phone, message);
   };
 
   const activeContactsCount = contacts.filter(c => c.status === 'active').length;
@@ -174,68 +167,39 @@ const WhatsAppPage = () => {
         <TabsContent value="chat" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <QRCodeAuth
-                qrCode={qrCode}
-                isConnected={session?.is_connected || false}
-                onCreateSession={createSession}
-                loading={whatsappLoading}
-              />
+              <WhatsAppConnect />
               
-              {session?.is_connected && (
-                <Card className="mt-4">
-                  <CardHeader>
-                    <CardTitle className="text-sm">Быстрый выбор контакта</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {contacts.slice(0, 5).map((contact) => (
-                        <Button
-                          key={contact.id}
-                          variant="outline"
-                          size="sm"
-                          className="w-full justify-start"
-                          onClick={() => handleSelectContact(contact)}
-                        >
-                          <MessageCircle className="h-3 w-3 mr-2" />
-                          {contact.name}
-                        </Button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle className="text-sm">Быстрый выбор контакта</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {contacts.slice(0, 5).map((contact) => (
+                      <Button
+                        key={contact.id}
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => handleSelectContact(contact)}
+                      >
+                        <MessageCircle className="h-3 w-3 mr-2" />
+                        {contact.name}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div>
-              {session?.is_connected ? (
-                <WhatsAppChat
-                  messages={messages}
-                  onSendMessage={sendMessage}
-                  selectedContact={selectedContact}
-                />
-              ) : (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Smartphone className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Подключите WhatsApp</h3>
-                    <p className="text-muted-foreground text-center">
-                      Отсканируйте QR-код для начала общения с клиентами
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+              <WhatsAppChat
+                messages={[]}
+                onSendMessage={handleSendMessage}
+                selectedContact={selectedContact}
+              />
             </div>
           </div>
-
-          {session?.is_connected && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2">✅ WhatsApp активен</h4>
-              <p className="text-sm text-green-700">
-                Теперь вы можете отправлять и получать сообщения прямо в платформе. 
-                Все сообщения сохраняются в истории.
-              </p>
-            </div>
-          )}
         </TabsContent>
 
         <TabsContent value="contacts" className="space-y-4">
@@ -307,16 +271,14 @@ const WhatsAppPage = () => {
                     </div>
                     
                     <div className="flex flex-col gap-2">
-                      {session?.is_connected && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleSelectContact(contact)}
-                          className="gap-1"
-                        >
-                          <MessageCircle className="h-3 w-3" />
-                          Чат
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        onClick={() => handleSelectContact(contact)}
+                        className="gap-1"
+                      >
+                        <MessageCircle className="h-3 w-3" />
+                        Чат
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
