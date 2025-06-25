@@ -7,6 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,13 +29,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { User, RefreshCw, Calendar, Plus } from 'lucide-react';
+import { User, RefreshCw, Calendar, Clock } from 'lucide-react';
 
 interface UserWithSubscription {
   id: string;
+  email: string;
   full_name: string | null;
   company_name: string | null;
-  phone: string | null;
   created_at: string;
   subscription_end_date: string | null;
   bonus_days: number | null;
@@ -28,12 +43,17 @@ interface UserWithSubscription {
   days_remaining?: number;
 }
 
+const USERS_PER_PAGE = 10;
+
 const UsersManagementNew = () => {
   const [users, setUsers] = useState<UserWithSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [extendingUser, setExtendingUser] = useState<string | null>(null);
+  const [selectedDays, setSelectedDays] = useState<{ [userId: string]: string }>({});
 
   useEffect(() => {
     loadUsers();
@@ -44,7 +64,7 @@ const UsersManagementNew = () => {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [currentPage]);
 
   const loadUsers = async (silent = false) => {
     try {
@@ -54,13 +74,24 @@ const UsersManagementNew = () => {
         setRefreshing(true);
       }
 
-      console.log('Loading users from profiles...');
+      console.log('Loading users from auth and profiles...');
       
-      // Получаем пользователей из profiles
+      // Получаем общее количество пользователей для пагинации
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      setTotalUsers(count || 0);
+
+      // Получаем пользователей с пагинацией
+      const from = (currentPage - 1) * USERS_PER_PAGE;
+      const to = from + USERS_PER_PAGE - 1;
+
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
       
       if (profilesError) {
         console.error('Error loading profiles:', profilesError);
@@ -68,6 +99,34 @@ const UsersManagementNew = () => {
       }
 
       console.log('Loaded profiles:', profiles?.length);
+
+      // Получаем email из auth.users для каждого пользователя
+      const usersWithEmails = await Promise.all(
+        (profiles || []).map(async (profile) => {
+          try {
+            const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(profile.id);
+            
+            if (authError) {
+              console.error('Error getting auth user:', authError);
+              return {
+                ...profile,
+                email: 'Не удалось получить'
+              };
+            }
+
+            return {
+              ...profile,
+              email: authUser.user?.email || 'Не указан'
+            };
+          } catch (error) {
+            console.error('Error fetching email for user:', profile.id, error);
+            return {
+              ...profile,
+              email: 'Ошибка загрузки'
+            };
+          }
+        })
+      );
 
       // Получаем данные о подписках
       const { data: subscriptions, error: subsError } = await supabase
@@ -82,7 +141,7 @@ const UsersManagementNew = () => {
       console.log('Loaded subscriptions:', subscriptions?.length);
 
       // Объединяем данные
-      const usersWithSubscriptions = profiles?.map(profile => {
+      const usersWithSubscriptions = usersWithEmails.map(profile => {
         const subscription = subscriptions?.find(sub => sub.user_id === profile.id);
         let daysRemaining = 0;
         
@@ -101,7 +160,7 @@ const UsersManagementNew = () => {
           expires_at: endDate,
           days_remaining: daysRemaining
         };
-      }) || [];
+      });
 
       console.log('Users with subscriptions:', usersWithSubscriptions.length);
       setUsers(usersWithSubscriptions);
@@ -120,15 +179,23 @@ const UsersManagementNew = () => {
 
   const handleRefresh = () => {
     console.log('Manual refresh triggered');
+    setCurrentPage(1);
     loadUsers();
   };
 
-  const extendSubscription = async (userId: string, days: number) => {
+  const extendSubscription = async (userId: string) => {
+    const days = selectedDays[userId];
+    if (!days) {
+      toast.error('Выберите количество дней для продления');
+      return;
+    }
+
     setExtendingUser(userId);
     try {
       const user = users.find(u => u.id === userId);
       if (!user) return;
 
+      const daysNumber = parseInt(days);
       let newExpiresAt: Date;
       
       const currentEndDate = user.expires_at || user.subscription_end_date;
@@ -141,14 +208,14 @@ const UsersManagementNew = () => {
         newExpiresAt = new Date();
       }
       
-      newExpiresAt.setDate(newExpiresAt.getDate() + days);
+      newExpiresAt.setDate(newExpiresAt.getDate() + daysNumber);
 
       // Обновляем subscription_end_date в profiles
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           subscription_end_date: newExpiresAt.toISOString(),
-          bonus_days: (user.bonus_days || 0) + days,
+          bonus_days: (user.bonus_days || 0) + daysNumber,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId);
@@ -166,7 +233,11 @@ const UsersManagementNew = () => {
 
       if (subscriptionError) throw subscriptionError;
       
-      toast.success(`Подписка продлена на ${days} дней`);
+      toast.success(`Подписка продлена на ${daysNumber} дней`);
+      
+      // Сбрасываем выбранное значение
+      setSelectedDays(prev => ({ ...prev, [userId]: '' }));
+      
       loadUsers();
     } catch (error) {
       console.error('Error extending subscription:', error);
@@ -178,9 +249,12 @@ const UsersManagementNew = () => {
 
   const filteredUsers = users.filter(user =>
     (user.full_name && user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     user.id.includes(searchTerm) ||
     (user.company_name && user.company_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
   const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return 'Не установлено';
@@ -196,6 +270,17 @@ const UsersManagementNew = () => {
       return <Badge variant="destructive">Истекла</Badge>;
     }
   };
+
+  const dayOptions = [
+    { value: '3', label: '3 дня' },
+    { value: '5', label: '5 дней' },
+    { value: '7', label: '7 дней' },
+    { value: '10', label: '10 дней' },
+    { value: '15', label: '15 дней' },
+    { value: '20', label: '20 дней' },
+    { value: '30', label: '30 дней' },
+    { value: '365', label: '1 год' },
+  ];
 
   if (loading) {
     return (
@@ -217,7 +302,7 @@ const UsersManagementNew = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center">
             <Input
-              placeholder="Поиск по имени, компании или user ID..."
+              placeholder="Поиск по имени, email, компании или user ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-md"
@@ -234,7 +319,7 @@ const UsersManagementNew = () => {
                 Обновить
               </Button>
               <Badge variant="secondary">
-                Всего пользователей: {users.length}
+                Всего пользователей: {totalUsers}
               </Badge>
             </div>
           </div>
@@ -253,73 +338,124 @@ const UsersManagementNew = () => {
               </Button>
             </div>
           ) : (
-            <div className="border rounded-md">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Имя / Компания</TableHead>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Телефон</TableHead>
-                    <TableHead>Дата регистрации</TableHead>
-                    <TableHead>Статус подписки</TableHead>
-                    <TableHead>Продление подписки</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">
-                        <div>
-                          <div>{user.full_name || 'Не указано'}</div>
-                          {user.company_name && (
-                            <div className="text-sm text-muted-foreground">
-                              {user.company_name}
+            <>
+              <div className="border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Имя / Компания</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Дата регистрации</TableHead>
+                      <TableHead>Статус подписки</TableHead>
+                      <TableHead>Продление подписки</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          <div>
+                            <div>{user.full_name || 'Не указано'}</div>
+                            {user.company_name && (
+                              <div className="text-sm text-muted-foreground">
+                                {user.company_name}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {user.email}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {formatDate(user.created_at)}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getSubscriptionBadge(user.days_remaining || 0)}
+                          {user.expires_at && (
+                            <div className="text-sm text-muted-foreground mt-1">
+                              до {formatDate(user.expires_at)}
                             </div>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {user.id}
-                      </TableCell>
-                      <TableCell>
-                        {user.phone || 'Не указан'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {formatDate(user.created_at)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getSubscriptionBadge(user.days_remaining || 0)}
-                        {user.expires_at && (
-                          <div className="text-sm text-muted-foreground mt-1">
-                            до {formatDate(user.expires_at)}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 flex-wrap">
-                          {[3, 5, 7, 10, 15, 20, 30, 365].map((days) => (
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 items-center">
+                            <Select
+                              value={selectedDays[user.id] || ''}
+                              onValueChange={(value) => 
+                                setSelectedDays(prev => ({ ...prev, [user.id]: value }))
+                              }
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue placeholder="Выберите" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {dayOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <Button
-                              key={days}
                               variant="outline"
                               size="sm"
-                              onClick={() => extendSubscription(user.id, days)}
-                              disabled={extendingUser === user.id}
-                              className="text-xs"
+                              onClick={() => extendSubscription(user.id)}
+                              disabled={extendingUser === user.id || !selectedDays[user.id]}
+                              className="flex items-center gap-1"
                             >
-                              <Plus className="h-3 w-3 mr-1" />
-                              {days === 365 ? '1г' : `${days}д`}
+                              {extendingUser === user.id ? (
+                                <div className="animate-spin rounded-full h-3 w-3 border-b border-current" />
+                              ) : (
+                                <Clock className="h-3 w-3" />
+                              )}
+                              Продлить
                             </Button>
-                          ))}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    
+                    {[...Array(totalPages)].map((_, index) => {
+                      const page = index + 1;
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
