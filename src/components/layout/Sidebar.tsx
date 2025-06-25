@@ -10,7 +10,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Badge } from "@/components/ui/badge";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -41,18 +40,17 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       path: "/dashboard/unit-economics",
       description: "Расчет рентабельности товаров"
     },
-    // {
-    //   title: "CRM и напоминания",
-    //   icon: ClipboardList,
-    //   path: "/dashboard/crm",
-    //   description: "Управление задачами и клиентами"
-    // },
+    {
+      title: "CRM и напоминания",
+      icon: ClipboardList,
+      path: "/dashboard/crm",
+      description: "Управление задачами и клиентами"
+    },
     {
       title: "WhatsApp",
       icon: MessageCircle,
       path: "/dashboard/whatsapp",
-      description: "Интеграция с мессенджером",
-      badge: "Beta"
+      description: "Интеграция с мессенджером"
     },
     {
       title: "Поиск ниш",
@@ -64,8 +62,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       title: "Предзаказы",
       icon: ShoppingCart,
       path: "/dashboard/preorders",
-      description: "Управление предзаказами",
-      badge: "Скоро"
+      description: "Управление предзаказами"
     },
     {
       title: "Тарифы",
@@ -220,18 +217,6 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                       {item.title}
                     </span>
                   </div>
-                  {item.badge && (
-                    <Badge 
-                      variant={item.badge === "Beta" ? "secondary" : "outline"}
-                      className={cn(
-                        "ml-2 shrink-0",
-                        location.pathname === item.path && "bg-white/20 text-white border-white/30",
-                        isUltraWideDesktop ? "text-sm px-3 py-1" : isExtraLargeDesktop ? "text-sm px-2 py-1" : "text-xs"
-                      )}
-                    >
-                      {item.badge}
-                    </Badge>
-                  )}
                 </div>
               </div>
             )}
