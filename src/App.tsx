@@ -26,8 +26,8 @@ import ProfilePage from "@/pages/ProfilePage";
 import NotFound from "@/pages/NotFound";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
-import ProtectedPartnerRoute from "@/components/partner/ProtectedPartnerRoute";
+import { ProtectedAdminRoute } from "@/components/admin/ProtectedAdminRoute";
+import { ProtectedPartnerRoute } from "@/components/partner/ProtectedPartnerRoute";
 
 const queryClient = new QueryClient();
 
