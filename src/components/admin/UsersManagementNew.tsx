@@ -16,16 +16,20 @@ import {
 } from '@/components/ui/table';
 import { User, RefreshCw, Calendar, Plus } from 'lucide-react';
 
-interface AuthUser {
+interface UserWithSubscription {
   id: string;
-  email: string;
+  full_name: string | null;
+  company_name: string | null;
+  phone: string | null;
   created_at: string;
+  subscription_end_date: string | null;
+  bonus_days: number | null;
   expires_at?: string;
   days_remaining?: number;
 }
 
 const UsersManagementNew = () => {
-  const [users, setUsers] = useState<AuthUser[]>([]);
+  const [users, setUsers] = useState<UserWithSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,17 +54,20 @@ const UsersManagementNew = () => {
         setRefreshing(true);
       }
 
-      console.log('Loading auth users...');
+      console.log('Loading users from profiles...');
       
-      // Получаем пользователей из auth.users через admin API
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Получаем пользователей из profiles
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      if (authError) {
-        console.error('Error loading auth users:', authError);
-        throw authError;
+      if (profilesError) {
+        console.error('Error loading profiles:', profilesError);
+        throw profilesError;
       }
 
-      console.log('Loaded auth users:', authUsers.users.length);
+      console.log('Loaded profiles:', profiles?.length);
 
       // Получаем данные о подписках
       const { data: subscriptions, error: subsError } = await supabase
@@ -75,25 +82,26 @@ const UsersManagementNew = () => {
       console.log('Loaded subscriptions:', subscriptions?.length);
 
       // Объединяем данные
-      const usersWithSubscriptions = authUsers.users.map(user => {
-        const subscription = subscriptions?.find(sub => sub.user_id === user.id);
+      const usersWithSubscriptions = profiles?.map(profile => {
+        const subscription = subscriptions?.find(sub => sub.user_id === profile.id);
         let daysRemaining = 0;
         
-        if (subscription?.expires_at) {
-          const expiresAt = new Date(subscription.expires_at);
+        // Проверяем subscription_end_date из профиля или expires_at из подписки
+        const endDate = subscription?.expires_at || profile.subscription_end_date;
+        
+        if (endDate) {
+          const expiresAt = new Date(endDate);
           const now = new Date();
           const diffTime = expiresAt.getTime() - now.getTime();
           daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
         return {
-          id: user.id,
-          email: user.email || 'Не указан',
-          created_at: user.created_at,
-          expires_at: subscription?.expires_at,
+          ...profile,
+          expires_at: endDate,
           days_remaining: daysRemaining
         };
-      });
+      }) || [];
 
       console.log('Users with subscriptions:', usersWithSubscriptions.length);
       setUsers(usersWithSubscriptions);
@@ -123,9 +131,11 @@ const UsersManagementNew = () => {
 
       let newExpiresAt: Date;
       
-      if (user.expires_at && new Date(user.expires_at) > new Date()) {
+      const currentEndDate = user.expires_at || user.subscription_end_date;
+      
+      if (currentEndDate && new Date(currentEndDate) > new Date()) {
         // Если подписка активна, продлеваем от текущей даты окончания
-        newExpiresAt = new Date(user.expires_at);
+        newExpiresAt = new Date(currentEndDate);
       } else {
         // Если подписка истекла, начинаем от сегодня
         newExpiresAt = new Date();
@@ -133,8 +143,20 @@ const UsersManagementNew = () => {
       
       newExpiresAt.setDate(newExpiresAt.getDate() + days);
 
-      // Обновляем или создаем запись в subscriptions
-      const { error } = await supabase
+      // Обновляем subscription_end_date в profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          subscription_end_date: newExpiresAt.toISOString(),
+          bonus_days: (user.bonus_days || 0) + days,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (profileError) throw profileError;
+
+      // Также обновляем или создаем запись в subscriptions
+      const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .upsert({
           user_id: userId,
@@ -142,7 +164,7 @@ const UsersManagementNew = () => {
           updated_at: new Date().toISOString()
         });
 
-      if (error) throw error;
+      if (subscriptionError) throw subscriptionError;
       
       toast.success(`Подписка продлена на ${days} дней`);
       loadUsers();
@@ -155,17 +177,14 @@ const UsersManagementNew = () => {
   };
 
   const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.id.includes(searchTerm)
+    (user.full_name && user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    user.id.includes(searchTerm) ||
+    (user.company_name && user.company_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const formatDate = (dateString: string | undefined) => {
+  const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return 'Не установлено';
     return new Date(dateString).toLocaleDateString('ru-RU');
-  };
-
-  const isSubscriptionActive = (daysRemaining: number) => {
-    return daysRemaining > 0;
   };
 
   const getSubscriptionBadge = (daysRemaining: number) => {
@@ -198,7 +217,7 @@ const UsersManagementNew = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center">
             <Input
-              placeholder="Поиск по email или user ID..."
+              placeholder="Поиск по имени, компании или user ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-md"
@@ -238,8 +257,9 @@ const UsersManagementNew = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Имя / Компания</TableHead>
                     <TableHead>User ID</TableHead>
+                    <TableHead>Телефон</TableHead>
                     <TableHead>Дата регистрации</TableHead>
                     <TableHead>Статус подписки</TableHead>
                     <TableHead>Продление подписки</TableHead>
@@ -249,10 +269,20 @@ const UsersManagementNew = () => {
                   {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        {user.email}
+                        <div>
+                          <div>{user.full_name || 'Не указано'}</div>
+                          {user.company_name && (
+                            <div className="text-sm text-muted-foreground">
+                              {user.company_name}
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
                         {user.id}
+                      </TableCell>
+                      <TableCell>
+                        {user.phone || 'Не указан'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
