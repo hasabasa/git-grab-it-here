@@ -57,7 +57,22 @@ export const useProfile = () => {
         .single();
       
       if (error) throw error;
-      setProfile(data);
+      
+      // Приводим данные к нужному формату
+      const profileData: UserProfile = {
+        id: data.id,
+        full_name: data.full_name,
+        company_name: data.company_name,
+        phone: data.phone,
+        avatar_url: data.avatar_url,
+        subscription_end_date: data.subscription_end_date,
+        bonus_days: data.bonus_days || 0,
+        has_paid_subscription: data.has_paid_subscription,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setProfile(profileData);
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
@@ -78,8 +93,22 @@ export const useProfile = () => {
       
       if (error) throw error;
       
-      setProfile(data);
-      return { success: true, data };
+      // Приводим данные к нужному формату
+      const profileData: UserProfile = {
+        id: data.id,
+        full_name: data.full_name,
+        company_name: data.company_name,
+        phone: data.phone,
+        avatar_url: data.avatar_url,
+        subscription_end_date: data.subscription_end_date,
+        bonus_days: data.bonus_days || 0,
+        has_paid_subscription: data.has_paid_subscription,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setProfile(profileData);
+      return { success: true, data: profileData };
     } catch (error) {
       console.error('Error updating profile:', error);
       return { success: false, error };
