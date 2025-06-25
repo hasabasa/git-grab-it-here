@@ -1,5 +1,5 @@
 
-import UsersManagement from "@/components/admin/UsersManagement";
+import UsersManagementNew from "@/components/admin/UsersManagementNew";
 
 const AdminUsersPage = () => {
   return (
@@ -10,12 +10,12 @@ const AdminUsersPage = () => {
             Управление пользователями
           </h1>
           <p className="text-gray-600 mt-2">
-            Просмотр, редактирование и управление учетными записями пользователей
+            Просмотр пользователей из Supabase Auth и управление их подписками
           </p>
         </div>
       </div>
 
-      <UsersManagement />
+      <UsersManagementNew />
     </div>
   );
 };
