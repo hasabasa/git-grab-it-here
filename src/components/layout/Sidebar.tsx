@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -25,7 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useStoreContext } from "@/contexts/StoreContext";
+import { useStore } from "@/contexts/StoreContext";
 import { useRouteConfig } from "@/hooks/useRouteConfig";
 import {
   BarChart3,
@@ -109,7 +108,7 @@ const menuItems = [
 const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
   const { theme } = useTheme();
   const { user, signOut } = useAuth();
-  const { stores, selectedStoreId, setSelectedStore } = useStoreContext();
+  const { stores, selectedStore, setSelectedStore } = useStore();
   const { currentConfig } = useRouteConfig();
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
@@ -124,7 +123,13 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
 
   const renderMenuItems = () => {
     return menuItems.map((item) => {
-      // Skip module requirements check for now since user object doesn't have modules property
+      if (item.requiredModules && item.requiredModules.length > 0) {
+        const hasRequiredModules = item.requiredModules.every(module =>
+          user?.modules?.includes(module)
+        );
+        if (!hasRequiredModules) return null;
+      }
+
       return (
         <NavigationMenuItem key={item.label}>
           <Link to={item.href} className={cn(
@@ -167,7 +172,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
                   <Button variant="outline" className="w-full justify-between">
                     <div className="flex items-center gap-2">
                       <StoreIcon className="h-4 w-4" />
-                      <span>{selectedStoreId ? stores.find(store => store.id === selectedStoreId)?.name : "Все магазины"}</span>
+                      <span>{selectedStore ? stores.find(store => store.id === selectedStore)?.name : "Все магазины"}</span>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>

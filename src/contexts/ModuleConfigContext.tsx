@@ -1,12 +1,9 @@
-
 import React, { createContext, useContext } from 'react';
 
 interface ModuleConfig {
   showStoreSelector: boolean;
   requiresStore: boolean;
   title: string;
-  allowAllStores: boolean;
-  showSelector: boolean;
 }
 
 interface ModuleConfigContextProps {
@@ -29,72 +26,52 @@ const moduleConfigs: Record<string, ModuleConfig> = {
   "/dashboard/price-bot": {
     showStoreSelector: true,
     requiresStore: true,
-    title: "Прайс-бот",
-    allowAllStores: true,
-    showSelector: true
+    title: "Прайс-бот"
   },
   "/dashboard/sales": {
     showStoreSelector: true,
     requiresStore: true,
-    title: "Аналитика продаж",
-    allowAllStores: true,
-    showSelector: true
+    title: "Аналитика продаж"
   },
   "/dashboard/tasks": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Задачи и напоминания",
-    allowAllStores: false,
-    showSelector: false
+    title: "Задачи и напоминания"
   },
   "/dashboard/unit-economics": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Юнит-экономика",
-    allowAllStores: false,
-    showSelector: false
+    title: "Юнит-экономика"
   },
   "/dashboard/niche-search": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Поиск ниш",
-    allowAllStores: false,
-    showSelector: false
+    title: "Поиск ниш"
   },
   "/dashboard/preorders": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Предзаказы",
-    allowAllStores: false,
-    showSelector: false
+    title: "Предзаказы"
   },
   "/dashboard/whatsapp": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "WhatsApp автоматизация",
-    allowAllStores: false,
-    showSelector: false
+    title: "WhatsApp автоматизация"
   },
   "/dashboard/integration": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Интеграции",
-    allowAllStores: false,
-    showSelector: false
+    title: "Интеграции"
   },
   "/dashboard/subscription": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Подписка",
-    allowAllStores: false,
-    showSelector: false
+    title: "Подписка"
   },
   "/dashboard/profile": {
     showStoreSelector: false,
     requiresStore: false,
-    title: "Профиль",
-    allowAllStores: false,
-    showSelector: false
+    title: "Профиль"
   }
 };
 

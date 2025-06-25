@@ -1,6 +1,5 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { Toaster } from "sonner";
 
 import Welcome from "@/pages/Welcome";
@@ -12,6 +11,7 @@ import AdminOverviewPage from "@/pages/admin/AdminOverviewPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import AdminPartnersPage from "@/pages/admin/AdminPartnersPage";
 import AdminSystemPage from "@/pages/admin/AdminSystemPage";
+import PartnerDashboardPage from "@/pages/partner/PartnerDashboardPage";
 import PriceBotPage from "@/pages/PriceBotPage";
 import SalesPage from "@/pages/SalesPage";
 import TasksPage from "@/pages/TasksPage";
@@ -23,6 +23,10 @@ import IntegrationPage from "@/pages/IntegrationPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFound from "@/pages/NotFound";
+
+import ProtectedRoute from "@/components/integration/ProtectedRoute";
+import ProtectedAdminRoute from "@/components/integration/ProtectedAdminRoute";
+import ProtectedPartnerRoute from "@/components/integration/ProtectedPartnerRoute";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +40,11 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           
-          <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }>
             <Route index element={<Navigate to="/dashboard/price-bot" replace />} />
             <Route path="price-bot" element={<PriceBotPage />} />
             <Route path="sales" element={<SalesPage />} />
@@ -51,12 +59,26 @@ function App() {
           </Route>
 
           {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={
+            <ProtectedAdminRoute>
+              <AdminLayout />
+            </ProtectedAdminRoute>
+          }>
             <Route index element={<Navigate to="/admin/overview" replace />} />
             <Route path="overview" element={<AdminOverviewPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="partners" element={<AdminPartnersPage />} />
             <Route path="system" element={<AdminSystemPage />} />
+          </Route>
+
+          {/* Partner routes */}
+          <Route path="/partner" element={
+            <ProtectedPartnerRoute>
+              <DashboardLayout />
+            </ProtectedPartnerRoute>
+          }>
+            <Route index element={<Navigate to="/partner/dashboard" replace />} />
+            <Route path="dashboard" element={<PartnerDashboardPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
