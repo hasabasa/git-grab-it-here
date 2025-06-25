@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -317,36 +318,6 @@ const SalesPage = () => {
       )}
     </div>
   );
-
-  function getGridCols() {
-    if (isExtraLargeDesktop) return "grid-cols-1 xl:grid-cols-4";
-    if (isLargeDesktop) return "grid-cols-1 lg:grid-cols-3";
-    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-  }
-
-  function getSpacing() {
-    if (isExtraLargeDesktop) return "space-y-8";
-    if (isLargeDesktop) return "space-y-6";
-    return "space-y-4 md:space-y-6";
-  }
-
-  function getGap() {
-    if (isExtraLargeDesktop) return "gap-6";
-    if (isLargeDesktop) return "gap-6";
-    return "gap-3 md:gap-6";
-  }
-
-  function getSelectSize() {
-    if (isExtraLargeDesktop) return "text-base";
-    if (isLargeDesktop) return "text-sm";
-    return "text-xs md:text-sm";
-  }
-
-  function getSelectWidth() {
-    if (isExtraLargeDesktop) return "w-48";
-    if (isLargeDesktop) return "w-40";
-    return "w-full md:w-36";
-  }
 };
 
 export default SalesPage;
