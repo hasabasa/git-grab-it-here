@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/integration/useAuth";
 import { toast } from "sonner";
-import { Mail, Lock, AlertTriangle } from "lucide-react";
+import { Mail, Lock, AlertTriangle, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const SettingsTab = () => {
@@ -45,21 +45,25 @@ const SettingsTab = () => {
 
     setIsLoading(true);
     try {
-      console.log('Sending password reset email to:', user.email);
+      console.log('🔄 Sending password reset email to:', user.email);
+      
+      // Используем полный URL для redirectTo
+      const resetUrl = `${window.location.origin}/reset-password`;
+      console.log('🔗 Reset URL:', resetUrl);
       
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `https://git-grab-it-here.lovable.app/reset-password`
+        redirectTo: resetUrl
       });
 
       if (error) {
-        console.error('Password reset error:', error);
+        console.error('❌ Password reset error:', error);
         throw error;
       }
 
-      console.log('Password reset email sent successfully');
+      console.log('✅ Password reset email sent successfully');
       toast.success('Ссылка для сброса пароля отправлена на ваш email');
     } catch (error: any) {
-      console.error('Error sending password reset:', error);
+      console.error('❌ Error sending password reset:', error);
       toast.error(error.message || 'Ошибка при отправке ссылки сброса пароля');
     } finally {
       setIsLoading(false);
@@ -117,6 +121,19 @@ const SettingsTab = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className="text-sm text-blue-800">
+              <p className="font-medium">Инструкция</p>
+              <ul className="mt-1 space-y-1 text-xs">
+                <li>• Ссылка будет отправлена на ваш текущий email</li>
+                <li>• Ссылка действительна в течение 1 часа</li>
+                <li>• Откройте ссылку в том же браузере</li>
+                <li>• Если ссылка не работает, запросите новую</li>
+              </ul>
+            </div>
+          </div>
+
           <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
             <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
             <div className="text-sm text-yellow-800">
