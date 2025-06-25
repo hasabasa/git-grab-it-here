@@ -2,18 +2,90 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, Clock, TrendingUp } from "lucide-react";
-import PreordersComingSoonModal from "@/components/preorders/PreordersComingSoonModal";
+import { ShoppingCart, Package, Plus, TrendingUp } from "lucide-react";
+import PreorderForm from "@/components/preorders/PreorderForm";
+import PreorderList, { PreorderItem } from "@/components/preorders/PreorderList";
 import { useStoreConnection } from "@/hooks/useStoreConnection";
-import ConnectStoreButton from "@/components/store/ConnectStoreButton";
 import LoadingScreen from "@/components/ui/loading-screen";
 
-const PreordersPage = () => {
-  const { isConnected, needsConnection, loading } = useStoreConnection();
-  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+// Mock data for demonstration
+const mockPreorders: PreorderItem[] = [
+  {
+    id: "1",
+    article: "PHONE123",
+    name: "iPhone 15 Pro Max 256GB",
+    brand: "Apple",
+    price: 749000,
+    warehouses: [1, 3],
+    deliveryDays: 7,
+    status: "processing",
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+  },
+  {
+    id: "2",
+    article: "LAPTOP456",
+    name: "MacBook Air M2",
+    brand: "Apple",
+    price: 599000,
+    warehouses: [3, 4, 5],
+    deliveryDays: 5,
+    status: "added",
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
+  },
+  {
+    id: "3",
+    article: "WATCH789",
+    name: "Apple Watch Series 9",
+    brand: "Apple",
+    price: 199000,
+    warehouses: [1, 4],
+    deliveryDays: 3,
+    status: "rejected",
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+    rejectionReason: "Товар не соответствует требованиям безопасности"
+  }
+];
 
-  const handleFeatureClick = () => {
-    setShowComingSoonModal(true);
+const PreordersPage = () => {
+  const { loading } = useStoreConnection();
+  const [preorders, setPreorders] = useState<PreorderItem[]>(mockPreorders);
+  const [showForm, setShowForm] = useState(false);
+
+  const handleAddPreorder = (products: any[]) => {
+    const newPreorders = products.map((product, index) => ({
+      id: `${Date.now()}-${index}`,
+      article: product.article,
+      name: product.name,
+      brand: product.brand || product.name,
+      price: Number(product.price),
+      warehouses: [
+        ...(product.warehouse1 ? [1] : []),
+        ...(product.warehouse3 ? [3] : []),
+        ...(product.warehouse4 ? [4] : []),
+        ...(product.warehouse5 ? [5] : [])
+      ],
+      deliveryDays: Number(product.deliveryDays),
+      status: "processing" as const,
+      createdAt: new Date()
+    }));
+
+    setPreorders(prev => [...newPreorders, ...prev]);
+  };
+
+  const handleResubmit = (id: string) => {
+    setPreorders(prev => prev.map(item => 
+      item.id === id 
+        ? { ...item, status: "processing" as const, rejectionReason: undefined }
+        : item
+    ));
+  };
+
+  // Calculate statistics
+  const stats = {
+    total: preorders.length,
+    processing: preorders.filter(p => p.status === "processing").length,
+    rejected: preorders.filter(p => p.status === "rejected").length,
+    added: preorders.filter(p => p.status === "added").length
   };
 
   // Show loading screen while checking store connection
@@ -23,134 +95,83 @@ const PreordersPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Модальное окно */}
-      <PreordersComingSoonModal 
-        isOpen={showComingSoonModal} 
-        onClose={() => setShowComingSoonModal(false)} 
+      <PreorderForm 
+        isOpen={showForm} 
+        onClose={() => setShowForm(false)} 
+        onSubmit={handleAddPreorder}
       />
 
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Предзаказы</h1>
-        <p className="text-muted-foreground">
-          Управляйте предзаказами и планируйте поставки товаров
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Предзаказы</h1>
+          <p className="text-muted-foreground">
+            Управляйте предзаказами и отслеживайте статус добавления товаров
+          </p>
+        </div>
+        <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Добавить предзаказ
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Активные предзаказы</CardTitle>
+            <CardTitle className="text-sm font-medium">Всего предзаказов</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Скоро будет доступно</p>
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground">Общее количество</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ожидают поставки</CardTitle>
+            <CardTitle className="text-sm font-medium">В обработке</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Скоро будет доступно</p>
+            <div className="text-2xl font-bold text-yellow-600">{stats.processing}</div>
+            <p className="text-xs text-muted-foreground">Ожидают проверки</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Средний срок</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Скоро будет доступно</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Прибыль с предзаказов</CardTitle>
+            <CardTitle className="text-sm font-medium">Добавлено</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Скоро будет доступно</p>
+            <div className="text-2xl font-bold text-green-600">{stats.added}</div>
+            <p className="text-xs text-muted-foreground">Успешно добавлено</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Отклонено</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
+            <p className="text-xs text-muted-foreground">Требуют внимания</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Система предзаказов</CardTitle>
+          <CardTitle>Список предзаказов</CardTitle>
           <CardDescription>
-            Принимайте заказы на товары, которых еще нет в наличии
+            Отслеживайте статус обработки ваших предзаказов
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Возможности системы:</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Создание карточек товаров для предзаказа</span>
-                </li>
-                
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Автоматические уведомления о поступлении</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Планирование закупок по спросу</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Интеграция с поставщиками</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Начать работу:</h3>
-              <div className="space-y-3">
-                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Создать предзаказ
-                </Button>
-                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
-                  <Package className="mr-2 h-4 w-4" />
-                  Управление поставками
-                </Button>
-                <Button onClick={handleFeatureClick} className="w-full justify-start" variant="outline">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Отчеты по предзаказам
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-bounce">
-                <ShoppingCart className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <h4 className="text-xl font-bold text-gray-900 mb-2">
-              Система предзаказов в разработке! 🚀
-            </h4>
-            <p className="text-gray-600 mb-4">
-              Мы работаем над мощной системой управления предзаказами, которая поможет вам увеличить продажи и оптимизировать складские запасы.
-            </p>
-            <div className="flex justify-center space-x-2 text-2xl">
-              <span className="animate-pulse">📦</span>
-              <span>💰</span>
-              <span className="animate-pulse delay-200">🎯</span>
-            </div>
-          </div>
+        <CardContent>
+          <PreorderList 
+            items={preorders} 
+            onResubmit={handleResubmit}
+          />
         </CardContent>
       </Card>
     </div>
