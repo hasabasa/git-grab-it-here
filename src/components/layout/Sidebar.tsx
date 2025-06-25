@@ -41,10 +41,10 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
       description: "Расчет рентабельности товаров"
     },
     {
-      title: "CRM и напоминания",
+      title: "Задачи и напоминания",
       icon: ClipboardList,
-      path: "/dashboard/crm",
-      description: "Управление задачами и клиентами"
+      path: "/dashboard/tasks",
+      description: "Управление задачами"
     },
     {
       title: "WhatsApp",

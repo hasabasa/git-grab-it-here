@@ -13,7 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import PriceBotPage from "./pages/PriceBotPage";
 import SalesPage from "./pages/SalesPage";
 import UnitEconomicsPage from "./pages/UnitEconomicsPage";
-import CrmPage from "./pages/CrmPage";
+import TasksPage from "./pages/TasksPage";
 import NicheSearchPage from "./pages/NicheSearchPage";
 import PreordersPage from "./pages/PreordersPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
@@ -65,7 +65,7 @@ const App = () => {
               <Route path="price-bot" element={<PriceBotPage />} />
               <Route path="sales" element={<SalesPage />} />
               <Route path="unit-economics" element={<UnitEconomicsPage />} />
-              <Route path="crm" element={<CrmPage />} />
+              <Route path="tasks" element={<TasksPage />} />
               <Route path="niche-search" element={<NicheSearchPage />} />
               <Route path="preorders" element={<PreordersPage />} />
               <Route path="whatsapp" element={<WhatsAppPage />} />

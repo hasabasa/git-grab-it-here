@@ -19,7 +19,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
   '/dashboard/whatsapp': { showSelector: false, allowAllStores: false },
   '/dashboard/niche-search': { showSelector: false, allowAllStores: false },
   '/dashboard/preorders': { showSelector: true, allowAllStores: false },
-  '/dashboard/crm': { showSelector: false, allowAllStores: false },
+  '/dashboard/tasks': { showSelector: false, allowAllStores: false },
   '/dashboard/subscription': { showSelector: false, allowAllStores: false },
   '/dashboard/integrations': { showSelector: false, allowAllStores: false }
 };
