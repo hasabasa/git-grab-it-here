@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { KaspiStore } from "@/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { API_URL } from "@/config";
 
 const KaspiIntegration = () => {
   const { user, loading: authLoading } = useAuth();
@@ -35,6 +36,7 @@ const KaspiIntegration = () => {
   const [isSyncing, setIsSyncing] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [loadingStores, setLoadingStores] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Демонстрационные магазины
   const demoStores: KaspiStore[] = [
@@ -64,36 +66,44 @@ const KaspiIntegration = () => {
     }
   ];
 
-  // Загружаем магазины пользователя из Supabase
-  useEffect(() => {
-    if (user) {
-      loadUserStores();
-    } else {
-      // Для демонстрации без авторизации
-      setStores(demoStores);
-    }
-  }, [user]);
-
   const loadUserStores = async () => {
     if (!user) return;
     
     setLoadingStores(true);
     try {
-      const { data, error } = await supabase
-        .from('kaspi_stores')
-        .select('*')
-        .eq('user_id', user.id);
+      const response = await fetch(`${API_URL}/api/kaspi/stores?user_id=${user.id}`);
       
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      setStores(data as KaspiStore[] || []);
+      const data = await response.json();
+      setStores(data.stores || []);
     } catch (error: any) {
       console.error('Error loading stores:', error);
-      toast.error('Ошибка при загрузке магазинов');
+      toast.error(error.message.includes('Failed to fetch') 
+        ? 'Не удалось подключиться к серверу'
+        : error.message || 'Ошибка при загрузке магазинов'
+      );
     } finally {
       setLoadingStores(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      loadUserStores();
+      setIsDemoMode(false);
+    } else {
+      setIsDemoMode(true);
+      const timer = setTimeout(() => {
+        setStores(demoStores);
+        setIsDemoMode(false);
+      }, 800);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   const handleConnectStore = async () => {
     if (!user) {
@@ -108,37 +118,35 @@ const KaspiIntegration = () => {
 
     setIsConnecting(true);
     try {
-      // В реальном приложении здесь будет запрос к API для авторизации в Kaspi
-      // и получения данных магазина
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Имитируем получение данных магазина
-      const mockStoreData = {
-        merchant_id: `kaspi_${Date.now()}`,
-        name: `Магазин ${kaspiEmail.split('@')[0]}`,
-        user_id: user.id,
-        api_key: 'auto_generated_token',
-        products_count: 0,
-        last_sync: new Date().toISOString(),
-        is_active: true
-      };
+      const response = await fetch(`${API_URL}/api/kaspi/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          email: kaspiEmail,
+          password: kaspiPassword,
+        }),
+      });
 
-      const { data, error } = await supabase
-        .from('kaspi_stores')
-        .insert([mockStoreData])
-        .select()
-        .single();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Ошибка подключения магазина');
+      }
+
+      const result = await response.json();
       
-      if (error) throw error;
+      // Обновляем список магазинов после успешного добавления
+      await loadUserStores();
       
-      setStores([...stores, data as KaspiStore]);
       setIsAddingStore(false);
       setKaspiEmail("");
       setKaspiPassword("");
-      toast.success("Магазин успешно подключен!");
+      toast.success(result.message || "Магазин успешно подключен!");
     } catch (error: any) {
       console.error('Error connecting store:', error);
-      toast.error('Ошибка при подключении магазина. Проверьте данные для входа.');
+      toast.error(error.message || 'Ошибка при подключении магазина. Проверьте данные для входа.');
     } finally {
       setIsConnecting(false);
     }
@@ -151,15 +159,17 @@ const KaspiIntegration = () => {
     }
     
     try {
-      const { error } = await supabase
-        .from('kaspi_stores')
-        .delete()
-        .eq('id', storeId);
-      
-      if (error) throw error;
-      
+      const response = await fetch(`${API_URL}/api/kaspi/stores/${storeId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Ошибка отключения магазина');
+      }
+
       setStores(stores.filter(store => store.id !== storeId));
-      toast("Магазин отключен");
+      toast.success("Магазин успешно отключен");
     } catch (error: any) {
       console.error('Error removing store:', error);
       toast.error(error.message || 'Ошибка при отключении магазина');
@@ -174,31 +184,31 @@ const KaspiIntegration = () => {
     
     setIsSyncing(storeId);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const currentStore = stores.find(s => s.id === storeId);
-      const currentCount = currentStore?.products_count || 0;
-      
-      const { error } = await supabase
-        .from('kaspi_stores')
-        .update({
-          products_count: currentCount + 147,
-          last_sync: new Date().toISOString()
-        })
-        .eq('id', storeId);
-      
-      if (error) throw error;
+      const response = await fetch(`${API_URL}/api/kaspi/stores/${storeId}/sync`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Ошибка синхронизации');
+      }
+
+      const result = await response.json();
       
       setStores(stores.map(store => 
         store.id === storeId 
-          ? { ...store, products_count: (store.products_count || 0) + 147, last_sync: new Date().toISOString() }
+          ? { 
+              ...store, 
+              products_count: result.products_count || store.products_count,
+              last_sync: new Date().toISOString() 
+            }
           : store
       ));
       
-      toast.success("Товары успешно синхронизированы");
-    } catch (error) {
+      toast.success(result.message || "Товары успешно синхронизированы");
+    } catch (error: any) {
       console.error('Error syncing store:', error);
-      toast.error('Ошибка синхронизации магазина');
+      toast.error(error.message || 'Ошибка синхронизации магазина');
     } finally {
       setIsSyncing(null);
     }
@@ -213,7 +223,7 @@ const KaspiIntegration = () => {
     toast.error("Для добавления магазина требуется авторизация");
   };
 
-  if (authLoading) {
+  if (authLoading || isDemoMode) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -245,32 +255,45 @@ const KaspiIntegration = () => {
             {stores.map(store => (
               <Card key={store.id}>
                 <CardHeader className="pb-3 sm:pb-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <Store className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 flex-shrink-0" />
-                      <CardTitle className="text-base sm:text-lg truncate">{store.name}</CardTitle>
+                      <div className="min-w-0">
+                        <CardTitle className="text-base sm:text-lg truncate">
+                          {store.name || `Магазин Kaspi ${store.merchant_id.slice(-4)}`}
+                        </CardTitle>
+                        <CardDescription className="text-xs sm:text-sm truncate">
+                          ID: {store.merchant_id}
+                        </CardDescription>
+                      </div>
                     </div>
-                    <Badge className="bg-green-500 text-xs sm:text-sm flex-shrink-0">Подключено</Badge>
+                    <Badge 
+                      variant={store.is_active ? "default" : "secondary"} 
+                      className="flex-shrink-0"
+                    >
+                      {store.is_active ? "Активен" : "Неактивен"}
+                    </Badge>
                   </div>
-                  <CardDescription className="text-xs sm:text-sm">
-                    ID магазина: {store.merchant_id}
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4'}`}>
                     <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                       <div className="text-xs sm:text-sm font-medium text-gray-500">Товаров</div>
-                      <div className="mt-1 font-medium text-sm sm:text-base">{store.products_count}</div>
+                      <div className="mt-1 font-medium text-sm sm:text-base">
+                        {store.products_count.toLocaleString('ru-RU')}
+                      </div>
                     </div>
                     <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                       <div className="text-xs sm:text-sm font-medium text-gray-500">Последняя синхронизация</div>
                       <div className="mt-1 font-medium text-xs sm:text-sm">
-                        {new Date(store.last_sync || Date.now()).toLocaleString('ru-RU', {
-                          day: 'numeric',
-                          month: 'long',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {store.last_sync 
+                          ? new Date(store.last_sync).toLocaleString('ru-RU', {
+                              day: 'numeric',
+                              month: 'long',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'Никогда'}
                       </div>
                     </div>
                   </div>
@@ -285,7 +308,7 @@ const KaspiIntegration = () => {
                         size="sm"
                       >
                         <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing === store.id ? 'animate-spin' : ''}`} />
-                        {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать товары'}
+                        {isSyncing === store.id ? 'Синхронизация...' : 'Синхронизировать'}
                       </Button>
                       <Button 
                         variant="outline" 
@@ -295,7 +318,7 @@ const KaspiIntegration = () => {
                         size="sm"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Отключить магазин
+                        Отключить
                       </Button>
                     </>
                   ) : (
