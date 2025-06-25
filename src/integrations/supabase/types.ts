@@ -189,6 +189,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           bonus_days: number | null
           company_name: string | null
           created_at: string
@@ -207,6 +208,7 @@ export type Database = {
           utm_term: string | null
         }
         Insert: {
+          avatar_url?: string | null
           bonus_days?: number | null
           company_name?: string | null
           created_at?: string
@@ -225,6 +227,7 @@ export type Database = {
           utm_term?: string | null
         }
         Update: {
+          avatar_url?: string | null
           bonus_days?: number | null
           company_name?: string | null
           created_at?: string
