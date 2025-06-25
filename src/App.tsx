@@ -1,5 +1,6 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 
 import Welcome from "@/pages/Welcome";
@@ -11,7 +12,7 @@ import AdminOverviewPage from "@/pages/admin/AdminOverviewPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import AdminPartnersPage from "@/pages/admin/AdminPartnersPage";
 import AdminSystemPage from "@/pages/admin/AdminSystemPage";
-import PartnerDashboardPage from "@/pages/partner/PartnerDashboardPage";
+import PartnerDashboardPage from "@/pages/PartnerDashboardPage";
 import PriceBotPage from "@/pages/PriceBotPage";
 import SalesPage from "@/pages/SalesPage";
 import TasksPage from "@/pages/TasksPage";
@@ -24,9 +25,9 @@ import SubscriptionPage from "@/pages/SubscriptionPage";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFound from "@/pages/NotFound";
 
-import ProtectedRoute from "@/components/integration/ProtectedRoute";
-import ProtectedAdminRoute from "@/components/integration/ProtectedAdminRoute";
-import ProtectedPartnerRoute from "@/components/integration/ProtectedPartnerRoute";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
+import ProtectedPartnerRoute from "@/components/partner/ProtectedPartnerRoute";
 
 const queryClient = new QueryClient();
 

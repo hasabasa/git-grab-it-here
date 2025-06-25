@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -24,7 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useStore } from "@/contexts/StoreContext";
+import { useStoreContext } from "@/contexts/StoreContext";
 import { useRouteConfig } from "@/hooks/useRouteConfig";
 import {
   BarChart3,
@@ -108,7 +109,7 @@ const menuItems = [
 const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
   const { theme } = useTheme();
   const { user, signOut } = useAuth();
-  const { stores, selectedStore, setSelectedStore } = useStore();
+  const { stores, selectedStore, setSelectedStore } = useStoreContext();
   const { currentConfig } = useRouteConfig();
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
@@ -123,13 +124,7 @@ const Sidebar = ({ isOpen, setIsOpen, width }: SidebarProps) => {
 
   const renderMenuItems = () => {
     return menuItems.map((item) => {
-      if (item.requiredModules && item.requiredModules.length > 0) {
-        const hasRequiredModules = item.requiredModules.every(module =>
-          user?.modules?.includes(module)
-        );
-        if (!hasRequiredModules) return null;
-      }
-
+      // Показываем все пункты меню, не проверяя модули пользователя
       return (
         <NavigationMenuItem key={item.label}>
           <Link to={item.href} className={cn(
