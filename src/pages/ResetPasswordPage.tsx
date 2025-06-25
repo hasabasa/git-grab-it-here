@@ -16,25 +16,72 @@ const ResetPasswordPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState(false);
+  const [isCheckingToken, setIsCheckingToken] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Проверяем наличие токена сброса пароля в URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (accessToken && refreshToken) {
-      setIsValidToken(true);
-      // Устанавливаем сессию с токенами из URL
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      });
-    } else {
-      toast.error('Недействительная ссылка для сброса пароля');
-      navigate('/auth');
-    }
+    const checkTokenAndSetSession = async () => {
+      try {
+        // Проверяем наличие токенов в URL
+        const accessToken = searchParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token');
+        const type = searchParams.get('type');
+        
+        console.log('Reset password URL params:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          type,
+          allParams: Object.fromEntries(searchParams.entries())
+        });
+
+        if (!accessToken || !refreshToken) {
+          console.error('Missing required tokens in URL');
+          toast.error('Недействительная ссылка для сброса пароля. Отсутствуют необходимые токены.');
+          navigate('/auth');
+          return;
+        }
+
+        if (type !== 'recovery') {
+          console.error('Invalid token type:', type);
+          toast.error('Недействительный тип ссылки для сброса пароля.');
+          navigate('/auth');
+          return;
+        }
+
+        // Устанавливаем сессию с токенами из URL
+        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+
+        if (sessionError) {
+          console.error('Error setting session:', sessionError);
+          toast.error('Ошибка при установке сессии: ' + sessionError.message);
+          navigate('/auth');
+          return;
+        }
+
+        if (!sessionData.session) {
+          console.error('No session returned after setting tokens');
+          toast.error('Не удалось создать сессию для сброса пароля');
+          navigate('/auth');
+          return;
+        }
+
+        console.log('Session set successfully:', sessionData.session.user.email);
+        setIsValidToken(true);
+        
+      } catch (error: any) {
+        console.error('Unexpected error during token validation:', error);
+        toast.error('Произошла ошибка при проверке ссылки сброса пароля');
+        navigate('/auth');
+      } finally {
+        setIsCheckingToken(false);
+      }
+    };
+
+    checkTokenAndSetSession();
   }, [searchParams, navigate]);
 
   const validatePasswords = () => {
@@ -62,15 +109,23 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.updateUser({
+      console.log('Attempting to update password...');
+      
+      const { data, error } = await supabase.auth.updateUser({
         password: newPassword
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Password update error:', error);
+        throw error;
+      }
       
+      console.log('Password updated successfully:', data);
       toast.success('Пароль успешно изменен! Вы можете войти с новым паролем.');
       
-      // Перенаправляем на страницу входа через 2 секунды
+      // Выходим из системы и перенаправляем на страницу входа
+      await supabase.auth.signOut();
+      
       setTimeout(() => {
         navigate('/auth');
       }, 2000);
@@ -83,6 +138,23 @@ const ResetPasswordPage = () => {
     }
   };
 
+  // Показываем загрузку пока проверяем токен
+  if (isCheckingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Проверка ссылки...</CardTitle>
+            <CardDescription className="text-center">
+              Пожалуйста, подождите
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // Показываем ошибку если токен недействителен
   if (!isValidToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -93,6 +165,15 @@ const ResetPasswordPage = () => {
               Ссылка для сброса пароля недействительна или истекла
             </CardDescription>
           </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/auth')}
+              className="w-full"
+            >
+              Вернуться к входу
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );

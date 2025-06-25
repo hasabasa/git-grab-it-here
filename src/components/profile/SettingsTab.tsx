@@ -45,12 +45,18 @@ const SettingsTab = () => {
 
     setIsLoading(true);
     try {
+      console.log('Sending password reset email to:', user.email);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: `https://git-grab-it-here.lovable.app/reset-password`
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Password reset error:', error);
+        throw error;
+      }
 
+      console.log('Password reset email sent successfully');
       toast.success('Ссылка для сброса пароля отправлена на ваш email');
     } catch (error: any) {
       console.error('Error sending password reset:', error);
