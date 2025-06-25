@@ -122,9 +122,8 @@ export const UserActionsCell = ({
               Удалить
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
