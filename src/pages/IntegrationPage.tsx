@@ -15,7 +15,6 @@ const IntegrationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasStores, isConnected } = useStoreConnection();
-  const fromParam = new URLSearchParams(location.search).get('from');
 
   const getWelcomeMessage = () => {
     if (hasStores) {
@@ -26,32 +25,11 @@ const IntegrationPage = () => {
       };
     }
 
-    switch (fromParam) {
-      case 'price-bot':
-        return {
-          title: "Подключите магазин для работы с ботом демпинга",
-          description: "Бот демпинга требует подключения вашего магазина Kaspi.kz для анализа товаров и управления ценами.",
-          variant: "info" as const
-        };
-      case 'sales':
-        return {
-          title: "Подключите магазин для аналитики продаж",
-          description: "Для просмотра реальной статистики продаж необходимо подключить ваш магазин Kaspi.kz.",
-          variant: "info" as const
-        };
-      case 'niche-search':
-        return {
-          title: "Подключите магазин для расширенного анализа ниш",
-          description: "Получите персонализированные рекомендации по нишам на основе данных вашего магазина.",
-          variant: "info" as const
-        };
-      default:
-        return {
-          title: "Добро пожаловать! Подключите свой первый магазин",
-          description: "Для работы с платформой необходимо подключить ваш магазин Kaspi.kz. Это займет всего несколько минут.",
-          variant: "info" as const
-        };
-    }
+    return {
+      title: "Добро пожаловать! Подключите свой первый магазин",
+      description: "Для расширенных возможностей платформы рекомендуется подключить ваш магазин Kaspi.kz. Это займет всего несколько минут.",
+      variant: "info" as const
+    };
   };
 
   const welcomeMessage = getWelcomeMessage();

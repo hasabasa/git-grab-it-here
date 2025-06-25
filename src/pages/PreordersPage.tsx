@@ -21,20 +21,6 @@ const PreordersPage = () => {
     return <LoadingScreen text="Загрузка модуля предзаказов..." />;
   }
 
-  // Show store connection if needed
-  if (needsConnection) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <ConnectStoreButton 
-          title="Подключите магазин для предзаказов"
-          description="Для работы с модулем предзаказов необходимо подключить ваш магазин Kaspi.kz. Это позволит создавать карточки товаров для предзаказа и управлять поставками."
-          variant="card"
-          className="max-w-md w-full"
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Модальное окно */}

@@ -74,20 +74,6 @@ const UnitEconomicsPage = () => {
           Рассчитайте прибыль с учетом комиссий и стоимости доставки Kaspi
         </p>
       </div>
-
-      {!isConnected && (
-        <Alert className="bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
-          <Info className="h-4 w-4 text-orange-500" />
-          <AlertDescription className="text-orange-700 text-sm flex items-center justify-between">
-            <span>Подключите магазин для автоматического расчета с реальными данными товаров</span>
-            <ConnectStoreButton 
-              variant="outline"
-              size="sm"
-              className="ml-4 border-orange-300 text-orange-700 hover:bg-orange-100"
-            />
-          </AlertDescription>
-        </Alert>
-      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>

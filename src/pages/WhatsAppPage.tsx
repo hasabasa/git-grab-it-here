@@ -79,20 +79,6 @@ const WhatsAppPage = () => {
     return <LoadingScreen text="Загрузка модуля WhatsApp..." />;
   }
 
-  // Show store connection if needed
-  if (needsConnection) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <ConnectStoreButton 
-          title="Подключите магазин для WhatsApp"
-          description="Для работы с модулем WhatsApp необходимо подключить ваш магазин Kaspi.kz. Это позволит автоматизировать общение с клиентами и управлять заказами."
-          variant="card"
-          className="max-w-md w-full"
-        />
-      </div>
-    );
-  }
-
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.phone.includes(searchTerm) ||

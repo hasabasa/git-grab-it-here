@@ -46,27 +46,6 @@ const NicheSearchPage = () => {
     );
   }
 
-  // If user needs to connect a store, show connect button
-  if (needsConnection) {
-    return (
-      <div className={cn("space-y-4 md:space-y-6", getMobileSpacing())}>
-        <div>
-          <h1 className={cn("text-2xl md:text-3xl font-bold mb-2", isMobile && "text-center")}>
-            Анализ товаров
-          </h1>
-          <p className={cn("text-gray-600 text-sm md:text-base", isMobile && "text-center")}>
-            Анализ продаж и отзывов товаров на Kaspi по ссылке
-          </p>
-        </div>
-        
-        <ConnectStoreButton
-          title="Подключите магазин для анализа товаров"
-          description="Получите расширенную аналитику по товарам, конкурентам и нишам после подключения вашего магазина"
-        />
-      </div>
-    );
-  }
-
   const analyzeProduct = async (url: string) => {
     if (!user) {
       toast.error("Для анализа товара необходимо авторизоваться");

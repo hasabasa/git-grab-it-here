@@ -139,25 +139,6 @@ const PriceBotPage = () => {
     );
   }
 
-  // If user needs to connect a store, show connect button
-  if (needsConnection) {
-    return (
-      <div className={cn("space-y-4 md:space-y-6", getMobileSpacing())}>
-        <div className={isMobile ? "text-center" : ""}>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">Бот демпинга</h1>
-          <p className="text-gray-600 text-sm md:text-base">
-            Автоматическое управление ценами для победы в конкурентной борьбе
-          </p>
-        </div>
-        
-        <ConnectStoreButton
-          title="Подключите магазин для работы с ботом"
-          description="Бот демпинга анализирует цены конкурентов и автоматически корректирует ваши цены для максимальной прибыльности"
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={cn("space-y-4 md:space-y-6", getMobileSpacing())}>
       <div className={isMobile ? "text-center" : ""}>
