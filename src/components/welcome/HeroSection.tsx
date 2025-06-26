@@ -80,6 +80,15 @@ const HeroSection = () => {
                     <span>Получить полный доступ</span>
                   </Button>
                 </div>
+                
+                <div className="mt-4">
+                  <Link 
+                    to="/auth" 
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                  >
+                    Есть аккаунт? Войти
+                  </Link>
+                </div>
               </div>
             </ScrollAnimation>
           </div>
