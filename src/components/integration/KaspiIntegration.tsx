@@ -71,7 +71,7 @@ const KaspiIntegration = () => {
     
     setLoadingStores(true);
     try {
-      const response = await fetch(`${API_URL}/api/kaspi/stores?user_id=${user.id}`);
+      const response = await fetch(`${API_URL}/kaspi/stores?user_id=${user.id}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,7 +118,7 @@ const KaspiIntegration = () => {
 
     setIsConnecting(true);
     try {
-      const response = await fetch(`${API_URL}/api/kaspi/auth`, {
+      const response = await fetch(`${API_URL}/kaspi/auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ const KaspiIntegration = () => {
     }
     
     try {
-      const response = await fetch(`${API_URL}/api/kaspi/stores/${storeId}`, {
+      const response = await fetch(`${API_URL}/kaspi/stores/${storeId}`, {
         method: 'DELETE',
       });
 
@@ -184,7 +184,7 @@ const KaspiIntegration = () => {
     
     setIsSyncing(storeId);
     try {
-      const response = await fetch(`${API_URL}/api/kaspi/stores/${storeId}/sync`, {
+      const response = await fetch(`${API_URL}/kaspi/stores/${storeId}/sync`, {
         method: 'POST',
       });
 
