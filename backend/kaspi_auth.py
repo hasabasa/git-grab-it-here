@@ -11,7 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import json
 import base64
-import tempfile
 
 # Настройка логирования
 logging.basicConfig(
@@ -25,19 +24,11 @@ class KaspiAuthenticator:
         self.user_id = user_id
         self.accounts_file = 'accounts.json'
         self.chrome_options = Options()
-
-        # Если хочешь без GUI, раскомментируй
-        self.chrome_options.add_argument("--headless")
-
+        # self.chrome_options.add_argument("--headless")
         self.chrome_options.add_argument("--disable-gpu")
         self.chrome_options.add_argument("--no-sandbox")
         self.chrome_options.add_argument("--disable-dev-shm-usage")
         self.chrome_options.add_argument("--window-size=1200,800")
-
-        # Уникальная временная папка для каждого запуска
-        self.user_data_dir = tempfile.mkdtemp(prefix=f"chrome-user-data-{user_id}-")
-        self.chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
-
         self.service = Service(ChromeDriverManager().install())
         self.driver = None
         self.current_state = None

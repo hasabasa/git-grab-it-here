@@ -64,7 +64,7 @@ class KaspiStore(BaseModel):
             }
         }
 
-@app.post("/kaspi/auth")
+@app.post("/api/kaspi/auth")
 async def authenticate_kaspi_store(auth_data: KaspiAuthRequest):
     try:
         # 1. Аутентификация в Kaspi
@@ -120,7 +120,7 @@ async def authenticate_kaspi_store(auth_data: KaspiAuthRequest):
             detail="Произошла внутренняя ошибка при привязке магазина"
         )
 
-@app.post("/kaspi/stores", response_model=KaspiStore)
+@app.post("/api/kaspi/stores", response_model=KaspiStore)
 async def create_kaspi_store(store: KaspiStore):
     try:
         # Устанавливаем временные метки
@@ -146,7 +146,7 @@ async def create_kaspi_store(store: KaspiStore):
             detail="Ошибка сервера при создании магазина"
         )
 
-@app.delete("/kaspi/stores/{store_id}")
+@app.delete("/api/kaspi/stores/{store_id}")
 async def delete_store(store_id: str):
     try:
         response = supabase.table("kaspi_stores").delete().eq("id", store_id).execute()
@@ -163,29 +163,37 @@ async def delete_store(store_id: str):
             detail="Ошибка удаления магазина"
         )
 
-@app.post("/kaspi/stores/{store_id}/sync")
+@app.post("/api/kaspi/stores/{store_id}/sync")
 async def sync_store(store_id: str):
     try:
-        # Обновляем только поле updated_at и last_sync в таблице kaspi_stores
+        # Обновляем данные магазина
         update_data = {
-            "last_sync": datetime.datetime.utcnow().isoformat() + "Z",
-            "updated_at": datetime.datetime.utcnow().isoformat() + "Z"
+            "products_count": supabase.rpc("increment", {"x": 10}),
+            "last_sync": datetime.datetime.now().isoformat(),
+            "updated_at": datetime.datetime.now().isoformat()
         }
-
+        
         response = supabase.table("kaspi_stores").update(update_data).eq("id", store_id).execute()
-
-        if not response.data or len(response.data) == 0:
-            raise HTTPException(status_code=404, detail="Магазин не найден")
-
+        
+        if len(response.data) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Магазин не найден"
+            )
+            
         return {
             "success": True,
-            "message": "Синхронизация прошла успешно",
-            "updated_at": response.data[0]["updated_at"]
+            "products_count": response.data[0]["products_count"],
+            "message": "Товары успешно синхронизированы"
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка синхронизации: {str(e)}")
+        logging.error(f"Ошибка синхронизации: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка синхронизации магазина"
+        )
 
-@app.get("/kaspi/stores")
+@app.get("/api/kaspi/stores")
 async def get_user_stores(user_id: str):
     try:
         response = supabase.table("kaspi_stores") \
