@@ -19,11 +19,13 @@ export const kaspiApi = {
 
   // Получение списка подключенных магазинов
   async getStores(userId: string) {
-    try {
-      const response = await axios.get(`${API_URL}/api/kaspi/stores/${userId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.detail || 'Ошибка получения магазинов');
-    }
-  },
+  try {
+    const response = await axios.get(`${API_URL}/api/kaspi/stores`, {
+      params: { user_id: userId },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.detail || 'Ошибка получения магазинов');
+  }
+}
 };
