@@ -81,12 +81,13 @@ const HeroSection = () => {
                   </Button>
                 </div>
                 
-                <div className="mt-4">
+                <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <Link 
                     to="/auth" 
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    className="inline-flex items-center gap-2 text-base font-medium text-blue-700 hover:text-blue-900 hover:underline transition-all duration-200 hover:scale-105"
                   >
-                    Есть аккаунт? Войти
+                    <span>Есть аккаунт? Войти</span>
+                    <Crown className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
