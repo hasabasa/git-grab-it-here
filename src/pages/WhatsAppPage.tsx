@@ -1,10 +1,10 @@
 
-import WhatsAppAutoConnect from '@/components/whatsapp/WhatsAppAutoConnect';
+import WhatsAppQR from '@/components/whatsapp/WhatsAppQR';
 
 function WhatsAppPage() {
   return (
     <div className="container">
-      <WhatsAppAutoConnect />
+      <WhatsAppQR />
     </div>
   );
 }
