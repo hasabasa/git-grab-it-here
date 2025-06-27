@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ const mockPreorders: PreorderItem[] = [
     name: "iPhone 15 Pro Max 256GB",
     brand: "Apple",
     price: 749000,
-    warehouses: [1, 3],
+    warehouses: [{ id: 1, quantity: 5 }, { id: 3, quantity: 10 }],
     deliveryDays: 7,
     status: "processing",
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
@@ -27,7 +26,7 @@ const mockPreorders: PreorderItem[] = [
     name: "MacBook Air M2",
     brand: "Apple",
     price: 599000,
-    warehouses: [3, 4, 5],
+    warehouses: [{ id: 3, quantity: 2 }, { id: 4, quantity: 8 }, { id: 5, quantity: 3 }],
     deliveryDays: 5,
     status: "added",
     createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
@@ -38,7 +37,7 @@ const mockPreorders: PreorderItem[] = [
     name: "Apple Watch Series 9",
     brand: "Apple",
     price: 199000,
-    warehouses: [1, 4],
+    warehouses: [{ id: 1, quantity: 15 }, { id: 4, quantity: 7 }],
     deliveryDays: 3,
     status: "rejected",
     createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
