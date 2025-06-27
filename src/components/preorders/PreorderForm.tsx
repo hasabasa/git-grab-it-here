@@ -4,7 +4,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -14,13 +13,9 @@ interface PreorderProduct {
   name: string;
   brand: string;
   price: number;
-  warehouse1: boolean;
   warehouse1Quantity: number;
-  warehouse3: boolean;
   warehouse3Quantity: number;
-  warehouse4: boolean;
   warehouse4Quantity: number;
-  warehouse5: boolean;
   warehouse5Quantity: number;
   deliveryDays: number;
 }
@@ -43,14 +38,10 @@ const PreorderForm = ({ isOpen, onClose, onSubmit }: PreorderFormProps) => {
         name: "",
         brand: "",
         price: 0,
-        warehouse1: false,
-        warehouse1Quantity: 1,
-        warehouse3: false,
-        warehouse3Quantity: 1,
-        warehouse4: false,
-        warehouse4Quantity: 1,
-        warehouse5: false,
-        warehouse5Quantity: 1,
+        warehouse1Quantity: 0,
+        warehouse3Quantity: 0,
+        warehouse4Quantity: 0,
+        warehouse5Quantity: 0,
         deliveryDays: 1
       }]
     }
@@ -65,40 +56,15 @@ const PreorderForm = ({ isOpen, onClose, onSubmit }: PreorderFormProps) => {
 
   const validateWarehouses = (index: number) => {
     const product = watchedProducts[index];
-    return product.warehouse1 || product.warehouse3 || product.warehouse4 || product.warehouse5;
-  };
-
-  const validateWarehouseQuantities = (index: number) => {
-    const product = watchedProducts[index];
-    const errors = [];
-    
-    if (product.warehouse1 && (!product.warehouse1Quantity || product.warehouse1Quantity < 1)) {
-      errors.push("Склад 1: укажите количество");
-    }
-    if (product.warehouse3 && (!product.warehouse3Quantity || product.warehouse3Quantity < 1)) {
-      errors.push("Склад 3: укажите количество");
-    }
-    if (product.warehouse4 && (!product.warehouse4Quantity || product.warehouse4Quantity < 1)) {
-      errors.push("Склад 4: укажите количество");
-    }
-    if (product.warehouse5 && (!product.warehouse5Quantity || product.warehouse5Quantity < 1)) {
-      errors.push("Склад 5: укажите количество");
-    }
-    
-    return errors;
+    return product.warehouse1Quantity > 0 || product.warehouse3Quantity > 0 || 
+           product.warehouse4Quantity > 0 || product.warehouse5Quantity > 0;
   };
 
   const onFormSubmit = (data: PreorderFormData) => {
-    // Validate that each product has at least one warehouse selected
+    // Validate that each product has at least one warehouse with quantity > 0
     for (let i = 0; i < data.products.length; i++) {
       if (!validateWarehouses(i)) {
-        toast.error(`Товар ${i + 1}: выберите хотя бы один склад`);
-        return;
-      }
-      
-      const quantityErrors = validateWarehouseQuantities(i);
-      if (quantityErrors.length > 0) {
-        toast.error(`Товар ${i + 1}: ${quantityErrors.join(", ")}`);
+        toast.error(`Товар ${i + 1}: укажите количество хотя бы для одного склада`);
         return;
       }
     }
@@ -114,14 +80,10 @@ const PreorderForm = ({ isOpen, onClose, onSubmit }: PreorderFormProps) => {
       name: "",
       brand: "",
       price: 0,
-      warehouse1: false,
-      warehouse1Quantity: 1,
-      warehouse3: false,
-      warehouse3Quantity: 1,
-      warehouse4: false,
-      warehouse4Quantity: 1,
-      warehouse5: false,
-      warehouse5Quantity: 1,
+      warehouse1Quantity: 0,
+      warehouse3Quantity: 0,
+      warehouse4Quantity: 0,
+      warehouse5Quantity: 0,
       deliveryDays: 1
     });
   };
@@ -228,45 +190,33 @@ const PreorderForm = ({ isOpen, onClose, onSubmit }: PreorderFormProps) => {
                 </div>
 
                 <div>
-                  <Label className="text-base font-medium">Склады и количество *</Label>
+                  <Label className="text-base font-medium">Количество по складам *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    {[1, 3, 4, 5].map((warehouseNum) => (
-                      <div key={warehouseNum} className="border rounded-lg p-3 space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`warehouse${warehouseNum}-${index}`}
-                            {...control.register(`products.${index}.warehouse${warehouseNum}` as any)}
-                          />
-                          <Label htmlFor={`warehouse${warehouseNum}-${index}`} className="font-medium">
-                            Склад {warehouseNum}
-                          </Label>
-                        </div>
-                        {watchedProducts[index]?.[`warehouse${warehouseNum}` as keyof PreorderProduct] && (
-                          <div>
-                            <Label htmlFor={`warehouse${warehouseNum}Quantity-${index}`} className="text-sm">
-                              Количество *
-                            </Label>
-                            <Input
-                              id={`warehouse${warehouseNum}Quantity-${index}`}
-                              type="number"
-                              min="1"
-                              {...control.register(`products.${index}.warehouse${warehouseNum}Quantity` as any, {
-                                required: "Количество обязательно",
-                                min: { value: 1, message: "Минимум 1 штука" }
-                              })}
-                              placeholder="1"
-                              className="mt-1"
-                            />
-                          </div>
-                        )}
+                    {[
+                      { num: 1, label: "Склад 1" },
+                      { num: 3, label: "Склад 3" },
+                      { num: 4, label: "Склад 4" },
+                      { num: 5, label: "Склад 5" }
+                    ].map(({ num, label }) => (
+                      <div key={num} className="border rounded-lg p-3">
+                        <Label htmlFor={`warehouse${num}Quantity-${index}`} className="font-medium block mb-2">
+                          {label}
+                        </Label>
+                        <Input
+                          id={`warehouse${num}Quantity-${index}`}
+                          type="number"
+                          min="0"
+                          {...control.register(`products.${index}.warehouse${num}Quantity` as any, {
+                            min: { value: 0, message: "Количество не может быть отрицательным" },
+                            valueAsNumber: true
+                          })}
+                          placeholder="0"
+                        />
                       </div>
                     ))}
                   </div>
                   {!validateWarehouses(index) && watchedProducts[index] && (
-                    <p className="text-sm text-red-500 mt-1">Выберите хотя бы один склад</p>
-                  )}
-                  {validateWarehouseQuantities(index).length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">{validateWarehouseQuantities(index).join(", ")}</p>
+                    <p className="text-sm text-red-500 mt-1">Укажите количество хотя бы для одного склада</p>
                   )}
                 </div>
               </CardContent>
