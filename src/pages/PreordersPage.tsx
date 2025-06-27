@@ -59,10 +59,10 @@ const PreordersPage = () => {
       brand: product.brand || product.name,
       price: Number(product.price),
       warehouses: [
-        ...(product.warehouse1 ? [1] : []),
-        ...(product.warehouse3 ? [3] : []),
-        ...(product.warehouse4 ? [4] : []),
-        ...(product.warehouse5 ? [5] : [])
+        ...(product.warehouse1 ? [{ id: 1, quantity: product.warehouse1Quantity }] : []),
+        ...(product.warehouse3 ? [{ id: 3, quantity: product.warehouse3Quantity }] : []),
+        ...(product.warehouse4 ? [{ id: 4, quantity: product.warehouse4Quantity }] : []),
+        ...(product.warehouse5 ? [{ id: 5, quantity: product.warehouse5Quantity }] : [])
       ],
       deliveryDays: Number(product.deliveryDays),
       status: "processing" as const,
