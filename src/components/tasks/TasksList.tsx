@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,35 +101,35 @@ const TasksList = ({ tasks, onDeleteTask, onCompleteTask, isDeleting }: TasksLis
                 </Button>
                 
                 <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`text-red-500 hover:text-red-700 hover:bg-red-50 ${
-                      isMobile ? 'h-8 w-8 p-0' : ''
-                    }`}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 size={isMobile ? 14 : 16} />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Удалить задачу?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Это действие нельзя отменить. Задача будет удалена навсегда.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Отмена</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={() => onDeleteTask(task.id)}
-                      className="bg-red-500 hover:bg-red-600"
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`text-red-500 hover:text-red-700 hover:bg-red-50 ${
+                        isMobile ? 'h-8 w-8 p-0' : ''
+                      }`}
+                      disabled={isDeleting}
                     >
-                      Удалить
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
+                      <Trash2 size={isMobile ? 14 : 16} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Удалить задачу?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Это действие нельзя отменить. Задача будет удалена навсегда.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => onDeleteTask(task.id)}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        Удалить
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
                 </AlertDialog>
               </div>
             </div>
