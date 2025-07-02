@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ const TasksPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const isMobile = useIsMobile();
 
   const { 
@@ -43,12 +43,7 @@ const TasksPage = () => {
     await deleteTaskMutation.mutateAsync(taskId);
   };
 
-  const handleCompleteTask = (taskId: string) => {
-    setCompletedTasks(prev => new Set([...prev, taskId]));
-  };
-
-  const allTasks = tasksData?.tasks || [];
-  const tasks = allTasks.filter(task => !completedTasks.has(task.id));
+  const tasks = tasksData?.tasks || [];
   const totalPages = tasksData?.totalPages || 1;
 
   return (
@@ -99,7 +94,6 @@ const TasksPage = () => {
               <TasksList 
                 tasks={tasks}
                 onDeleteTask={handleDeleteTask}
-                onCompleteTask={handleCompleteTask}
                 isDeleting={deleteTaskMutation.isPending}
               />
               
