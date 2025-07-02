@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow, isPast } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Trash2, Calendar } from "lucide-react";
+import { Trash2, Calendar, Check } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
@@ -29,10 +29,11 @@ interface Task {
 interface TasksListProps {
   tasks: Task[];
   onDeleteTask: (taskId: string) => void;
+  onCompleteTask: (taskId: string) => void;
   isDeleting?: boolean;
 }
 
-const TasksList = ({ tasks, onDeleteTask, isDeleting }: TasksListProps) => {
+const TasksList = ({ tasks, onDeleteTask, onCompleteTask, isDeleting }: TasksListProps) => {
   const isMobile = useIsMobile();
 
   const getDeadlineStatus = (deadline?: string) => {
@@ -87,12 +88,25 @@ const TasksList = ({ tasks, onDeleteTask, isDeleting }: TasksListProps) => {
                 )}
               </div>
               
-              <AlertDialog>
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`text-green-600 hover:text-green-700 hover:bg-green-50 ${
+                    isMobile ? 'h-8 w-8 p-0' : ''
+                  }`}
+                  onClick={() => onCompleteTask(task.id)}
+                  title="Выполнено"
+                >
+                  <Check size={isMobile ? 14 : 16} />
+                </Button>
+                
+                <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className={`text-red-500 hover:text-red-700 hover:bg-red-50 ml-2 ${
+                    className={`text-red-500 hover:text-red-700 hover:bg-red-50 ${
                       isMobile ? 'h-8 w-8 p-0' : ''
                     }`}
                     disabled={isDeleting}
@@ -117,7 +131,8 @@ const TasksList = ({ tasks, onDeleteTask, isDeleting }: TasksListProps) => {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+                </AlertDialog>
+              </div>
             </div>
 
             <div className={`flex items-center justify-between ${isMobile ? 'text-xs' : 'text-sm'}`}>

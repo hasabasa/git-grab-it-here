@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           api_key: string | null
           created_at: string
+          guid: Json | null
           id: string
           is_active: boolean
           last_sync: string | null
@@ -72,6 +73,7 @@ export type Database = {
         Insert: {
           api_key?: string | null
           created_at?: string
+          guid?: Json | null
           id?: string
           is_active?: boolean
           last_sync?: string | null
@@ -84,6 +86,7 @@ export type Database = {
         Update: {
           api_key?: string | null
           created_at?: string
+          guid?: Json | null
           id?: string
           is_active?: boolean
           last_sync?: string | null
@@ -102,7 +105,7 @@ export type Database = {
           contact_email: string | null
           created_at: string | null
           id: string
-          instagram_username: string
+          instagram_username: string | null
           is_active: boolean | null
           partner_code: string
           updated_at: string | null
@@ -114,7 +117,7 @@ export type Database = {
           contact_email?: string | null
           created_at?: string | null
           id?: string
-          instagram_username: string
+          instagram_username?: string | null
           is_active?: boolean | null
           partner_code: string
           updated_at?: string | null
@@ -126,7 +129,7 @@ export type Database = {
           contact_email?: string | null
           created_at?: string | null
           id?: string
-          instagram_username?: string
+          instagram_username?: string | null
           is_active?: boolean | null
           partner_code?: string
           updated_at?: string | null
